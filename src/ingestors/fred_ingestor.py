@@ -329,10 +329,13 @@ def main():
     ingestor = FREDIngestor()
     results = ingestor.run()
     
-    # Exit with error if any series failed
-    if results["failed"] > 0:
-        logger.warning(f"{results['failed']} series failed to ingest")
+    # Only exit with error if ALL series failed (total failure)
+    if results["successful"] == 0 and results["total_series"] > 0:
+        logger.error("FRED ingestion failed: no series were successfully ingested")
         exit(1)
+    
+    if results["failed"] > 0:
+        logger.warning(f"{results['failed']} series failed to ingest (partial success)")
     
     logger.info("FRED ingestion job completed successfully")
 

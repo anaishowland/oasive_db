@@ -78,12 +78,21 @@ class FreddieIngestor:
     
     def _get_sftp_client(self) -> paramiko.SFTPClient:
         """Create an SFTP connection to CSS server."""
+        # Debug: Log connection details (not password)
+        logger.info(f"SFTP Connection Details:")
+        logger.info(f"  Host: {self.freddie_config.host}")
+        logger.info(f"  Port: {self.freddie_config.port}")
+        logger.info(f"  Username: '{self.freddie_config.username}'")
+        logger.info(f"  Username length: {len(self.freddie_config.username)}")
+        logger.info(f"  Password length: {len(self.freddie_config.password)}")
+        
         transport = paramiko.Transport((
             self.freddie_config.host,
             self.freddie_config.port,
         ))
         
         # Disable host key checking as per CSS documentation
+        # "Use of remote host key validation is not recommended"
         transport.connect(
             username=self.freddie_config.username,
             password=self.freddie_config.password,
