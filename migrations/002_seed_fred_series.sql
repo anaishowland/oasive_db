@@ -1,0 +1,88 @@
+-- Migration 002: Seed FRED Series Data
+-- Populates fred_series with initial indicator mappings from FRED_data.csv
+
+INSERT INTO fred_series (series_id, indicator_id, name, description, domain, subcategory, frequency, source, fred_url, is_active)
+VALUES
+    -- Macro: Labor
+    ('UNRATE', 'unemployment_rate', 'Unemployment rate', 'Seasonally adjusted U.S. civilian unemployment rate for workers age 16 and over', 'macro', 'labor', 'monthly', 'Bureau of Labor Statistics', 'https://fred.stlouisfed.org/series/UNRATE', TRUE),
+    ('PAYEMS', 'nonfarm_payrolls', 'Nonfarm payroll employment', 'Total number of employees on nonfarm payrolls in the U.S. economy', 'macro', 'labor', 'monthly', 'Bureau of Labor Statistics', 'https://fred.stlouisfed.org/series/PAYEMS', TRUE),
+    
+    -- Macro: Inflation
+    ('CPIAUCSL', 'cpi_all_items', 'CPI all items', 'Consumer Price Index for all urban consumers for all items in the U.S.', 'macro', 'inflation', 'monthly', 'Bureau of Labor Statistics', 'https://fred.stlouisfed.org/series/CPIAUCSL', TRUE),
+    ('PCECTPI', 'pce_price_index', 'PCE price index', 'Personal Consumption Expenditures price index for all items', 'macro', 'inflation', 'monthly', 'Bureau of Economic Analysis', 'https://fred.stlouisfed.org/series/PCECTPI', TRUE),
+    
+    -- Macro: Growth
+    ('GDPC1', 'real_gdp', 'Real GDP', 'Inflation adjusted gross domestic product for the United States', 'macro', 'growth', 'quarterly', 'Bureau of Economic Analysis', 'https://fred.stlouisfed.org/series/GDPC1', TRUE),
+    ('NAPM', 'ism_manufacturing_pmi', 'ISM manufacturing PMI', 'Institute for Supply Management manufacturing purchasing managers index (headline)', 'macro', 'growth', 'monthly', 'Institute for Supply Management', 'https://fred.stlouisfed.org/series/NAPM', TRUE),
+    ('RSAFS', 'retail_sales', 'Real retail sales', 'Inflation adjusted retail and food services sales', 'macro', 'growth', 'monthly', 'U.S. Census Bureau', 'https://fred.stlouisfed.org/series/RSAFS', TRUE),
+    ('INDPRO', 'industrial_production', 'Industrial production', 'Index of real output of all manufacturing', 'macro', 'growth', 'monthly', 'Board of Governors of the Federal Reserve System (US)', 'https://fred.stlouisfed.org/series/INDPRO', TRUE),
+    
+    -- Macro: Sentiment
+    ('UMCSENT', 'consumer_confidence', 'Consumer sentiment index', 'University of Michigan index of consumer sentiment for U.S. households', 'macro', 'sentiment', 'monthly', 'University of Michigan, Survey Research Center', 'https://fred.stlouisfed.org/series/UMCSENT', TRUE),
+    
+    -- Housing: Construction
+    ('HOUST', 'housing_starts_total', 'Housing starts total', 'Total new privately owned housing units started', 'housing', 'construction', 'monthly', 'U.S. Census Bureau', 'https://fred.stlouisfed.org/series/HOUST', TRUE),
+    ('PERMIT', 'building_permits_total', 'Building permits total', 'Total new privately owned housing units authorized by building permits', 'housing', 'construction', 'monthly', 'U.S. Census Bureau', 'https://fred.stlouisfed.org/series/PERMIT', TRUE),
+    ('COMPUTSA', 'housing_completions_total', 'Housing completions total', 'Total new privately owned housing units completed', 'housing', 'construction', 'monthly', 'U.S. Census Bureau', 'https://fred.stlouisfed.org/series/COMPUTSA', TRUE),
+    
+    -- Housing: Transactions
+    ('HSN1F', 'new_single_family_home_sales', 'New single family home sales', 'Number of new one family houses sold at a seasonally adjusted annual rate', 'housing', 'transactions', 'monthly', 'U.S. Census Bureau and U.S. Department of Housing and Urban Development', 'https://fred.stlouisfed.org/series/HSN1F', TRUE),
+    ('EXHOSLUSM495S', 'existing_home_sales_total', 'Existing home sales total', 'Total existing single family homes and condos sold at a seasonally adjusted annual rate', 'housing', 'transactions', 'monthly', 'National Association of Realtors', 'https://fred.stlouisfed.org/series/EXHOSLUSM495S', TRUE),
+    
+    -- Housing: Inventory
+    ('HOSINVUSM495N', 'existing_home_inventory', 'Existing home inventory', 'Number of existing homes available for sale in the U.S. housing market', 'housing', 'inventory', 'monthly', 'National Association of Realtors', 'https://fred.stlouisfed.org/series/HOSINVUSM495N', TRUE),
+    ('HOSSUPUSM673N', 'existing_home_months_supply', 'Existing home months supply', 'Months supply of existing homes for sale at the current sales pace', 'housing', 'inventory', 'monthly', 'National Association of Realtors', 'https://fred.stlouisfed.org/series/HOSSUPUSM673N', TRUE),
+    
+    -- Housing: Home Prices
+    ('HPIPONM226S', 'fhfa_hpi_us_purchase_only', 'FHFA HPI U.S. purchase only', 'FHFA national house price index for purchase only transactions', 'housing', 'home_prices', 'monthly', 'Federal Housing Finance Agency', 'https://fred.stlouisfed.org/series/HPIPONM226S', TRUE),
+    ('USSTHPI', 'fhfa_hpi_us_all_transactions', 'FHFA HPI U.S. all transactions', 'FHFA national house price index including purchase and refinance appraisals', 'housing', 'home_prices', 'quarterly', 'Federal Housing Finance Agency', 'https://fred.stlouisfed.org/series/USSTHPI', TRUE),
+    ('CSUSHPINSA', 'spcs_us_national_hpi', 'S&P Case Shiller U.S. national HPI', 'S&P CoreLogic Case Shiller U.S. national home price index (non seasonally adjusted)', 'housing', 'home_prices', 'monthly', 'S&P Dow Jones Indices LLC', 'https://fred.stlouisfed.org/series/CSUSHPINSA', TRUE),
+    
+    -- Mortgage: Credit
+    ('DRSFRMACBS', 'mortgage_delinquency_rate', 'Mortgage delinquency rate', 'Delinquency rate on single family residential mortgages booked in domestic offices of commercial banks', 'mortgage', 'credit', 'quarterly', 'Board of Governors of the Federal Reserve System (US)', 'https://fred.stlouisfed.org/series/DRSFRMACBS', TRUE),
+    
+    -- Mortgage: Primary Rates
+    ('MORTGAGE30US', 'pmms_30y_fixed_mortgage_rate', '30 year fixed mortgage rate', 'Freddie Mac primary mortgage market survey 30 year fixed rate for conforming loans', 'mortgage', 'primary_rates', 'weekly', 'Freddie Mac', 'https://fred.stlouisfed.org/series/MORTGAGE30US', TRUE),
+    ('MORTGAGE15US', 'pmms_15y_fixed_mortgage_rate', '15 year fixed mortgage rate', 'Freddie Mac primary mortgage market survey 15 year fixed rate for conforming loans', 'mortgage', 'primary_rates', 'weekly', 'Freddie Mac', 'https://fred.stlouisfed.org/series/MORTGAGE15US', TRUE),
+    ('MORTGAGE5US', 'pmms_5_1_arm_mortgage_rate', '5-1 ARM mortgage rate', 'Freddie Mac primary mortgage market survey 5 year adjustable rate mortgage (5-1 ARM) rate', 'mortgage', 'primary_rates', 'weekly', 'Freddie Mac', 'https://fred.stlouisfed.org/series/MORTGAGE5US', TRUE),
+    
+    -- Policy: Policy Rate
+    ('DFEDTARU', 'fed_funds_target_upper', 'Fed funds target upper bound', 'Upper limit of the Federal Open Market Committee target range for the federal funds rate', 'policy', 'policy_rate', 'daily', 'Board of Governors of the Federal Reserve System (US)', 'https://fred.stlouisfed.org/series/DFEDTARU', TRUE),
+    ('DFEDTARL', 'fed_funds_target_lower', 'Fed funds target lower bound', 'Lower limit of the Federal Open Market Committee target range for the federal funds rate', 'policy', 'policy_rate', 'daily', 'Board of Governors of the Federal Reserve System (US)', 'https://fred.stlouisfed.org/series/DFEDTARL', TRUE),
+    ('FEDFUNDS', 'fed_funds_effective', 'Effective fed funds rate', 'Daily effective federal funds rate based on overnight unsecured lending between depository institutions', 'policy', 'policy_rate', 'daily', 'Board of Governors of the Federal Reserve System (US)', 'https://fred.stlouisfed.org/series/FEDFUNDS', TRUE),
+    
+    -- Policy: Funding Rates
+    ('SOFR', 'sofr', 'SOFR', 'Secured Overnight Financing Rate based on overnight Treasury repurchase transactions', 'policy', 'funding_rates', 'daily', 'Federal Reserve Bank of New York / Office of Financial Research', 'https://fred.stlouisfed.org/series/SOFR', TRUE),
+    
+    -- Policy: Balance Sheet
+    ('WALCL', 'fed_total_assets', 'Fed total assets', 'Total assets held by the Federal Reserve on its consolidated balance sheet', 'policy', 'balance_sheet', 'weekly', 'Board of Governors of the Federal Reserve System (US)', 'https://fred.stlouisfed.org/series/WALCL', TRUE),
+    ('WSHOMCB', 'fed_soma_mbs_holdings_wed', 'Fed SOMA MBS holdings (Wednesday)', 'Face value of mortgage backed securities held by the Federal Reserve System on Wednesday', 'policy', 'balance_sheet', 'weekly', 'Board of Governors of the Federal Reserve System (US)', 'https://fred.stlouisfed.org/series/WSHOMCB', TRUE),
+    ('WMBSEC', 'fed_soma_mbs_holdings_week_avg', 'Fed SOMA MBS holdings (weekly average)', 'Weekly average face value of mortgage backed securities held by the Federal Reserve System', 'policy', 'balance_sheet', 'weekly', 'Board of Governors of the Federal Reserve System (US)', 'https://fred.stlouisfed.org/series/WMBSEC', TRUE),
+    
+    -- Rates Curve: Treasuries
+    ('DGS2', 'ust_2y_yield_daily', '2 year Treasury yield', 'Daily constant maturity yield on 2 year U.S. Treasury securities', 'rates_curve', 'treasuries', 'daily', 'Board of Governors of the Federal Reserve System (US)', 'https://fred.stlouisfed.org/series/DGS2', TRUE),
+    ('DGS5', 'ust_5y_yield_daily', '5 year Treasury yield', 'Daily constant maturity yield on 5 year U.S. Treasury securities', 'rates_curve', 'treasuries', 'daily', 'Board of Governors of the Federal Reserve System (US)', 'https://fred.stlouisfed.org/series/DGS5', TRUE),
+    ('DGS10', 'ust_10y_yield_daily', '10 year Treasury yield', 'Daily constant maturity yield on 10 year U.S. Treasury securities', 'rates_curve', 'treasuries', 'daily', 'Board of Governors of the Federal Reserve System (US)', 'https://fred.stlouisfed.org/series/DGS10', TRUE),
+    ('DGS30', 'ust_30y_yield_daily', '30 year Treasury yield', 'Daily constant maturity yield on 30 year U.S. Treasury securities', 'rates_curve', 'treasuries', 'daily', 'Board of Governors of the Federal Reserve System (US)', 'https://fred.stlouisfed.org/series/DGS30', TRUE),
+    
+    -- Rates Curve: TIPS
+    ('DFII10', 'ust_10y_tips_yield', '10 year TIPS real yield', 'Daily real yield on 10 year Treasury Inflation Protected Securities', 'rates_curve', 'tips', 'daily', 'U.S. Department of the Treasury', 'https://fred.stlouisfed.org/series/DFII10', TRUE),
+    
+    -- Rates Curve: Breakeven
+    ('T10YIE', 'breakeven_inflation_10y', '10 year breakeven inflation rate', 'Difference between nominal 10 year Treasury yield and 10 year TIPS yield used as the 10 year inflation compensation', 'rates_curve', 'breakeven', 'daily', 'Federal Reserve Bank of St. Louis', 'https://fred.stlouisfed.org/series/T10YIE', TRUE),
+    
+    -- Rates Curve: Swaps (discontinued but historical)
+    ('DSWP5', 'swap_5y_rate_discontinued', '5 year interest rate swap rate (discontinued)', 'Constant maturity 5 year fixed for floating U.S. dollar interest rate swap rate (historical series - discontinued)', 'rates_curve', 'swaps', 'daily', 'Board of Governors of the Federal Reserve System (US)', 'https://fred.stlouisfed.org/series/DSWP5', FALSE),
+    ('DSWP10', 'swap_10y_rate_discontinued', '10 year interest rate swap rate (discontinued)', 'Constant maturity 10 year fixed for floating U.S. dollar interest rate swap rate (historical series - discontinued)', 'rates_curve', 'swaps', 'daily', 'Board of Governors of the Federal Reserve System (US)', 'https://fred.stlouisfed.org/series/DSWP10', FALSE)
+
+ON CONFLICT (series_id) DO UPDATE SET
+    indicator_id = EXCLUDED.indicator_id,
+    name = EXCLUDED.name,
+    description = EXCLUDED.description,
+    domain = EXCLUDED.domain,
+    subcategory = EXCLUDED.subcategory,
+    frequency = EXCLUDED.frequency,
+    source = EXCLUDED.source,
+    fred_url = EXCLUDED.fred_url,
+    is_active = EXCLUDED.is_active,
+    updated_at = NOW();

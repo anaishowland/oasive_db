@@ -1,0 +1,20 @@
+# Database
+psycopg2-binary>=2.9.0
+sqlalchemy>=2.0.0
+pg8000>=1.30.0
+
+# GCP
+cloud-sql-python-connector[pg8000]>=1.0.0
+google-cloud-storage>=2.10.0
+google-cloud-secret-manager>=2.16.0
+
+# FRED API
+requests>=2.28.0
+
+# SFTP for Freddie Mac
+paramiko>=3.0.0
+
+# Utils
+python-dotenv>=1.0.0
+pandas>=2.0.0
+tenacity>=8.2.0
