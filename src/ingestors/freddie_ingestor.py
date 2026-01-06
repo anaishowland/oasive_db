@@ -86,17 +86,50 @@ class FreddieIngestor:
         logger.info(f"  Username length: {len(self.freddie_config.username)}")
         logger.info(f"  Password length: {len(self.freddie_config.password)}")
         
+        password = self.freddie_config.password
+        
+        # Handler for keyboard-interactive auth (used by some servers for password prompts)
+        def kbd_interactive_handler(title, instructions, prompt_list):
+            logger.info(f"Keyboard-interactive auth - Title: {title}")
+            logger.info(f"Keyboard-interactive auth - Instructions: {instructions}")
+            logger.info(f"Keyboard-interactive auth - Prompts: {[p[0] for p in prompt_list]}")
+            # Respond to each prompt with the password
+            responses = []
+            for prompt, echo in prompt_list:
+                prompt_lower = prompt.lower()
+                if 'password' in prompt_lower or 'pass' in prompt_lower:
+                    responses.append(password)
+                else:
+                    # For any other prompt, also try password
+                    responses.append(password)
+            return responses
+        
+        # Use Transport for more control over auth methods
         transport = paramiko.Transport((
             self.freddie_config.host,
             self.freddie_config.port,
         ))
+        transport.connect()
         
-        # Disable host key checking as per CSS documentation
-        # "Use of remote host key validation is not recommended"
-        transport.connect(
-            username=self.freddie_config.username,
-            password=self.freddie_config.password,
-        )
+        # Store transport for cleanup
+        self._transport = transport
+        
+        # Try keyboard-interactive auth first (handles password prompts better)
+        logger.info("Attempting keyboard-interactive authentication...")
+        try:
+            transport.auth_interactive(
+                username=self.freddie_config.username,
+                handler=kbd_interactive_handler,
+            )
+            logger.info("Keyboard-interactive auth succeeded!")
+        except paramiko.AuthenticationException as e:
+            logger.info(f"Keyboard-interactive auth failed: {e}, trying password auth...")
+            # Fall back to password auth
+            transport.auth_password(
+                username=self.freddie_config.username,
+                password=password,
+            )
+            logger.info("Password auth succeeded!")
         
         sftp = paramiko.SFTPClient.from_transport(transport)
         logger.info(f"Connected to SFTP: {self.freddie_config.host}")
