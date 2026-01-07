@@ -29,6 +29,7 @@ Maps indicators to FRED API series. One row per data series.
 | `source` | TEXT | YES | Original data source (BLS, Treasury, etc.) |
 | `fred_url` | TEXT | YES | Link to FRED page |
 | `is_active` | BOOLEAN | YES | Whether to fetch this series (default: true) |
+| `data_starts` | DATE | YES | First observation date (static, set after initial ingest) |
 | `created_at` | TIMESTAMPTZ | YES | Row creation time |
 | `updated_at` | TIMESTAMPTZ | YES | Last update time |
 

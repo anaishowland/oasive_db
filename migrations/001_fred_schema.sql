@@ -15,6 +15,7 @@ CREATE TABLE IF NOT EXISTS fred_series (
     source TEXT,                              -- Original source (BLS, Freddie, Treasury, etc)
     fred_url TEXT,                            -- Convenience link to FRED page
     is_active BOOLEAN DEFAULT TRUE,           -- Whether to fetch this series
+    data_starts DATE,                         -- First observation date (populated after initial ingest)
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
