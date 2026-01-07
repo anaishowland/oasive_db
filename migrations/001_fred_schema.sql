@@ -78,6 +78,28 @@ SELECT
 FROM fred_series s
 LEFT JOIN fred_latest l ON s.series_id = l.series_id;
 
+-- View: fred_series_catalog (matches FRED_data.csv format with coverage stats)
+CREATE OR REPLACE VIEW fred_series_catalog AS
+SELECT 
+    s.series_id AS fred_id,
+    s.indicator_id,
+    s.name,
+    s.description,
+    s.domain,
+    s.subcategory,
+    s.frequency,
+    s.source,
+    s.fred_url AS url,
+    s.is_active,
+    MIN(o.obs_date) AS data_starts,
+    MAX(o.obs_date) AS data_ends,
+    COUNT(o.*) AS observation_count
+FROM fred_series s
+LEFT JOIN fred_observation o ON s.series_id = o.series_id
+GROUP BY s.series_id, s.indicator_id, s.name, s.description, s.domain, 
+         s.subcategory, s.frequency, s.source, s.fred_url, s.is_active
+ORDER BY s.domain, s.series_id;
+
 -- Function to update updated_at timestamp
 CREATE OR REPLACE FUNCTION update_updated_at_column()
 RETURNS TRIGGER AS $$

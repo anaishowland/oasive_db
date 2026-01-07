@@ -90,7 +90,31 @@ ORDER BY series_id, obs_date DESC;
 
 ### `fred_series_status` — Series Health Check
 
-Shows each series with its latest date and observation count.
+Shows each series with its latest date and value.
+
+### `fred_series_catalog` — Full Catalog (matches FRED_data.csv)
+
+Complete series metadata with coverage statistics. **This view matches the `FRED_data.csv` format exactly.**
+
+| Column | Description |
+|--------|-------------|
+| `fred_id` | FRED series ID |
+| `indicator_id` | Internal indicator name |
+| `name` | Human-readable name |
+| `description` | Full description |
+| `domain` | Category |
+| `subcategory` | Sub-category |
+| `frequency` | Update frequency |
+| `source` | Data source |
+| `url` | FRED page URL |
+| `is_active` | Whether actively fetched |
+| `data_starts` | First observation date |
+| `data_ends` | Latest observation date |
+| `observation_count` | Total rows |
+
+```sql
+SELECT * FROM fred_series_catalog;
+```
 
 ---
 
