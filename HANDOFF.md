@@ -1,6 +1,6 @@
 # Agent Handoff Document
 
-Last updated: December 31, 2025
+Last updated: January 8, 2026
 
 ## Context for New Agent
 
@@ -20,10 +20,11 @@ This document provides everything needed to continue development on the Oasive d
 - `migrations/002_seed_fred_series.sql` - Series definitions
 
 **Status**:
-- ✅ 35/36 series working (NAPM discontinued in FRED)
+- ✅ 34 active series (NAPM & MORTGAGE5US marked inactive - discontinued)
 - ✅ 106,000+ observations in database
 - ✅ Cloud Run job deployed
 - ✅ Daily scheduler LIVE (6:30 AM ET / 11:30 UTC)
+- ✅ Email alerts configured (failure only)
 
 **Data in Database**:
 - Unemployment rate, CPI, GDP, housing starts, mortgage rates, Treasury yields, Fed balance sheet, etc.
@@ -65,6 +66,34 @@ This document provides everything needed to continue development on the Oasive d
 - `freddie-username` (value: `svcFRE-OasiveInc`)
 - `freddie-password`
 
+### 4. Email Alerts (Cloud Monitoring)
+
+**Notification Channel**: `anais@oasive.ai`
+
+| Alert | Triggers When | Status |
+|-------|---------------|--------|
+| ❌ FRED Job FAILED - Action Required | `fred-ingestor` job fails | Active |
+| ⚠️ FRED Scheduler FAILED - Job Did Not Start | Cloud Scheduler can't invoke the job | Active |
+
+**Note**: Success alerts were removed (too noisy — 2 emails per success). Silence = success.
+
+**Alert Behavior**:
+- Failure alerts only monitor `fred-ingestor` (not `freddie-ingestor`)
+- You receive an email immediately when a failure occurs
+- If you don't receive any email, the job ran successfully
+
+**Manage Alerts**:
+```bash
+# List all alerts
+gcloud beta monitoring policies list --project=gen-lang-client-0343560978
+
+# Disable an alert
+gcloud beta monitoring policies update [POLICY_NAME] --no-enabled --project=gen-lang-client-0343560978
+
+# View in console
+# https://console.cloud.google.com/monitoring/alerting?project=gen-lang-client-0343560978
+```
+
 ---
 
 ## Outstanding Issues
@@ -95,19 +124,7 @@ User has emailed Freddie Mac support (`Investor_Inquiry@freddiemac.com`) to:
 - Email: `Investor_Inquiry@freddiemac.com`
 - Phone: (800) 336-3672
 
-### 2. NAPM Series Failing
-
-**Problem**: ISM Manufacturing PMI (NAPM) fails to fetch from FRED
-
-**Impact**: Minor - 1 of 36 series, non-critical
-
-**Likely Cause**: Series may be discontinued or renamed in FRED
-
-**Fix Options**:
-1. Mark NAPM as `is_active=FALSE` in `fred_series` table
-2. Or find replacement series ID
-
-### 3. Freddie Scheduler Not Set Up
+### 2. Freddie Scheduler Not Set Up
 
 **Once auth is fixed**, add scheduler:
 ```bash
