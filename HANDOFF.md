@@ -148,12 +148,12 @@ gcloud run jobs execute freddie-ingestor --region=us-central1 \
   --async
 ```
 
-### 2. Set Up Recurring Schedulers (NEXT)
+### 2. Recurring Schedulers (✅ DONE)
 
-Create Cloud Scheduler jobs for different file cadences:
-- **Intraday**: FRE_FISS files (multiple times per day on business days)
-- **Daily**: Incremental sync for new files
-- **Monthly**: FRE_IS monthly summary files
+Cloud Scheduler jobs created:
+- **freddie-ingestor-daily**: `0 12 * * 1-5 UTC` (7 AM ET, weekdays)
+  - Runs incremental mode to download new files
+- **fred-ingestor-daily**: `30 11 * * * UTC` (6:30 AM ET, daily)
 
 ### 3. Parse Downloaded Files
 
