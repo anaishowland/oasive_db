@@ -173,14 +173,45 @@ After downloading, need to:
 2. Transform data to match schema (dim_pool, dim_loan, fact tables)
 3. Load structured data to Postgres
 
-### 4. AI Tag Generation
+### 4. AI Tag Generation (✅ DESIGNED)
 
-Implement AI-generated tags for pools:
-- `risk_profile` - conservative/moderate/aggressive
-- `burnout_score` - prepayment burnout likelihood
-- `geo_concentration_tag` - CA_heavy, diversified, etc.
-- `servicer_quality_tag` - strong/moderate/weak
-- `behavior_tags` - JSONB for additional predictive tags
+**Documentation**: `docs/ai_tagging_design.md`
+
+Comprehensive tagging system for spec pool analysis:
+
+| Tag Category | Values | Purpose |
+|--------------|--------|---------|
+| `loan_program` | VA, FHA, USDA, CONV | VA/USDA prepay much slower |
+| `balance_tier` | LLB_85, LLB_110, LLB_150, HLB, JUMBO | Low balance = slower |
+| `state_friction` | high/moderate/low | NY/NJ slow, CA/TX fast |
+| `servicer_risk` | prepay_protected/neutral/exposed | Bank vs digital |
+| `credit_profile` | HIGH_LTV, LOW_FICO, etc. | Refi friction |
+| `occupancy` | INVESTOR, SECOND_HOME, OWNER_OCC | Investor = slower |
+
+**Composite Score**: 0-100 combining all factors (higher = more prepay protected)
+
+**Status**: Placeholder weights defined; empirical calibration pending data load.
+
+### 5. Prepay Research Framework (✅ DESIGNED)
+
+**Documentation**: `docs/prepay_research_framework.md`
+
+Every prepay assumption is:
+1. **Registered** - 20+ assumptions documented (A001-A020)
+2. **Validated** - Protocol for empirical testing
+3. **Queryable** - Users can ask "why do VA pools prepay slower?"
+4. **Discoverable** - Anomaly detection for unexpected patterns
+
+**Key Components**:
+- `migrations/006_research_framework.sql` - Research database tables
+- `scripts/analyze_prepay_factors.py` - Factor analysis tool
+- Interaction hypotheses (I001-I010) for multi-factor effects
+
+**Research Tables** (Migration 006):
+- `research_validation_results` - Assumption validation outcomes
+- `research_discoveries` - Unexpected patterns found
+- `research_weight_history` - Audit trail of weight changes
+- `factor_effect_timeseries` - Monthly factor effects for regime detection
 
 ---
 
