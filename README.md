@@ -104,11 +104,12 @@ oasive_db/
 - Daily scheduler LIVE (6:30 AM ET)
 - 1 series fails (NAPM - discontinued)
 
-### ⚠️ Freddie Mac (Blocked)
+### ✅ Freddie Mac Ingestion (Working)
 - Cloud Run job deployed with VPC connector
-- SFTP connection works (reaches CSS server)
-- **BLOCKED**: Authentication failing
-- Action: Contact CSS support (see Outstanding Issues)
+- SFTP authentication working (username: `svcfre-oasive`)
+- 45,353 files available (76.73 GB)
+- Batched download with retry logic implemented
+- Historical backfill in progress
 
 ## Environment Variables
 

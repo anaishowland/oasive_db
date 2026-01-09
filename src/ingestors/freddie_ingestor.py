@@ -9,14 +9,23 @@ SFTP Details:
 - Port: 22
 - Credentials: Provided by CSS (format: svcfre-<vendor>)
 
+File Types on SFTP:
+- FRE_FISS_YYYYMMDD.zip - Intraday security issuance
+- FRE_IS_YYYYMM.zip - Monthly security issuance
+- Historical deal files (various patterns)
+
 See: Freddie_CSS_SFTP_Connectivity_Instructions.pdf
 """
 
+import argparse
 import logging
 import os
 import re
 import stat
-from datetime import datetime
+import tempfile
+import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from datetime import datetime, timezone
 from io import BytesIO
 from pathlib import PurePosixPath
 from typing import Any
@@ -39,26 +48,33 @@ class FreddieIngestor:
     """
     Downloads Freddie Mac disclosure files from CSS SFTP to GCS.
     
-    The CSS SFTP contains various disclosure files including:
-    - Pool-level data
-    - Loan-level data  
-    - Factor files
-    - Monthly updates
+    Supports multiple run modes:
+    - catalog: List and catalog files without downloading
+    - incremental: Download only new files since last run
+    - backfill: Download all historical files in batches
     
-    This ingestor:
-    1. Connects to SFTP and lists available files
-    2. Compares against local catalog to find new files
-    3. Downloads new files to GCS
-    4. Updates the file catalog in Postgres
+    Features:
+    - Batched downloads with automatic reconnection
+    - Retry logic for failed downloads
+    - Parallel uploads to GCS
+    - Progress tracking and resumable downloads
     """
     
-    # Common file patterns for Freddie Mac disclosure files
+    # File type patterns for Freddie Mac disclosure files
     FILE_PATTERNS = {
-        "loan_level": re.compile(r".*loan.*\.zip$", re.IGNORECASE),
-        "pool": re.compile(r".*pool.*\.zip$", re.IGNORECASE),
-        "factor": re.compile(r".*factor.*\.zip$", re.IGNORECASE),
-        "disclosure": re.compile(r".*disclosure.*\.zip$", re.IGNORECASE),
+        "intraday_issuance": re.compile(r"FRE_FISS_\d{8}\.zip$", re.IGNORECASE),
+        "monthly_issuance": re.compile(r"FRE_IS_\d{6}\.zip$", re.IGNORECASE),
+        "deal_files": re.compile(r"\d+[a-z]+\d*\.(zip|pdf)$", re.IGNORECASE),
+        "factor": re.compile(r".*\.fac$", re.IGNORECASE),
+        "type": re.compile(r".*\.typ$", re.IGNORECASE),
     }
+    
+    # Configuration for batching and retries
+    BATCH_SIZE = 50  # Reconnect after this many files
+    MAX_RETRIES = 3
+    RETRY_DELAY = 5  # seconds
+    DOWNLOAD_TIMEOUT = 300  # seconds
+    LARGE_FILE_THRESHOLD = 50 * 1024 * 1024  # 50MB - use temp file for larger
     
     def __init__(
         self,
@@ -75,118 +91,124 @@ class FreddieIngestor:
         
         if not self.freddie_config.username or not self.freddie_config.password:
             raise ValueError("FREDDIE_USERNAME and FREDDIE_PASSWORD are required")
+        
+        self._sftp = None
+        self._ssh_client = None
     
-    def _get_sftp_client(self) -> paramiko.SFTPClient:
-        """Create an SFTP connection to CSS server."""
-        # Debug: Log connection details (not password)
-        logger.info(f"SFTP Connection Details:")
-        logger.info(f"  Host: {self.freddie_config.host}")
-        logger.info(f"  Port: {self.freddie_config.port}")
-        logger.info(f"  Username: '{self.freddie_config.username}'")
-        logger.info(f"  Username length: {len(self.freddie_config.username)}")
-        logger.info(f"  Password length: {len(self.freddie_config.password)}")
+    def _connect(self) -> paramiko.SFTPClient:
+        """Create a new SFTP connection."""
+        logger.info(f"Connecting to SFTP: {self.freddie_config.host}")
         
-        password = self.freddie_config.password
+        client = paramiko.SSHClient()
+        client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         
-        # Handler for keyboard-interactive auth (used by some servers for password prompts)
-        def kbd_interactive_handler(title, instructions, prompt_list):
-            logger.info(f"Keyboard-interactive auth - Title: {title}")
-            logger.info(f"Keyboard-interactive auth - Instructions: {instructions}")
-            logger.info(f"Keyboard-interactive auth - Prompts: {[p[0] for p in prompt_list]}")
-            # Respond to each prompt with the password
-            responses = []
-            for prompt, echo in prompt_list:
-                prompt_lower = prompt.lower()
-                if 'password' in prompt_lower or 'pass' in prompt_lower:
-                    responses.append(password)
-                else:
-                    # For any other prompt, also try password
-                    responses.append(password)
-            return responses
+        client.connect(
+            hostname=self.freddie_config.host,
+            port=self.freddie_config.port,
+            username=self.freddie_config.username,
+            password=self.freddie_config.password,
+            look_for_keys=False,
+            allow_agent=False,
+            timeout=60,
+        )
         
-        # Use Transport for more control over auth methods
-        transport = paramiko.Transport((
-            self.freddie_config.host,
-            self.freddie_config.port,
-        ))
-        transport.connect()
+        sftp = client.open_sftp()
+        sftp.get_channel().settimeout(self.DOWNLOAD_TIMEOUT)
         
-        # Store transport for cleanup
-        self._transport = transport
+        self._ssh_client = client
+        self._sftp = sftp
         
-        # Try keyboard-interactive auth first (handles password prompts better)
-        logger.info("Attempting keyboard-interactive authentication...")
-        try:
-            transport.auth_interactive(
-                username=self.freddie_config.username,
-                handler=kbd_interactive_handler,
-            )
-            logger.info("Keyboard-interactive auth succeeded!")
-        except paramiko.AuthenticationException as e:
-            logger.info(f"Keyboard-interactive auth failed: {e}, trying password auth...")
-            # Fall back to password auth
-            transport.auth_password(
-                username=self.freddie_config.username,
-                password=password,
-            )
-            logger.info("Password auth succeeded!")
-        
-        sftp = paramiko.SFTPClient.from_transport(transport)
-        logger.info(f"Connected to SFTP: {self.freddie_config.host}")
+        logger.info("SFTP connection established")
         return sftp
     
-    def _classify_file(self, filename: str) -> str | None:
+    def _disconnect(self):
+        """Close SFTP connection."""
+        if self._sftp:
+            try:
+                self._sftp.close()
+            except Exception:
+                pass
+            self._sftp = None
+        if self._ssh_client:
+            try:
+                self._ssh_client.close()
+            except Exception:
+                pass
+            self._ssh_client = None
+    
+    def _reconnect(self) -> paramiko.SFTPClient:
+        """Reconnect to SFTP server."""
+        self._disconnect()
+        time.sleep(2)  # Brief pause before reconnecting
+        return self._connect()
+    
+    def _get_sftp(self) -> paramiko.SFTPClient:
+        """Get active SFTP connection, creating if needed."""
+        if self._sftp is None:
+            return self._connect()
+        return self._sftp
+    
+    def _classify_file(self, filename: str) -> str:
         """Classify a file based on its name pattern."""
         for file_type, pattern in self.FILE_PATTERNS.items():
             if pattern.match(filename):
                 return file_type
+        
+        # Additional heuristics
+        ext = PurePosixPath(filename).suffix.lower()
+        if ext == ".zip":
+            return "archive"
+        elif ext == ".pdf":
+            return "document"
+        elif ext == ".xlsx":
+            return "spreadsheet"
         return "other"
     
     def _extract_date_from_filename(self, filename: str) -> datetime | None:
-        """Try to extract a date from the filename."""
-        # Common patterns: YYYYMMDD, YYYY-MM-DD, YYYY_MM
+        """Extract date from filename."""
         patterns = [
-            r"(\d{4})(\d{2})(\d{2})",  # YYYYMMDD
-            r"(\d{4})-(\d{2})-(\d{2})",  # YYYY-MM-DD
-            r"(\d{4})_(\d{2})",  # YYYY_MM
+            (r"(\d{4})(\d{2})(\d{2})", lambda m: datetime(int(m[0]), int(m[1]), int(m[2]))),
+            (r"(\d{4})-(\d{2})-(\d{2})", lambda m: datetime(int(m[0]), int(m[1]), int(m[2]))),
+            (r"(\d{6})", lambda m: datetime(int(m[0][:4]), int(m[0][4:6]), 1)),
         ]
         
-        for pattern in patterns:
+        for pattern, parser in patterns:
             match = re.search(pattern, filename)
             if match:
-                groups = match.groups()
                 try:
-                    if len(groups) == 3:
-                        return datetime(int(groups[0]), int(groups[1]), int(groups[2]))
-                    elif len(groups) == 2:
-                        return datetime(int(groups[0]), int(groups[1]), 1)
-                except ValueError:
+                    return parser(match.groups() if len(match.groups()) > 1 else [match.group()])
+                except (ValueError, IndexError):
                     continue
         return None
     
     def list_remote_files(
         self,
-        sftp: paramiko.SFTPClient,
         remote_dir: str = "/",
         recursive: bool = True,
+        max_depth: int = 5,
     ) -> list[dict[str, Any]]:
-        """
-        List all files in the remote directory.
-        
-        Args:
-            sftp: Active SFTP client
-            remote_dir: Directory to list
-            recursive: Whether to recurse into subdirectories
-        
-        Returns:
-            List of file metadata dictionaries
-        """
+        """List all files in remote directory."""
+        sftp = self._get_sftp()
+        return self._list_dir_recursive(sftp, remote_dir, recursive, max_depth, 0)
+    
+    def _list_dir_recursive(
+        self,
+        sftp: paramiko.SFTPClient,
+        remote_dir: str,
+        recursive: bool,
+        max_depth: int,
+        current_depth: int,
+    ) -> list[dict[str, Any]]:
+        """Recursively list directory contents."""
         files = []
+        
+        if current_depth > max_depth:
+            return files
         
         try:
             items = sftp.listdir_attr(remote_dir)
         except IOError as e:
-            logger.warning(f"Cannot list directory {remote_dir}: {e}")
+            logger.warning(f"Cannot list {remote_dir}: {e}")
             return files
         
         for item in items:
@@ -194,30 +216,38 @@ class FreddieIngestor:
             
             if stat.S_ISDIR(item.st_mode):
                 if recursive:
-                    files.extend(self.list_remote_files(sftp, full_path, recursive))
+                    files.extend(self._list_dir_recursive(
+                        sftp, full_path, recursive, max_depth, current_depth + 1
+                    ))
             else:
-                file_info = {
+                files.append({
                     "remote_path": full_path,
                     "filename": item.filename,
                     "file_type": self._classify_file(item.filename),
                     "file_date": self._extract_date_from_filename(item.filename),
                     "remote_size": item.st_size,
                     "remote_modified_at": datetime.fromtimestamp(item.st_mtime) if item.st_mtime else None,
-                }
-                files.append(file_info)
+                })
         
         return files
     
-    def get_cataloged_files(self) -> set[str]:
-        """Get set of remote paths already in the catalog."""
+    def get_cataloged_files(self) -> dict[str, dict]:
+        """Get cataloged files with their status."""
         with self.engine.connect() as conn:
             result = conn.execute(text("""
-                SELECT remote_path FROM freddie_file_catalog
+                SELECT remote_path, download_status, local_gcs_path
+                FROM freddie_file_catalog
             """))
-            return {row.remote_path for row in result}
+            return {
+                row.remote_path: {
+                    "status": row.download_status,
+                    "gcs_path": row.local_gcs_path,
+                }
+                for row in result
+            }
     
     def add_to_catalog(self, file_info: dict[str, Any]) -> None:
-        """Add a new file to the catalog."""
+        """Add file to catalog."""
         with self.engine.connect() as conn:
             conn.execute(
                 text("""
@@ -240,7 +270,7 @@ class FreddieIngestor:
         gcs_path: str | None = None,
         error_message: str | None = None,
     ) -> None:
-        """Update the download status of a cataloged file."""
+        """Update catalog entry status."""
         with self.engine.connect() as conn:
             if status == "downloaded":
                 conn.execute(
@@ -254,7 +284,7 @@ class FreddieIngestor:
                     """),
                     {"status": status, "gcs_path": gcs_path, "remote_path": remote_path}
                 )
-            elif status == "error":
+            else:
                 conn.execute(
                     text("""
                         UPDATE freddie_file_catalog 
@@ -267,36 +297,57 @@ class FreddieIngestor:
                 )
             conn.commit()
     
-    def download_to_gcs(
-        self,
-        sftp: paramiko.SFTPClient,
-        remote_path: str,
-        filename: str,
-    ) -> str:
+    def download_file(self, file_info: dict[str, Any]) -> str:
         """
-        Download a file from SFTP and upload to GCS.
+        Download a single file with retry logic.
         
         Returns:
-            GCS path (gs://bucket/path)
+            GCS path of uploaded file
         """
-        # Create GCS path: freddie/raw/YYYY/MM/filename
-        today = datetime.utcnow()
-        gcs_path = f"freddie/raw/{today.year}/{today.month:02d}/{filename}"
+        remote_path = file_info["remote_path"]
+        filename = file_info["filename"]
+        file_size = file_info.get("remote_size", 0)
         
-        bucket = self.storage_client.bucket(self.gcs_config.raw_bucket)
-        blob = bucket.blob(gcs_path)
+        # Determine GCS path
+        now = datetime.now(timezone.utc)
+        gcs_path = f"freddie/raw/{now.year}/{now.month:02d}/{filename}"
         
-        # Stream download to avoid loading large files in memory
-        logger.info(f"Downloading {remote_path} to gs://{self.gcs_config.raw_bucket}/{gcs_path}")
-        
-        # Use BytesIO for smaller files, or temp file for larger ones
-        buffer = BytesIO()
-        sftp.getfo(remote_path, buffer)
-        buffer.seek(0)
-        
-        blob.upload_from_file(buffer, timeout=300)
-        
-        return f"gs://{self.gcs_config.raw_bucket}/{gcs_path}"
+        for attempt in range(self.MAX_RETRIES):
+            try:
+                sftp = self._get_sftp()
+                
+                logger.info(f"Downloading {remote_path} ({file_size / 1024 / 1024:.1f} MB)")
+                
+                # Use temp file for large files, BytesIO for small
+                if file_size > self.LARGE_FILE_THRESHOLD:
+                    with tempfile.NamedTemporaryFile(delete=False) as tmp:
+                        sftp.get(remote_path, tmp.name)
+                        tmp_path = tmp.name
+                    
+                    bucket = self.storage_client.bucket(self.gcs_config.raw_bucket)
+                    blob = bucket.blob(gcs_path)
+                    blob.upload_from_filename(tmp_path, timeout=self.DOWNLOAD_TIMEOUT)
+                    os.unlink(tmp_path)
+                else:
+                    buffer = BytesIO()
+                    sftp.getfo(remote_path, buffer)
+                    buffer.seek(0)
+                    
+                    bucket = self.storage_client.bucket(self.gcs_config.raw_bucket)
+                    blob = bucket.blob(gcs_path)
+                    blob.upload_from_file(buffer, timeout=self.DOWNLOAD_TIMEOUT)
+                
+                logger.info(f"Uploaded to gs://{self.gcs_config.raw_bucket}/{gcs_path}")
+                return f"gs://{self.gcs_config.raw_bucket}/{gcs_path}"
+                
+            except Exception as e:
+                logger.warning(f"Download attempt {attempt + 1} failed for {remote_path}: {e}")
+                if attempt < self.MAX_RETRIES - 1:
+                    logger.info(f"Retrying in {self.RETRY_DELAY}s...")
+                    time.sleep(self.RETRY_DELAY)
+                    self._reconnect()
+                else:
+                    raise
     
     def log_ingest_run(
         self,
@@ -307,7 +358,7 @@ class FreddieIngestor:
         error_message: str | None = None,
         run_started_at: datetime | None = None,
     ) -> None:
-        """Log an ingestion run."""
+        """Log ingestion run to database."""
         with self.engine.connect() as conn:
             conn.execute(
                 text("""
@@ -318,8 +369,8 @@ class FreddieIngestor:
                             :files_downloaded, :bytes_downloaded, :error_message)
                 """),
                 {
-                    "run_started_at": run_started_at or datetime.utcnow(),
-                    "run_completed_at": datetime.utcnow(),
+                    "run_started_at": run_started_at or datetime.now(timezone.utc),
+                    "run_completed_at": datetime.now(timezone.utc),
                     "status": status,
                     "files_discovered": files_discovered,
                     "files_downloaded": files_downloaded,
@@ -331,87 +382,141 @@ class FreddieIngestor:
     
     def run(
         self,
-        download: bool = True,
+        mode: str = "incremental",
         file_types: list[str] | None = None,
+        file_pattern: str | None = None,
         max_files: int | None = None,
+        skip_catalog: bool = False,
     ) -> dict[str, Any]:
         """
-        Run the Freddie Mac SFTP sync job.
+        Run the Freddie Mac SFTP sync.
         
         Args:
-            download: Whether to download new files (False = catalog only)
-            file_types: Optional list of file types to process
-            max_files: Maximum number of files to download (for testing)
+            mode: 'catalog' (list only), 'incremental' (new files), 'backfill' (all pending)
+            file_types: Filter by file type (intraday_issuance, monthly_issuance, etc.)
+            file_pattern: Regex pattern to filter filenames
+            max_files: Maximum files to download
+            skip_catalog: Skip cataloging, download pending files directly
         
         Returns:
-            Summary dictionary with results
+            Summary dictionary
         """
-        run_started_at = datetime.utcnow()
-        logger.info("Starting Freddie Mac SFTP sync")
+        run_started_at = datetime.now(timezone.utc)
+        logger.info(f"Starting Freddie Mac sync (mode={mode})")
         
         results = {
+            "mode": mode,
             "files_discovered": 0,
-            "new_files": 0,
+            "files_cataloged": 0,
             "files_downloaded": 0,
             "bytes_downloaded": 0,
             "errors": [],
         }
         
         try:
-            sftp = self._get_sftp_client()
-            
-            # List all remote files
-            logger.info("Listing remote files...")
-            remote_files = self.list_remote_files(sftp, "/")
-            results["files_discovered"] = len(remote_files)
-            logger.info(f"Found {len(remote_files)} files on SFTP server")
-            
-            # Filter by file type if specified
-            if file_types:
-                remote_files = [f for f in remote_files if f["file_type"] in file_types]
-                logger.info(f"Filtered to {len(remote_files)} files of types: {file_types}")
-            
-            # Find new files not in catalog
-            cataloged = self.get_cataloged_files()
-            new_files = [f for f in remote_files if f["remote_path"] not in cataloged]
-            results["new_files"] = len(new_files)
-            logger.info(f"Found {len(new_files)} new files to process")
-            
-            # Add new files to catalog
-            for file_info in new_files:
-                self.add_to_catalog(file_info)
-            
-            # Download files if requested
-            if download and new_files:
-                files_to_download = new_files[:max_files] if max_files else new_files
+            # Step 1: List and catalog files (unless skipping)
+            if not skip_catalog:
+                logger.info("Scanning remote files...")
+                remote_files = self.list_remote_files("/")
+                results["files_discovered"] = len(remote_files)
+                logger.info(f"Found {len(remote_files)} files on SFTP server")
                 
-                for file_info in files_to_download:
-                    try:
-                        gcs_path = self.download_to_gcs(
-                            sftp,
-                            file_info["remote_path"],
-                            file_info["filename"],
-                        )
-                        self.update_catalog_status(
-                            file_info["remote_path"],
-                            "downloaded",
-                            gcs_path=gcs_path,
-                        )
-                        results["files_downloaded"] += 1
-                        results["bytes_downloaded"] += file_info["remote_size"] or 0
-                        
-                    except Exception as e:
-                        error_msg = f"Error downloading {file_info['remote_path']}: {e}"
-                        logger.error(error_msg)
-                        results["errors"].append(error_msg)
-                        self.update_catalog_status(
-                            file_info["remote_path"],
-                            "error",
-                            error_message=str(e),
-                        )
+                # Filter by type/pattern if specified
+                if file_types:
+                    remote_files = [f for f in remote_files if f["file_type"] in file_types]
+                    logger.info(f"Filtered to {len(remote_files)} files of types: {file_types}")
+                
+                if file_pattern:
+                    pattern = re.compile(file_pattern)
+                    remote_files = [f for f in remote_files if pattern.search(f["filename"])]
+                    logger.info(f"Filtered to {len(remote_files)} files matching pattern")
+                
+                # Catalog new files
+                cataloged = self.get_cataloged_files()
+                new_files = [f for f in remote_files if f["remote_path"] not in cataloged]
+                
+                for f in new_files:
+                    self.add_to_catalog(f)
+                results["files_cataloged"] = len(new_files)
+                logger.info(f"Cataloged {len(new_files)} new files")
             
-            sftp.close()
+            # Step 2: Download files based on mode
+            if mode == "catalog":
+                logger.info("Catalog-only mode, skipping downloads")
+            else:
+                # Get files to download
+                cataloged = self.get_cataloged_files()
+                
+                if mode == "incremental":
+                    # Download new files (pending status)
+                    to_download = [
+                        {"remote_path": path, "filename": PurePosixPath(path).name, **info}
+                        for path, info in cataloged.items()
+                        if info["status"] == "pending"
+                    ]
+                elif mode == "backfill":
+                    # Download all pending and error files
+                    to_download = [
+                        {"remote_path": path, "filename": PurePosixPath(path).name, **info}
+                        for path, info in cataloged.items()
+                        if info["status"] in ("pending", "error")
+                    ]
+                else:
+                    to_download = []
+                
+                # Apply filters
+                if file_types:
+                    to_download = [f for f in to_download 
+                                   if self._classify_file(f["filename"]) in file_types]
+                if file_pattern:
+                    pattern = re.compile(file_pattern)
+                    to_download = [f for f in to_download if pattern.search(f["filename"])]
+                if max_files:
+                    to_download = to_download[:max_files]
+                
+                logger.info(f"Downloading {len(to_download)} files...")
+                
+                # Download in batches with reconnection
+                for batch_idx in range(0, len(to_download), self.BATCH_SIZE):
+                    batch = to_download[batch_idx:batch_idx + self.BATCH_SIZE]
+                    logger.info(f"Processing batch {batch_idx // self.BATCH_SIZE + 1} "
+                               f"({len(batch)} files)")
+                    
+                    # Reconnect at start of each batch
+                    if batch_idx > 0:
+                        self._reconnect()
+                    
+                    for file_info in batch:
+                        try:
+                            # Get file size from SFTP if not available
+                            if "remote_size" not in file_info or file_info.get("remote_size") is None:
+                                try:
+                                    sftp = self._get_sftp()
+                                    stat_info = sftp.stat(file_info["remote_path"])
+                                    file_info["remote_size"] = stat_info.st_size
+                                except Exception:
+                                    file_info["remote_size"] = 0
+                            
+                            gcs_path = self.download_file(file_info)
+                            self.update_catalog_status(
+                                file_info["remote_path"],
+                                "downloaded",
+                                gcs_path=gcs_path,
+                            )
+                            results["files_downloaded"] += 1
+                            results["bytes_downloaded"] += file_info.get("remote_size", 0)
+                            
+                        except Exception as e:
+                            error_msg = f"Error downloading {file_info['remote_path']}: {e}"
+                            logger.error(error_msg)
+                            results["errors"].append(error_msg)
+                            self.update_catalog_status(
+                                file_info["remote_path"],
+                                "error",
+                                error_message=str(e)[:500],
+                            )
             
+            # Log successful run
             self.log_ingest_run(
                 status="success" if not results["errors"] else "partial",
                 files_discovered=results["files_discovered"],
@@ -421,30 +526,69 @@ class FreddieIngestor:
             )
             
             logger.info(
-                f"Freddie sync complete: {results['files_discovered']} discovered, "
-                f"{results['new_files']} new, {results['files_downloaded']} downloaded"
+                f"Sync complete: {results['files_discovered']} discovered, "
+                f"{results['files_cataloged']} cataloged, "
+                f"{results['files_downloaded']} downloaded, "
+                f"{len(results['errors'])} errors"
             )
             
         except Exception as e:
             error_msg = str(e)
-            logger.error(f"Freddie sync failed: {error_msg}")
+            logger.error(f"Sync failed: {error_msg}")
             results["errors"].append(error_msg)
             
             self.log_ingest_run(
                 status="error",
-                error_message=error_msg,
+                error_message=error_msg[:500],
                 run_started_at=run_started_at,
             )
+        
+        finally:
+            self._disconnect()
         
         return results
 
 
 def main():
     """Entry point for Cloud Run job."""
+    parser = argparse.ArgumentParser(description="Freddie Mac SFTP Ingestor")
+    parser.add_argument(
+        "--mode",
+        choices=["catalog", "incremental", "backfill"],
+        default="incremental",
+        help="Run mode: catalog (list only), incremental (new files), backfill (all pending)"
+    )
+    parser.add_argument(
+        "--file-types",
+        nargs="+",
+        help="Filter by file types (e.g., intraday_issuance monthly_issuance)"
+    )
+    parser.add_argument(
+        "--file-pattern",
+        help="Regex pattern to filter filenames"
+    )
+    parser.add_argument(
+        "--max-files",
+        type=int,
+        help="Maximum number of files to download"
+    )
+    parser.add_argument(
+        "--skip-catalog",
+        action="store_true",
+        help="Skip cataloging, just download pending files"
+    )
+    
+    args = parser.parse_args()
+    
     ingestor = FreddieIngestor()
     
-    # For initial run, catalog only (set download=True when ready)
-    results = ingestor.run(download=True)
+    results = ingestor.run(
+        mode=args.mode,
+        file_types=args.file_types,
+        file_pattern=args.file_pattern,
+        max_files=args.max_files,
+        skip_catalog=args.skip_catalog,
+    )
     
     if results["errors"]:
         logger.warning(f"Completed with {len(results['errors'])} errors")

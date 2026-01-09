@@ -1,6 +1,6 @@
 # Agent Handoff Document
 
-Last updated: January 8, 2026
+Last updated: January 9, 2026
 
 ## Context for New Agent
 
@@ -26,108 +26,112 @@ This document provides everything needed to continue development on the Oasive d
 - ✅ Daily scheduler LIVE (6:30 AM ET / 11:30 UTC)
 - ✅ Email alerts configured (failure only)
 
-**Data in Database**:
-- Unemployment rate, CPI, GDP, housing starts, mortgage rates, Treasury yields, Fed balance sheet, etc.
-- Full list in `docs/FRED_data.csv`
-
-### 2. Freddie Mac SFTP Ingestion (⚠️ Blocked on Auth)
+### 2. Freddie Mac SFTP Ingestion (✅ Auth Fixed, Downloading)
 
 **Purpose**: Download MBS disclosure files from CSS SFTP server
 
 **Components**:
-- `src/ingestors/freddie_ingestor.py` - SFTP download logic
+- `src/ingestors/freddie_ingestor.py` - SFTP download with batching/retry logic
 - `migrations/003_freddie_schema.sql` - File catalog schema
+- `scripts/analyze_sftp.py` - SFTP inventory analysis tool
 
 **Status**:
+- ✅ Authentication WORKING (username: `svcfre-oasive`)
 - ✅ Cloud Run job deployed with VPC connector
-- ✅ Network routing works (traffic goes through whitelisted IP 34.121.116.34)
-- ✅ SFTP connection reaches CSS server (see "Welcome to CSS" banner in logs)
-- ❌ **Authentication failing** - See Outstanding Issues
+- ✅ Network routing through whitelisted IP `34.121.116.34`
+- ✅ Improved ingestor with batching, reconnection, and retry logic
+- ⏳ Historical backfill in progress
+
+**SFTP Inventory** (as of Jan 9, 2026):
+- 45,353 files totaling 76.73 GB
+- File types: `.zip` (71 GB), `.pdf` (5.4 GB), `.fac`, `.typ`
+- Key patterns: `FRE_FISS_` (intraday), `FRE_IS_` (monthly)
+- Full inventory in `docs/freddie_sftp_inventory.json`
+
+**Credentials**:
+- Username: `svcfre-oasive` (stored in `freddie-username` secret)
+- Password: 15 chars (stored in `freddie-password` secret, version 5)
+- Whitelisted IPs: `34.121.116.34` (Cloud NAT), `108.201.185.230` (local dev)
 
 ### 3. Infrastructure
 
 **Cloud SQL**:
 - Instance: `oasive-postgres` (us-central1)
-- Database: `oasive` (NOT `postgres` - this was a bug we fixed)
+- Database: `oasive`
 - User: `postgres`
 
 **Cloud Run Jobs**:
-- `fred-ingestor` - Works, runs daily
-- `freddie-ingestor` - Deployed, waiting for auth fix
+- `fred-ingestor` - Daily FRED sync (LIVE)
+- `freddie-ingestor` - Freddie Mac SFTP sync
 
 **Networking for Freddie**:
 - VPC Connector: `data-feeds-vpc-1`
-- Cloud NAT: `data-feeds-nat-1`
-- Static IP: `34.121.116.34` (whitelisted with CSS)
+- Cloud NAT: `data-feeds-nat-1` (router: `data-feeds-router-1`)
+- Static IP: `34.121.116.34`
 
 **Secrets** (in Secret Manager):
 - `fred-api-key`
 - `postgres-password`
-- `freddie-username` (value: `svcFRE-OasiveInc`)
-- `freddie-password`
+- `freddie-username` (value: `svcfre-oasive`)
+- `freddie-password` (version 5)
 
-### 4. Email Alerts (Cloud Monitoring)
-
-**Notification Channel**: `anais@oasive.ai`
-
-| Alert | Triggers When | Status |
-|-------|---------------|--------|
-| ❌ FRED Job FAILED - Action Required | `fred-ingestor` job fails | Active |
-| ⚠️ FRED Scheduler FAILED - Job Did Not Start | Cloud Scheduler can't invoke the job | Active |
-
-**Note**: Success alerts were removed (too noisy — 2 emails per success). Silence = success.
-
-**Alert Behavior**:
-- Failure alerts only monitor `fred-ingestor` (not `freddie-ingestor`)
-- You receive an email immediately when a failure occurs
-- If you don't receive any email, the job ran successfully
-
-**Manage Alerts**:
-```bash
-# List all alerts
-gcloud beta monitoring policies list --project=gen-lang-client-0343560978
-
-# Disable an alert
-gcloud beta monitoring policies update [POLICY_NAME] --no-enabled --project=gen-lang-client-0343560978
-
-# View in console
-# https://console.cloud.google.com/monitoring/alerting?project=gen-lang-client-0343560978
-```
+**GCS Bucket**:
+- `oasive-raw-data` - Raw Freddie files stored at `freddie/raw/YYYY/MM/`
 
 ---
 
-## Outstanding Issues
+## Freddie Mac Ingestor Usage
 
-### 1. Freddie Mac Authentication (HIGH PRIORITY)
+The improved ingestor supports multiple run modes:
 
-**Problem**: SFTP authentication fails despite correct credentials
-
-**Evidence from logs**:
-```
-INFO - Connected (version 2.0, client CrushFTPSSHD)
-INFO - Auth banner: b'Welcome to Common Securitization Solutions SFTP Portal !!!'
-INFO - Authentication (password) failed.
-```
-
-**What we verified**:
-- Username in Secret Manager: `svcFRE-OasiveInc` (16 chars)
-- Password in Secret Manager: 14 chars (matches .env)
-- Network: Traffic routes through whitelisted IP 34.121.116.34
-
-**Action Required**:
-User has emailed Freddie Mac support (`Investor_Inquiry@freddiemac.com`) to:
-1. Verify account is not locked (we made 3 failed attempts)
-2. Confirm credentials are correct
-3. Verify IP 34.121.116.34 is properly whitelisted
-
-**CSS Support**:
-- Email: `Investor_Inquiry@freddiemac.com`
-- Phone: (800) 336-3672
-
-### 2. Freddie Scheduler Not Set Up
-
-**Once auth is fixed**, add scheduler:
 ```bash
+# Catalog files without downloading
+python -m src.ingestors.freddie_ingestor --mode catalog
+
+# Download new files incrementally
+python -m src.ingestors.freddie_ingestor --mode incremental
+
+# Backfill all pending/error files
+python -m src.ingestors.freddie_ingestor --mode backfill
+
+# Filter by file type
+python -m src.ingestors.freddie_ingestor --mode incremental --file-types intraday_issuance monthly_issuance
+
+# Filter by pattern (e.g., only 2024 files)
+python -m src.ingestors.freddie_ingestor --mode backfill --file-pattern "2024"
+
+# Limit number of files (for testing)
+python -m src.ingestors.freddie_ingestor --mode backfill --max-files 100
+```
+
+**File Types**:
+- `intraday_issuance` - FRE_FISS_YYYYMMDD.zip (daily issuance)
+- `monthly_issuance` - FRE_IS_YYYYMM.zip (monthly summary)
+- `deal_files` - Individual deal documents
+- `factor` - .fac files
+- `archive` - Other .zip files
+- `document` - .pdf files
+
+---
+
+## Outstanding Tasks
+
+### 1. Historical Backfill (IN PROGRESS)
+
+Download all 45,353 files (76 GB) from SFTP:
+
+```bash
+# Run via Cloud Run for large batches
+gcloud run jobs execute freddie-ingestor --region=us-central1 \
+  --args="--mode,backfill,--max-files,500"
+```
+
+### 2. Set Up Recurring Schedulers
+
+Create schedulers for different file cadences:
+
+```bash
+# Daily incremental sync (7 AM ET)
 gcloud scheduler jobs create http freddie-ingestor-daily \
     --project=gen-lang-client-0343560978 \
     --location=us-central1 \
@@ -138,62 +142,53 @@ gcloud scheduler jobs create http freddie-ingestor-daily \
     --oauth-service-account-email=cloud-run-jobs-sa@gen-lang-client-0343560978.iam.gserviceaccount.com
 ```
 
+### 3. Process Downloaded Files
+
+After downloading:
+1. Parse ZIP files to extract loan/pool data
+2. Load structured data to BigQuery or Postgres
+3. Build fact/dimension tables per `docs/fannie_freddie_data_ingestion.md`
+
 ---
 
-## Key Files to Know
+## Key Files
 
 | File | Purpose |
 |------|---------|
-| `src/config.py` | All configuration, reads from env vars |
-| `src/db/connection.py` | Cloud SQL connector setup |
-| `src/ingestors/fred_ingestor.py` | FRED API client, bulk insert logic |
-| `src/ingestors/freddie_ingestor.py` | SFTP client, file catalog management |
-| `scripts/run_migrations.py` | Runs SQL migrations with proper statement splitting |
-| `.env` | Local secrets (not in git) |
+| `src/config.py` | Configuration from env vars |
+| `src/db/connection.py` | Cloud SQL connector |
+| `src/ingestors/fred_ingestor.py` | FRED API client |
+| `src/ingestors/freddie_ingestor.py` | SFTP client with batching |
+| `scripts/analyze_sftp.py` | SFTP inventory analysis |
+| `scripts/run_migrations.py` | Database migrations |
+| `docs/freddie_sftp_inventory.json` | Full SFTP file inventory |
 
 ---
 
-## How to Test Changes
-
-### Local Testing
+## Deploy Changes
 
 ```bash
 cd /Users/anaishowland/oasive_db
-source venv/bin/activate
 
-# Test FRED
-PYTHONPATH=/Users/anaishowland/oasive_db python -c "
-from src.ingestors.fred_ingestor import FREDIngestor
-ingestor = FREDIngestor()
-result = ingestor.run(series_ids=['UNRATE'])  # Test single series
-print(result)
-"
-
-# Test Freddie (will fail on auth until fixed)
-PYTHONPATH=/Users/anaishowland/oasive_db python -c "
-from src.ingestors.freddie_ingestor import FreddieIngestor
-ingestor = FreddieIngestor()
-result = ingestor.run(download=False)
-print(result)
-"
-```
-
-### Deploy Changes
-
-```bash
 # 1. Build new image
 gcloud builds submit --tag us-central1-docker.pkg.dev/gen-lang-client-0343560978/oasive-images/oasive-ingestor:latest --project=gen-lang-client-0343560978
 
-# 2. Update job(s)
-gcloud run jobs update fred-ingestor --region=us-central1 --project=gen-lang-client-0343560978 --image=us-central1-docker.pkg.dev/gen-lang-client-0343560978/oasive-images/oasive-ingestor:latest
+# 2. Update job
+gcloud run jobs update freddie-ingestor --region=us-central1 --project=gen-lang-client-0343560978 --image=us-central1-docker.pkg.dev/gen-lang-client-0343560978/oasive-images/oasive-ingestor:latest
 
-# 3. Test
-gcloud run jobs execute fred-ingestor --region=us-central1 --wait
+# 3. Execute with args
+gcloud run jobs execute freddie-ingestor --region=us-central1 --args="--mode,incremental"
 ```
 
-### Check Logs
+---
+
+## Check Logs
 
 ```bash
+# Freddie logs
+gcloud logging read "resource.type=cloud_run_job AND resource.labels.job_name=freddie-ingestor" --project=gen-lang-client-0343560978 --limit=30 --format="value(textPayload)"
+
+# FRED logs
 gcloud logging read "resource.type=cloud_run_job AND resource.labels.job_name=fred-ingestor" --project=gen-lang-client-0343560978 --limit=20 --format="value(textPayload)"
 ```
 
@@ -201,43 +196,26 @@ gcloud logging read "resource.type=cloud_run_job AND resource.labels.job_name=fr
 
 ## Database Schema
 
-### fred_series
-```sql
-- series_id (PK): FRED series ID (e.g., "UNRATE")
-- indicator_id: Internal name
-- name: Human-readable name
-- domain: macro, housing, mortgage, policy, rates_curve
-- frequency: daily, weekly, monthly, quarterly
-- is_active: Whether to fetch this series
-```
-
-### fred_observation
-```sql
-- series_id (FK)
-- obs_date
-- value
-- vintage_date (default: 0001-01-01)
-- raw_payload (JSONB)
-```
-
 ### freddie_file_catalog
 ```sql
-- remote_path: Path on SFTP server
-- filename
-- file_type: loan_level, pool, factor, disclosure
+- remote_path (PK): Full path on SFTP server
+- filename: File name
+- file_type: intraday_issuance, monthly_issuance, deal_files, etc.
+- file_date: Extracted date from filename
+- remote_size: File size in bytes
 - download_status: pending, downloaded, processed, error
 - local_gcs_path: GCS location after download
+- downloaded_at: Timestamp
+- error_message: Error details if failed
 ```
 
 ---
 
-## Next Steps (Suggested Roadmap)
+## Contact Info
 
-1. **Fix Freddie Auth** - Wait for CSS support response
-2. **Add Freddie Scheduler** - Once auth works
-3. **Process Freddie Files** - Parse downloaded ZIPs, load to BigQuery
-4. **Add More FRED Series** - Based on `docs/MBS_ontology.csv`
-5. **Build Analytics Layer** - Vector embeddings, knowledge graph (per business plan)
+**CSS Support** (Freddie Mac SFTP):
+- Email: `Investor_Inquiry@freddiemac.com`
+- Phone: (800) 336-3672
 
 ---
 
@@ -245,4 +223,4 @@ gcloud logging read "resource.type=cloud_run_job AND resource.labels.job_name=fr
 
 Repository: https://github.com/anaishowland/oasive_db
 
-All code is committed and pushed. `.env` is gitignored.
+All code committed and pushed. `.env` is gitignored.
