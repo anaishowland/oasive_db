@@ -482,3 +482,173 @@ The semantic layer translates trader jargon into SQL filters:
 - **Dynamic behavior tags** that update based on rate moves
 - **Vector embeddings** for semantic pool similarity search
 - **Knowledge graph** linking pools to servicers, originators, and MSAs
+
+---
+
+## Dynamic Servicer Prepay Scoring (Data-Driven)
+
+### Concept
+
+Instead of static servicer classifications, we calculate **actual prepay speed metrics** from historical pool performance, filtering for single-servicer pools to isolate the servicer effect.
+
+**Key Benefits:**
+- Captures servicers that change behavior (e.g., automate workflows → faster prepays)
+- Uses rolling windows to detect recent trends vs. historical baseline
+- Produces quantitative scores, not just categories
+- Updates automatically with each factor file
+
+### Database Schema (Migration 005)
+
+```sql
+-- Table: servicer_prepay_metrics
+-- Monthly prepay metrics aggregated by servicer
+CREATE TABLE IF NOT EXISTS servicer_prepay_metrics (
+    servicer_id TEXT NOT NULL,
+    servicer_name TEXT NOT NULL,
+    as_of_month DATE NOT NULL,
+    
+    -- Pool universe (single-servicer pools only)
+    pool_count INTEGER,
+    total_upb NUMERIC(18,2),
+    
+    -- Prepay metrics (weighted by UPB)
+    avg_cpr NUMERIC(6,3),
+    median_cpr NUMERIC(6,3),
+    
+    -- Benchmarking
+    universe_avg_cpr NUMERIC(6,3),         -- Market CPR this month
+    cpr_vs_universe NUMERIC(6,3),          -- Spread to market (bps)
+    cpr_ratio NUMERIC(6,4),                -- Servicer / Universe
+    
+    -- Controls (apples-to-apples comparison)
+    avg_wac NUMERIC(5,3),
+    avg_wala INTEGER,
+    avg_fico INTEGER,
+    avg_incentive NUMERIC(6,2),            -- Avg refi incentive (bps)
+    
+    PRIMARY KEY (servicer_id, as_of_month)
+);
+
+-- Table: servicer_prepay_scores
+-- Rolling scores updated with each factor file
+CREATE TABLE IF NOT EXISTS servicer_prepay_scores (
+    servicer_id TEXT PRIMARY KEY,
+    servicer_name TEXT NOT NULL,
+    
+    -- Scores (0-100: higher = faster prepays = worse for investors)
+    prepay_speed_score NUMERIC(5,2),
+    prepay_speed_percentile INTEGER,
+    
+    -- Rolling windows
+    cpr_3mo_avg NUMERIC(6,3),
+    cpr_6mo_avg NUMERIC(6,3),
+    cpr_12mo_avg NUMERIC(6,3),
+    
+    -- Trend detection (key for catching behavior changes!)
+    trend_3mo_vs_12mo NUMERIC(6,3),        -- (3mo - 12mo) / 12mo
+    trend_direction TEXT,                   -- 'accelerating', 'stable', 'decelerating'
+    
+    -- Derived classification
+    prepay_risk_category TEXT,             -- 'prepay_protected', 'neutral', 'prepay_exposed'
+    
+    last_updated TIMESTAMPTZ,
+    months_of_data INTEGER
+);
+
+-- Table: servicer_prepay_alerts
+-- Alerts when servicer behavior changes significantly
+CREATE TABLE IF NOT EXISTS servicer_prepay_alerts (
+    id SERIAL PRIMARY KEY,
+    servicer_id TEXT NOT NULL,
+    alert_date DATE NOT NULL,
+    alert_type TEXT,                       -- 'speed_increase', 'speed_decrease', 'category_change'
+    old_score NUMERIC(5,2),
+    new_score NUMERIC(5,2),
+    old_category TEXT,
+    new_category TEXT,
+    description TEXT,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+```
+
+### Scoring Methodology
+
+**Step 1: Filter to Single-Servicer Pools**
+```python
+# Only use pools where servicer hasn't changed to isolate servicer effect
+pools = get_pools_where(
+    servicer_id IS NOT NULL,
+    wala >= 3,  # Exclude brand new pools
+)
+```
+
+**Step 2: Calculate Incentive-Adjusted CPR**
+```python
+# A servicer with high CPR might just have in-the-money pools
+# Adjust for refi incentive for apples-to-apples comparison
+df['incentive_bucket'] = bucket_by_incentive(df['refi_incentive'])
+df['cpr_vs_bucket'] = df['cpr'] - bucket_avg_cpr  # Residual after incentive
+```
+
+**Step 3: Aggregate by Servicer (UPB-weighted)**
+```python
+servicer_metrics = df.groupby('servicer_id').agg({
+    'cpr': weighted_mean(weights='curr_upb'),
+    'pool_count': count,
+    'universe_cpr': universe_avg,  # Benchmark
+})
+servicer_metrics['cpr_vs_universe'] = servicer_cpr - universe_cpr
+```
+
+**Step 4: Calculate Rolling Scores & Detect Trends**
+```python
+cpr_3mo = last_3_months_avg(servicer_id)
+cpr_12mo = last_12_months_avg(servicer_id)
+
+# Trend: positive = speeding up (⚠️ for investors)
+trend = (cpr_3mo - cpr_12mo) / cpr_12mo * 100
+
+if trend > 15:
+    trend_direction = 'accelerating'  # ⚠️ Getting faster!
+elif trend < -15:
+    trend_direction = 'decelerating'  # Slowing down (good for investors)
+else:
+    trend_direction = 'stable'
+
+# Score: 50 = average, higher = faster prepays = worse for investors
+score = 50 + (avg_spread_to_universe * 10)
+```
+
+**Step 5: Generate Alerts on Significant Changes**
+```python
+if abs(new_score - old_score) >= 10:
+    create_alert('speed_change', f"Score changed by {change:.1f} points")
+    
+if new_category != old_category:
+    create_alert('category_change', f"Moved from {old} to {new}")
+```
+
+### Example: Catching a Servicer Automation
+
+**Scenario**: Mr. Cooper implements new automated refi system in Q3 2025
+
+| Month | cpr_3mo | cpr_12mo | trend | score | category |
+|-------|---------|----------|-------|-------|----------|
+| Jun 2025 | 8.2 | 8.5 | -3.5% | 42 | neutral |
+| Jul 2025 | 9.1 | 8.4 | +8.3% | 48 | neutral |
+| Aug 2025 | 11.2 | 8.6 | +30.2% | 58 | neutral |
+| Sep 2025 | 13.5 | 9.1 | +48.4% | **67** | **prepay_exposed** ⚠️ |
+
+**Alert Generated:**
+> ⚠️ **Mr. Cooper**: Prepay speed increased by 25 points over 3 months.
+> Category changed from 'neutral' to 'prepay_exposed'.
+> Possible cause: System automation or policy change.
+
+### Integration with Factor File Processing
+
+Every time new factor files arrive:
+1. Update `fact_pool_month` with new CPR data
+2. Recalculate `servicer_prepay_metrics` for the month
+3. Recalculate `servicer_prepay_scores` with rolling windows
+4. Check for alerts and notify if thresholds exceeded
+5. Update `dim_pool.servicer_prepay_risk` with latest category
