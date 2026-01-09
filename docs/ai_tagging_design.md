@@ -971,3 +971,146 @@ SELECT * FROM pool_summary
 WHERE spec_pool_score >= 50
   AND servicer_prepay_risk != 'prepay_exposed';
 ```
+
+---
+
+## Future: Empirical Weight Calibration
+
+### Current State
+The composite score weights above are **placeholder estimates**. For production, we need empirical calibration from actual prepay data.
+
+### Research Approach
+
+Using our Freddie Mac disclosure data, we can estimate prepay speed multipliers for each factor:
+
+```python
+# Pseudo-code for empirical factor analysis
+
+def estimate_factor_impact(factor_name: str, factor_values: list):
+    """
+    Estimate prepay speed multiplier for each factor value.
+    
+    Example: For loan_program in ['VA', 'FHA', 'CONV']:
+      - Calculate avg CPR for VA pools vs all pools
+      - VA_multiplier = avg_cpr_VA / avg_cpr_universe
+      - If multiplier = 0.70, VA prepays are 30% slower
+    """
+    results = {}
+    
+    # Get universe baseline CPR (control for incentive, WALA, etc.)
+    universe_cpr = get_controlled_avg_cpr(all_pools)
+    
+    for value in factor_values:
+        # Filter pools with this factor value
+        subset = pools.filter(factor_name == value)
+        
+        # Calculate controlled CPR (adjust for confounding factors)
+        subset_cpr = get_controlled_avg_cpr(subset)
+        
+        # Multiplier relative to universe
+        multiplier = subset_cpr / universe_cpr
+        
+        results[value] = {
+            'cpr': subset_cpr,
+            'multiplier': multiplier,
+            'pool_count': len(subset),
+            'confidence': calc_confidence(subset)  # Based on sample size
+        }
+    
+    return results
+```
+
+### Factors to Analyze
+
+| Factor | Segment Values | Data Source |
+|--------|----------------|-------------|
+| Loan Program | VA, FHA, CONV, USDA | FRE_ILLD loan level |
+| Loan Balance | <85k, 85-110k, 110-150k, etc. | FRE_ILLD |
+| LTV | <60, 60-70, 70-80, 80-90, 90+ | FRE_ILLD |
+| FICO | <680, 680-720, 720-760, 760+ | FRE_ILLD |
+| Occupancy | Owner, Investor, Second | FRE_ILLD |
+| State | By state or friction tier | FRE_ILLD |
+| Servicer | By servicer or category | FRE_ILLD + FRE_ISS |
+| WALA | 0-6, 6-12, 12-24, 24-36, 36+ | FRE_DPR_Fctr |
+| Coupon vs Rate | Incentive buckets | FRE_DPR_Fctr + FRED |
+
+### Control Variables
+
+To isolate each factor's impact, we need to control for confounders:
+
+```python
+def get_controlled_avg_cpr(pools, controls=['incentive_bucket', 'wala_bucket', 'fico_bucket']):
+    """
+    Calculate average CPR controlling for confounding variables.
+    
+    Use stratified sampling or regression adjustment to isolate
+    the factor we're testing.
+    """
+    # Option 1: Stratified means
+    # Group by control variables, calculate CPR, then average
+    
+    # Option 2: Regression
+    # CPR ~ factor + incentive + wala + fico + ...
+    # Extract factor coefficient
+    
+    pass
+```
+
+### Confidence Requirements
+
+| Confidence Level | Min Pools | Min Months | Use Case |
+|------------------|-----------|------------|----------|
+| High | 500+ | 24+ | Production weights |
+| Medium | 100+ | 12+ | Directional guidance |
+| Low | <100 | <12 | Placeholder only |
+
+### Output: Calibrated Weights
+
+After analysis, we'd have empirical multipliers like:
+
+```python
+# Example output from research
+EMPIRICAL_PREPAY_MULTIPLIERS = {
+    'loan_program': {
+        'VA': 0.68,      # 32% slower than baseline
+        'USDA': 0.62,    # 38% slower
+        'FHA': 0.88,     # 12% slower
+        'CONV': 1.00,    # Baseline
+    },
+    'loan_balance': {
+        'LLB_85': 0.72,
+        'LLB_110': 0.82,
+        'LLB_150': 0.91,
+        'HLB': 1.00,
+        'JUMBO': 1.15,
+    },
+    # ... etc
+}
+
+# Convert to scores
+def multiplier_to_score_adjustment(multiplier: float) -> int:
+    """
+    Convert prepay multiplier to score adjustment.
+    0.70 multiplier (30% slower) = +15 points
+    1.20 multiplier (20% faster) = -10 points
+    """
+    # Linear scale: each 10% slower = +5 points
+    pct_diff = (1.0 - multiplier) * 100
+    return int(pct_diff / 2)  # 30% slower = +15 pts
+```
+
+### Timeline
+
+1. **Now**: Use placeholder weights (current implementation)
+2. **Phase 2**: Run factor analysis once we have 12+ months of data
+3. **Phase 3**: Continuous recalibration with new factor data
+4. **Phase 4**: ML model to predict prepay speeds from pool characteristics
+
+### Alternative: Market Payup Validation
+
+If we get TRACE data for spec pool trades:
+- Compare empirical CPR-based weights to market payups
+- Market payups reflect investor consensus on prepay value
+- Can validate or adjust our factor weights accordingly
+
+*Note: Spec pool liquidity is limited, so TRACE data may be sparse*
