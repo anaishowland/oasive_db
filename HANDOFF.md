@@ -153,15 +153,15 @@ gcloud run jobs execute freddie-ingestor --region=us-central1 \
 **FRED Scheduler:**
 - `fred-ingestor-daily`: `30 11 * * * UTC` (6:30 AM ET, daily)
 
-**Freddie Mac Intraday Schedulers** (based on Fannie Mae schedule - verify with Freddie):
+**Freddie Mac Schedulers** (✅ VERIFIED from SFTP timestamps):
 | Scheduler | Schedule (UTC) | ET Time | Description |
 |-----------|----------------|---------|-------------|
-| `freddie-ingestor-run1` | `45 11 * * 1-5` | 6:45 AM | After ~6:30 release |
-| `freddie-ingestor-run2` | `45 15 * * 1-5` | 10:45 AM | After ~10:30 release |
-| `freddie-ingestor-run3` | `45 18 * * 1-5` | 1:45 PM | After ~13:30 release |
-| `freddie-ingestor-run4` | `45 20 * * 1-5` | 3:45 PM | After ~15:30 release |
+| `freddie-ingestor-daily` | `45 16 * * 1-5` | 11:45 AM | After daily FRE_FISS release (~10:30-11:30 AM) |
+| `freddie-ingestor-monthly` | `45 11 1-3 * 1-5` | 6:45 AM | BD1 catch-up for FRE_IS monthly files |
 
-⚠️ **Note**: The intraday release times are based on Fannie Mae's known schedule. Verify actual Freddie Mac release times with CSS support if different.
+**Verified Release Times** (from file timestamps):
+- **FRE_FISS (daily)**: ONCE per day at ~10:30 AM ET (EDT) or ~11:30 AM ET (EST)
+- **FRE_IS (monthly)**: BD1 at ~5:30 AM ET (EDT) or ~6:30 AM ET (EST)
 
 **Email Alerts Configured:**
 - `Freddie Mac Ingestor - Job Failure Alert` → anais@oasive.ai

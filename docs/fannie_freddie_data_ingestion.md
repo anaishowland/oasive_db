@@ -14,11 +14,15 @@
 * **Monthly**: FNM\_MLLD\_YYYYMM and FNM\_MF\_YYYYMM on BD4 4:30pm ET.  
 * **Corrections**: FNM\_RIS\_YYYYMM and FNM\_RISS\_YYYYMM on BD1–BD4 6:30am ET when present.
 
-**Freddie Mac (FRE):**
-* **Intraday security issuance**: FRE\_FISS\_YYYYMMDD.zip (assumed similar cadence to Fannie ~6:30, 10:30, 13:30, 15:30 ET - **VERIFY with CSS support**)
-* **Monthly security issuance**: FRE\_IS\_YYYYMM.zip (on BD1)
+**Freddie Mac (FRE):** ✅ VERIFIED from SFTP file timestamps
+* **Daily security issuance**: FRE\_FISS\_YYYYMMDD.zip - **ONCE per day** at:
+  * ~10:30 AM ET (15:30 UTC) during EDT (Mar-Nov)
+  * ~11:30 AM ET (16:30 UTC) during EST (Nov-Mar)
+* **Monthly security issuance**: FRE\_IS\_YYYYMM.zip on BD1 at:
+  * ~5:30 AM ET (10:29 UTC) during EDT
+  * ~6:30 AM ET (11:29 UTC) during EST
 
-⚠️ **TODO**: Contact CSS support (Investor_Inquiry@freddiemac.com) to confirm exact Freddie Mac intraday release times.
+⚠️ **Note**: Unlike Fannie Mae (4 intraday releases), Freddie Mac only releases ONCE per day.
 
 **GCP-first, minimal devops**
 
