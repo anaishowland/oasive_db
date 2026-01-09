@@ -734,3 +734,240 @@ If Freddie Mac data is insufficient, [eMBS](https://www.embs.com) provides:
 │  (servicer_id, as_of_month, avg_cpr, cpr_vs_universe, ...)      │
 └─────────────────────────────────────────────────────────────────┘
 ```
+
+---
+
+## Spec Pool Tagging
+
+Specified pools (spec pools) trade at "payups" to TBA because they have characteristics that make prepays more predictable or slower. These tags capture the key spec pool attributes investors care about.
+
+### Loan Program Tags
+
+Different government programs have different prepay behavior due to varying refinance processes.
+
+| Tag | Program | Prepay Behavior | Why |
+|-----|---------|-----------------|-----|
+| `VA` | Veterans Affairs | **SLOW** ⭐ | VA IRRRL (streamline) has more friction, funding fee, manual underwriting often required |
+| `FHA` | Federal Housing Admin | Moderate | FHA Streamline exists but still has MIP, documentation requirements |
+| `CONV` | Conventional | Baseline | Standard Fannie/Freddie loans |
+| `USDA` | USDA/Rural Dev | **SLOW** ⭐ | Very limited refi options, geographic restrictions |
+
+**VA Prepay Protection:**
+VA loans are highly sought after by investors because:
+- VA IRRRL requires 210-day seasoning
+- Funding fee (0.5%) adds to refi costs
+- Many VA borrowers less rate-sensitive
+- Manual underwriting common for marginal credits
+
+```python
+LOAN_PROGRAM_PREPAY_MULTIPLIER = {
+    'VA': 0.70,    # 30% slower than baseline
+    'USDA': 0.65,  # 35% slower
+    'FHA': 0.90,   # 10% slower
+    'CONV': 1.00,  # Baseline
+}
+```
+
+### Loan Balance Tiers (Spec Pool Categories)
+
+Low loan balance pools prepay slower because fixed refinance costs ($3-5k) are a larger percentage of savings.
+
+| Tag | Balance Range | Prepay Impact | Typical Payup |
+|-----|--------------|---------------|---------------|
+| `LLB_85` | < $85,000 | **Very Slow** ⭐ | 1.5-2.5 ticks |
+| `LLB_110` | $85,000 - $110,000 | Slow | 1.0-1.5 ticks |
+| `LLB_150` | $110,000 - $150,000 | Moderate-Slow | 0.5-1.0 ticks |
+| `LLB_175` | $150,000 - $175,000 | Slight Slow | 0.25-0.5 ticks |
+| `LLB_200` | $175,000 - $200,000 | Near Baseline | 0-0.25 ticks |
+| `HLB` | > $200,000 | Baseline/Fast | None |
+| `JUMBO` | > Conforming Limit | **Fast** ⚠️ | Negative (discount) |
+
+```python
+def classify_loan_balance_tier(avg_loan_size: float) -> str:
+    if avg_loan_size < 85000:
+        return 'LLB_85'
+    elif avg_loan_size < 110000:
+        return 'LLB_110'
+    elif avg_loan_size < 150000:
+        return 'LLB_150'
+    elif avg_loan_size < 175000:
+        return 'LLB_175'
+    elif avg_loan_size < 200000:
+        return 'LLB_200'
+    elif avg_loan_size > 726200:  # 2024 conforming limit
+        return 'JUMBO'
+    else:
+        return 'HLB'
+```
+
+### Credit/Risk Profile Tags
+
+| Tag | Criteria | Prepay Impact | Investor View |
+|-----|----------|---------------|---------------|
+| `HIGH_LTV` | LTV > 80% | Slower | Less equity = harder to refi |
+| `VERY_HIGH_LTV` | LTV > 90% | **Very Slow** ⭐ | Much harder to refi, need PMI payoff |
+| `LOW_FICO` | FICO < 680 | Slower | May not qualify for new loan |
+| `MED_FICO` | FICO 680-720 | Moderate | Standard underwriting |
+| `HIGH_FICO` | FICO > 760 | **Fast** ⚠️ | Easy refi approval |
+| `HIGH_DTI` | DTI > 43% | Slower | Harder to qualify |
+
+### Occupancy Tags
+
+| Tag | Occupancy | Prepay Behavior | Why |
+|-----|-----------|-----------------|-----|
+| `OWNER_OCC` | Owner Occupied | Baseline | Standard behavior |
+| `INVESTOR` | Investment Property | **Slower** ⭐ | Less rate sensitive, tax implications |
+| `SECOND_HOME` | Second/Vacation | Moderate-Slow | Less urgency to optimize |
+
+```python
+OCCUPANCY_PREPAY_MULTIPLIER = {
+    'INVESTOR': 0.75,      # 25% slower
+    'SECOND_HOME': 0.85,   # 15% slower
+    'OWNER_OCC': 1.00,     # Baseline
+}
+```
+
+### Property Type Tags
+
+| Tag | Property | Prepay Impact |
+|-----|----------|---------------|
+| `SFR` | Single Family | Baseline |
+| `CONDO` | Condo/Co-op | Slightly Faster (smaller loans) |
+| `2_4_UNIT` | 2-4 Unit | Slower (investor-like) |
+| `MANUF` | Manufactured | **Very Slow** |
+
+### Loan Purpose Tags
+
+| Tag | Purpose | Prepay Behavior |
+|-----|---------|-----------------|
+| `PURCHASE` | Home Purchase | Moderate (new homeowner) |
+| `RATE_TERM` | Rate/Term Refi | Fast (already refi'd once) |
+| `CASHOUT` | Cash-Out Refi | Slower (already tapped equity) |
+
+### Seasoning Tags
+
+| Tag | WALA | Prepay Behavior | Why |
+|-----|------|-----------------|-----|
+| `NEW_PROD` | 0-6 months | Volatile | Unknown behavior |
+| `FRESH` | 6-12 months | Moderate-Fast | Not burned out |
+| `SEASONED` | 12-24 months | Moderate | Some burnout |
+| `WELL_SEASONED` | 24-36 months | Slow | Significant burnout |
+| `CUSPY` | 36+ months | **Very Slow** ⭐ | Heavily burned out |
+
+### Combined Spec Pool Score
+
+For investor-oriented ranking, combine multiple factors:
+
+```python
+def calculate_spec_pool_score(pool: PoolData) -> float:
+    """
+    Calculate composite prepay protection score.
+    Higher score = more prepay protected = more investor-friendly.
+    Scale: 0-100
+    """
+    score = 50  # Baseline
+    
+    # Loan program (+/- 15 pts)
+    program_adj = {
+        'VA': +15, 'USDA': +12, 'FHA': +5, 'CONV': 0
+    }
+    score += program_adj.get(pool.loan_program, 0)
+    
+    # Loan balance (+/- 15 pts)
+    if pool.avg_loan_size < 85000:
+        score += 15
+    elif pool.avg_loan_size < 110000:
+        score += 10
+    elif pool.avg_loan_size < 150000:
+        score += 5
+    elif pool.avg_loan_size > 350000:
+        score -= 10
+    
+    # LTV (+/- 10 pts)
+    if pool.avg_ltv > 90:
+        score += 10
+    elif pool.avg_ltv > 80:
+        score += 5
+    elif pool.avg_ltv < 60:
+        score -= 5
+    
+    # FICO (+/- 10 pts)
+    if pool.avg_fico < 680:
+        score += 10
+    elif pool.avg_fico < 720:
+        score += 5
+    elif pool.avg_fico > 780:
+        score -= 10
+    
+    # Occupancy (+/- 10 pts)
+    if pool.occupancy == 'INVESTOR':
+        score += 10
+    elif pool.occupancy == 'SECOND_HOME':
+        score += 5
+    
+    # State friction (from earlier section)
+    if pool.state_prepay_friction == 'high_friction':
+        score += 8
+    elif pool.state_prepay_friction == 'low_friction':
+        score -= 5
+    
+    # Servicer (from earlier section)
+    if pool.servicer_prepay_risk == 'prepay_protected':
+        score += 8
+    elif pool.servicer_prepay_risk == 'prepay_exposed':
+        score -= 10
+    
+    # Burnout
+    if pool.burnout_score > 70:
+        score += 10
+    elif pool.burnout_score < 20:
+        score -= 5
+    
+    return max(0, min(100, score))
+```
+
+### Spec Pool Classification
+
+| Score | Classification | Investor Preference |
+|-------|----------------|---------------------|
+| 80-100 | `premium_spec` | ⭐⭐⭐ Highest demand, largest payups |
+| 65-79 | `strong_spec` | ⭐⭐ Good prepay protection |
+| 50-64 | `mild_spec` | ⭐ Slight edge |
+| 35-49 | `generic` | TBA-like, no payup |
+| 0-34 | `fast_pay` | ⚠️ Prepay risk, trades at discount |
+
+### Example Spec Pool Combinations
+
+**Premium Spec (Score ~85+):**
+- VA + Low Balance (<$85k) + NY + Investor Occupancy
+- USDA + Low FICO + High LTV + Slow Servicer
+
+**Strong Spec (Score ~70):**
+- Conv + Low Balance (<$110k) + FL + High Burnout
+- FHA + Investor + NY + Well Seasoned
+
+**Fast Pay Warning (Score <35):**
+- Conv + Jumbo + High FICO + CA + Rocket Servicer + Fresh
+
+### Query Examples
+
+```sql
+-- Find best spec pools for prepay protection
+SELECT * FROM pool_summary
+WHERE spec_pool_score >= 75
+ORDER BY spec_pool_score DESC;
+
+-- Find VA low-balance pools
+SELECT * FROM pool_summary
+WHERE loan_program = 'VA'
+  AND loan_balance_tier IN ('LLB_85', 'LLB_110');
+
+-- Find investor property pools
+SELECT * FROM pool_summary
+WHERE occupancy_tag = 'INVESTOR';
+
+-- Avoid fast prepay risk
+SELECT * FROM pool_summary
+WHERE spec_pool_score >= 50
+  AND servicer_prepay_risk != 'prepay_exposed';
+```
