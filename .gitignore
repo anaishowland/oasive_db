@@ -13,6 +13,26 @@ ENV/
 .env
 .env.local
 .env.*.local
+.env.production
+.env.development
+*.env
+
+# Secrets and credentials - NEVER commit these
+secrets/
+credentials/
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+id_rsa*
+*.secret
+
+# GCP credentials
+service-account*.json
+*-credentials.json
+application_default_credentials.json
+gcloud/
 
 # IDE
 .idea/
@@ -20,14 +40,13 @@ ENV/
 *.swp
 *.swo
 .DS_Store
-
-# GCP credentials
-*.json
-service-account.json
+*.code-workspace
+.cursor/
 
 # Logs
 *.log
 logs/
+fred_ingestion.log
 
 # Build artifacts
 dist/
@@ -38,3 +57,23 @@ build/
 htmlcov/
 .coverage
 .pytest_cache/
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+tmp/
+temp/
+
+# Downloaded data (large files)
+data/
+downloads/
+*.zip.download
+
+# Jupyter notebooks checkpoints
+.ipynb_checkpoints/
+
+# OS files
+Thumbs.db
+.Spotlight-V100
+.Trashes

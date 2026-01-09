@@ -26,13 +26,14 @@ This document provides everything needed to continue development on the Oasive d
 - ✅ Daily scheduler LIVE (6:30 AM ET / 11:30 UTC)
 - ✅ Email alerts configured (failure only)
 
-### 2. Freddie Mac SFTP Ingestion (✅ Auth Fixed, Downloading)
+### 2. Freddie Mac SFTP Ingestion (✅ Working, Downloading in Progress)
 
 **Purpose**: Download MBS disclosure files from CSS SFTP server
 
 **Components**:
 - `src/ingestors/freddie_ingestor.py` - SFTP download with batching/retry logic
 - `migrations/003_freddie_schema.sql` - File catalog schema
+- `migrations/004_freddie_data_schema.sql` - Freddie Mac data schema (pools, loans, facts)
 - `scripts/analyze_sftp.py` - SFTP inventory analysis tool
 
 **Status**:
@@ -40,7 +41,16 @@ This document provides everything needed to continue development on the Oasive d
 - ✅ Cloud Run job deployed with VPC connector
 - ✅ Network routing through whitelisted IP `34.121.116.34`
 - ✅ Improved ingestor with batching, reconnection, and retry logic
-- ⏳ Historical backfill in progress
+- ✅ Migration 004 applied - Freddie data tables created
+- ⏳ Historical backfill in progress (~45,000 files remaining)
+
+**Database Tables Created** (Migration 004):
+- `dim_pool` - Pool-level attributes with AI-generated tags
+- `dim_loan` - Loan-level attributes
+- `dim_calendar` - Date dimension for efficient joins
+- `fact_pool_month` - Monthly pool performance metrics
+- `fact_loan_month` - Monthly loan-level performance
+- `freddie_security_issuance` - Security issuance data
 
 **SFTP Inventory** (as of Jan 9, 2026):
 - 45,353 files totaling 76.73 GB
@@ -62,7 +72,7 @@ This document provides everything needed to continue development on the Oasive d
 
 **Cloud Run Jobs**:
 - `fred-ingestor` - Daily FRED sync (LIVE)
-- `freddie-ingestor` - Freddie Mac SFTP sync
+- `freddie-ingestor` - Freddie Mac SFTP sync (running parallel jobs for backfill)
 
 **Networking for Freddie**:
 - VPC Connector: `data-feeds-vpc-1`
@@ -77,6 +87,16 @@ This document provides everything needed to continue development on the Oasive d
 
 **GCS Bucket**:
 - `oasive-raw-data` - Raw Freddie files stored at `freddie/raw/YYYY/MM/`
+
+---
+
+## ⚠️ CRITICAL: Testing Requirements
+
+**FRED API**: Can be tested locally (public API, no IP restrictions)
+
+**Freddie Mac SFTP**: CANNOT be tested locally - requires IP whitelisting [[memory:12860076]]
+- Must test via Cloud Run which routes through VPC Connector → Cloud NAT → whitelisted static IP
+- The whitelisted IP is stored in .env as `GCP_PUBLIC_IP=34.121.116.34`
 
 ---
 
@@ -118,36 +138,38 @@ python -m src.ingestors.freddie_ingestor --mode backfill --max-files 100
 
 ### 1. Historical Backfill (IN PROGRESS)
 
-Download all 45,353 files (76 GB) from SFTP:
+Download all 45,353 files (76 GB) from SFTP. Currently running parallel jobs:
 
 ```bash
 # Run via Cloud Run for large batches
 gcloud run jobs execute freddie-ingestor --region=us-central1 \
-  --args="--mode,backfill,--max-files,500"
+  --project=gen-lang-client-0343560978 \
+  --args="-m,src.ingestors.freddie_ingestor,--mode,backfill,--max-files,1000" \
+  --async
 ```
 
-### 2. Set Up Recurring Schedulers
+### 2. Set Up Recurring Schedulers (NEXT)
 
-Create schedulers for different file cadences:
+Create Cloud Scheduler jobs for different file cadences:
+- **Intraday**: FRE_FISS files (multiple times per day on business days)
+- **Daily**: Incremental sync for new files
+- **Monthly**: FRE_IS monthly summary files
 
-```bash
-# Daily incremental sync (7 AM ET)
-gcloud scheduler jobs create http freddie-ingestor-daily \
-    --project=gen-lang-client-0343560978 \
-    --location=us-central1 \
-    --schedule="0 12 * * *" \
-    --time-zone="UTC" \
-    --uri="https://us-central1-run.googleapis.com/apis/run.googleapis.com/v1/namespaces/gen-lang-client-0343560978/jobs/freddie-ingestor:run" \
-    --http-method=POST \
-    --oauth-service-account-email=cloud-run-jobs-sa@gen-lang-client-0343560978.iam.gserviceaccount.com
-```
+### 3. Parse Downloaded Files
 
-### 3. Process Downloaded Files
-
-After downloading:
+After downloading, need to:
 1. Parse ZIP files to extract loan/pool data
-2. Load structured data to BigQuery or Postgres
-3. Build fact/dimension tables per `docs/fannie_freddie_data_ingestion.md`
+2. Transform data to match schema (dim_pool, dim_loan, fact tables)
+3. Load structured data to Postgres
+
+### 4. AI Tag Generation
+
+Implement AI-generated tags for pools:
+- `risk_profile` - conservative/moderate/aggressive
+- `burnout_score` - prepayment burnout likelihood
+- `geo_concentration_tag` - CA_heavy, diversified, etc.
+- `servicer_quality_tag` - strong/moderate/weak
+- `behavior_tags` - JSONB for additional predictive tags
 
 ---
 
@@ -161,7 +183,9 @@ After downloading:
 | `src/ingestors/freddie_ingestor.py` | SFTP client with batching |
 | `scripts/analyze_sftp.py` | SFTP inventory analysis |
 | `scripts/run_migrations.py` | Database migrations |
+| `migrations/004_freddie_data_schema.sql` | Freddie data tables |
 | `docs/freddie_sftp_inventory.json` | Full SFTP file inventory |
+| `docs/database_schema.md` | Full database documentation |
 
 ---
 
@@ -177,7 +201,7 @@ gcloud builds submit --tag us-central1-docker.pkg.dev/gen-lang-client-0343560978
 gcloud run jobs update freddie-ingestor --region=us-central1 --project=gen-lang-client-0343560978 --image=us-central1-docker.pkg.dev/gen-lang-client-0343560978/oasive-images/oasive-ingestor:latest
 
 # 3. Execute with args
-gcloud run jobs execute freddie-ingestor --region=us-central1 --args="--mode,incremental"
+gcloud run jobs execute freddie-ingestor --region=us-central1 --args="-m,src.ingestors.freddie_ingestor,--mode,incremental"
 ```
 
 ---
@@ -196,18 +220,24 @@ gcloud logging read "resource.type=cloud_run_job AND resource.labels.job_name=fr
 
 ## Database Schema
 
-### freddie_file_catalog
-```sql
-- remote_path (PK): Full path on SFTP server
-- filename: File name
-- file_type: intraday_issuance, monthly_issuance, deal_files, etc.
-- file_date: Extracted date from filename
-- remote_size: File size in bytes
-- download_status: pending, downloaded, processed, error
-- local_gcs_path: GCS location after download
-- downloaded_at: Timestamp
-- error_message: Error details if failed
-```
+Full schema documentation in `docs/database_schema.md`.
+
+### Key Tables
+
+**FRED Tables**:
+- `fred_series` - Series metadata (38 indicators)
+- `fred_observation` - Time series data (106K+ rows)
+
+**Freddie File Management**:
+- `freddie_file_catalog` - Tracks all SFTP files and download status
+
+**Freddie Data Tables** (Migration 004):
+- `dim_pool` - Pool attributes + AI tags
+- `dim_loan` - Loan-level data
+- `dim_calendar` - Date dimension
+- `fact_pool_month` - Monthly pool metrics
+- `fact_loan_month` - Monthly loan metrics
+- `freddie_security_issuance` - Issuance data
 
 ---
 
@@ -223,4 +253,4 @@ gcloud logging read "resource.type=cloud_run_job AND resource.labels.job_name=fr
 
 Repository: https://github.com/anaishowland/oasive_db
 
-All code committed and pushed. `.env` is gitignored.
+All code committed and pushed. `.env` and credentials are gitignored.

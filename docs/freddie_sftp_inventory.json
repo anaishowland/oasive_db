@@ -1,0 +1,7575 @@
+{
+  "scan_date": "2026-01-09T19:40:09.758147",
+  "stats": {
+    "total_files": 45353,
+    "total_dirs": 3,
+    "total_size_bytes": 82390373498,
+    "by_extension": {
+      ".zip": {
+        "count": 36120,
+        "size": 76214715172
+      },
+      ".txt": {
+        "count": 7,
+        "size": 9344536
+      },
+      ".pdf": {
+        "count": 8589,
+        "size": 5785522336
+      },
+      "no_ext": {
+        "count": 623,
+        "size": 230482846
+      },
+      ".fac": {
+        "count": 1,
+        "size": 133653506
+      },
+      ".typ": {
+        "count": 1,
+        "size": 16501176
+      },
+      ".xlsx": {
+        "count": 12,
+        "size": 153926
+      }
+    },
+    "by_directory": {
+      "DisclosureFiles": {
+        "count": 45353,
+        "size": 82390373498
+      }
+    },
+    "by_year": {
+      "2003": {
+        "count": 201,
+        "size": 759034816
+      },
+      "2004": {
+        "count": 204,
+        "size": 759252093
+      },
+      "2005": {
+        "count": 182,
+        "size": 744136952
+      },
+      "2007": {
+        "count": 204,
+        "size": 783265668
+      },
+      "2008": {
+        "count": 192,
+        "size": 770771263
+      },
+      "2009": {
+        "count": 185,
+        "size": 774823373
+      },
+      "2010": {
+        "count": 262,
+        "size": 1563930010
+      },
+      "2011": {
+        "count": 248,
+        "size": 819739692
+      },
+      "2012": {
+        "count": 271,
+        "size": 860189798
+      },
+      "2001": {
+        "count": 192,
+        "size": 739707775
+      },
+      "2002": {
+        "count": 173,
+        "size": 726932466
+      },
+      "2006": {
+        "count": 195,
+        "size": 774179136
+      },
+      "2020": {
+        "count": 341,
+        "size": 1068312083
+      },
+      "2030": {
+        "count": 101,
+        "size": 816400347
+      },
+      "2040": {
+        "count": 91,
+        "size": 812936974
+      },
+      "2050": {
+        "count": 89,
+        "size": 819063473
+      },
+      "2060": {
+        "count": 99,
+        "size": 829812376
+      },
+      "2070": {
+        "count": 78,
+        "size": 817404333
+      },
+      "2080": {
+        "count": 100,
+        "size": 836719207
+      },
+      "2090": {
+        "count": 88,
+        "size": 832203074
+      },
+      "2025": {
+        "count": 96,
+        "size": 199735256
+      },
+      "2021": {
+        "count": 217,
+        "size": 340962341
+      },
+      "2022": {
+        "count": 135,
+        "size": 263030218
+      },
+      "2023": {
+        "count": 90,
+        "size": 207154543
+      },
+      "2024": {
+        "count": 92,
+        "size": 221776970
+      },
+      "2026": {
+        "count": 9,
+        "size": 604013
+      },
+      "2000": {
+        "count": 5,
+        "size": 202021
+      },
+      "2013": {
+        "count": 14,
+        "size": 8047411
+      },
+      "2014": {
+        "count": 4,
+        "size": 253112
+      },
+      "2015": {
+        "count": 5,
+        "size": 174007
+      },
+      "2016": {
+        "count": 5,
+        "size": 201743
+      },
+      "2017": {
+        "count": 5,
+        "size": 156457
+      },
+      "2018": {
+        "count": 8,
+        "size": 481225
+      },
+      "2019": {
+        "count": 109,
+        "size": 323388039
+      },
+      "2027": {
+        "count": 4,
+        "size": 156305
+      },
+      "2028": {
+        "count": 1,
+        "size": 2940
+      },
+      "2029": {
+        "count": 5,
+        "size": 135570
+      },
+      "2031": {
+        "count": 80,
+        "size": 56608817
+      },
+      "2032": {
+        "count": 78,
+        "size": 55188149
+      },
+      "2033": {
+        "count": 26,
+        "size": 15919194
+      },
+      "2034": {
+        "count": 6,
+        "size": 174600
+      },
+      "2035": {
+        "count": 7,
+        "size": 377068
+      },
+      "2036": {
+        "count": 6,
+        "size": 236877
+      },
+      "2037": {
+        "count": 5,
+        "size": 164782
+      },
+      "2038": {
+        "count": 6,
+        "size": 226177
+      },
+      "2039": {
+        "count": 5,
+        "size": 182124
+      },
+      "2041": {
+        "count": 76,
+        "size": 56760769
+      },
+      "2042": {
+        "count": 89,
+        "size": 63070342
+      },
+      "2043": {
+        "count": 5,
+        "size": 246595
+      },
+      "2044": {
+        "count": 6,
+        "size": 267933
+      },
+      "2045": {
+        "count": 6,
+        "size": 170137
+      },
+      "2046": {
+        "count": 6,
+        "size": 198967
+      },
+      "2047": {
+        "count": 5,
+        "size": 263362
+      },
+      "2048": {
+        "count": 6,
+        "size": 183314
+      },
+      "2049": {
+        "count": 6,
+        "size": 208893
+      },
+      "2051": {
+        "count": 85,
+        "size": 62743547
+      },
+      "2052": {
+        "count": 70,
+        "size": 47621526
+      },
+      "2053": {
+        "count": 14,
+        "size": 7969720
+      },
+      "2054": {
+        "count": 6,
+        "size": 304303
+      },
+      "2055": {
+        "count": 5,
+        "size": 8137993
+      },
+      "2056": {
+        "count": 6,
+        "size": 8046406
+      },
+      "2057": {
+        "count": 5,
+        "size": 168325
+      },
+      "2058": {
+        "count": 5,
+        "size": 4633127
+      },
+      "2059": {
+        "count": 6,
+        "size": 4293755
+      },
+      "2061": {
+        "count": 70,
+        "size": 47278881
+      },
+      "2062": {
+        "count": 79,
+        "size": 55512924
+      },
+      "2063": {
+        "count": 15,
+        "size": 8085550
+      },
+      "2064": {
+        "count": 6,
+        "size": 342039
+      },
+      "2065": {
+        "count": 6,
+        "size": 204710
+      },
+      "2066": {
+        "count": 6,
+        "size": 171493
+      },
+      "2067": {
+        "count": 5,
+        "size": 189886
+      },
+      "2068": {
+        "count": 6,
+        "size": 201527
+      },
+      "2069": {
+        "count": 3,
+        "size": 14614
+      },
+      "2071": {
+        "count": 79,
+        "size": 55085937
+      },
+      "2072": {
+        "count": 90,
+        "size": 63083549
+      },
+      "2073": {
+        "count": 7,
+        "size": 256292
+      },
+      "2074": {
+        "count": 5,
+        "size": 129344
+      },
+      "2075": {
+        "count": 6,
+        "size": 192091
+      },
+      "2076": {
+        "count": 6,
+        "size": 145313
+      },
+      "2077": {
+        "count": 5,
+        "size": 114768
+      },
+      "2078": {
+        "count": 5,
+        "size": 288531
+      },
+      "2079": {
+        "count": 4,
+        "size": 136720
+      },
+      "2081": {
+        "count": 88,
+        "size": 62989738
+      },
+      "2082": {
+        "count": 69,
+        "size": 47291490
+      },
+      "2083": {
+        "count": 25,
+        "size": 15848197
+      },
+      "2084": {
+        "count": 6,
+        "size": 174344
+      },
+      "2085": {
+        "count": 5,
+        "size": 165339
+      },
+      "2086": {
+        "count": 6,
+        "size": 184131
+      },
+      "2087": {
+        "count": 3,
+        "size": 127081
+      },
+      "2088": {
+        "count": 6,
+        "size": 179802
+      },
+      "2089": {
+        "count": 6,
+        "size": 172531
+      },
+      "2091": {
+        "count": 69,
+        "size": 47211255
+      },
+      "2092": {
+        "count": 85,
+        "size": 62788769
+      },
+      "2093": {
+        "count": 16,
+        "size": 8114125
+      },
+      "2094": {
+        "count": 3,
+        "size": 158153
+      },
+      "2095": {
+        "count": 5,
+        "size": 185211
+      },
+      "2096": {
+        "count": 3,
+        "size": 148273
+      },
+      "2097": {
+        "count": 5,
+        "size": 285456
+      },
+      "2098": {
+        "count": 6,
+        "size": 243420
+      },
+      "2099": {
+        "count": 6,
+        "size": 245544
+      }
+    },
+    "file_patterns": {
+      "AM": 63,
+      "CF": 15,
+      "CG": 80,
+      "DC": 35,
+      "DG": 1,
+      "DR": 82,
+      "FRE_ACP_Q": 5,
+      "FRE_DPR_Fctr_": 34,
+      "FRE_FISS_": 227,
+      "g": 82,
+      "gs": 1,
+      "h": 51,
+      "r": 64,
+      "s": 92,
+      "sf": 17,
+      "FRE_ILLD_": 81,
+      "FRE_ISS_": 79,
+      "FRE_IS_": 121,
+      "FRE_RISS_": 81,
+      "FRE_RIS_": 81,
+      "ML": 69,
+      "PF": 69,
+      "ac": 85,
+      "ar": 85,
+      "au": 85,
+      "cfile": 85,
+      "db": 1772,
+      "fd": 82,
+      "files_fre": 1,
+      "fq": 82,
+      "fu": 81,
+      "ge": 85,
+      "mi": 80,
+      "mj": 85,
+      "wg": 1772,
+      "xf": 80,
+      "xs": 87,
+      "FRE_MCTAX_Q": 8,
+      "FRE_MICA_VERSION_": 2,
+      "FRE_Multilender_": 12,
+      "FRE_SCTAX_Q": 7,
+      "FRE_Social_Index_Historical_Issuance_File": 1,
+      "FRE_Social_Index_Issuance_File": 1,
+      "FT": 80,
+      "G": 31,
+      "GS": 5,
+      "GT": 80,
+      "ID": 82,
+      "IR": 81,
+      "IS": 80,
+      "MD": 73,
+      "MR": 162,
+      "MT": 79,
+      "MV": 2,
+      "OP": 85,
+      "PV": 2,
+      "RD": 35,
+      "S": 62,
+      "SC_AT": 1,
+      "SF": 159,
+      "SI": 1,
+      "TB": 79,
+      "TC": 1,
+      "TD": 29,
+      "TQ": 232,
+      "TV": 84,
+      "UT": 1,
+      "VC": 1,
+      "VI": 2,
+      "VT": 8,
+      "WR": 8,
+      "XT": 62,
+      "ZD": 2,
+      "ZT": 1,
+      "a": 1,
+      "al": 1160,
+      "am": 6,
+      "cf": 6,
+      "cg": 6,
+      "dn": 1003,
+      "dr": 4,
+      "ea": 1707,
+      "eb": 12,
+      "ec": 1788,
+      "ed": 1707,
+      "fl": 1003,
+      "ft": 6,
+      "gt": 6,
+      "id": 4,
+      "ir": 4,
+      "is": 5,
+      "md": 2,
+      "mg": 8,
+      "mh": 1788,
+      "mk": 1788,
+      "ml": 7,
+      "mo": 15,
+      "mr": 8,
+      "mt": 6,
+      "mw": 4,
+      "my": 11,
+      "mz": 3,
+      "sp": 7,
+      "su": 1,
+      "sx": 82,
+      "sy": 4,
+      "tb": 8,
+      "td": 2,
+      "tq": 15,
+      "tv": 22,
+      "wf": 1003,
+      "wj": 79,
+      "wk": 1,
+      "wl": 58,
+      "wr": 2,
+      "xa": 1166,
+      "xb": 23,
+      "xg": 1,
+      "xl": 23,
+      "xm": 1,
+      "xo": 1166,
+      "xp": 23,
+      "xr": 1,
+      "xt": 6,
+      "zr": 1
+    }
+  },
+  "files": [
+    {
+      "path": "/DisclosureFiles",
+      "name": "DisclosureFiles",
+      "is_dir": true,
+      "size": 0,
+      "modified": "2019-05-15T14:07:22"
+    },
+    {
+      "path": "/DisclosureFiles/000365SFC.zip",
+      "name": "000365SFC.zip",
+      "is_dir": false,
+      "size": 7019,
+      "modified": "2019-07-30T15:34:28"
+    },
+    {
+      "path": "/DisclosureFiles/000366SFC.zip",
+      "name": "000366SFC.zip",
+      "is_dir": false,
+      "size": 624,
+      "modified": "2019-07-31T15:32:58"
+    },
+    {
+      "path": "/DisclosureFiles/000367FC.zip",
+      "name": "000367FC.zip",
+      "is_dir": false,
+      "size": 2890,
+      "modified": "2020-09-01T06:07:06"
+    },
+    {
+      "path": "/DisclosureFiles/000368FC.zip",
+      "name": "000368FC.zip",
+      "is_dir": false,
+      "size": 3920,
+      "modified": "2020-11-02T10:25:01"
+    },
+    {
+      "path": "/DisclosureFiles/000369FC.zip",
+      "name": "000369FC.zip",
+      "is_dir": false,
+      "size": 493,
+      "modified": "2020-12-21T07:34:02"
+    },
+    {
+      "path": "/DisclosureFiles/000370FC.zip",
+      "name": "000370FC.zip",
+      "is_dir": false,
+      "size": 463,
+      "modified": "2020-12-21T07:39:56"
+    },
+    {
+      "path": "/DisclosureFiles/000371FC.zip",
+      "name": "000371FC.zip",
+      "is_dir": false,
+      "size": 523,
+      "modified": "2020-12-21T07:41:01"
+    },
+    {
+      "path": "/DisclosureFiles/000372FC.zip",
+      "name": "000372FC.zip",
+      "is_dir": false,
+      "size": 506,
+      "modified": "2020-12-21T07:41:53"
+    },
+    {
+      "path": "/DisclosureFiles/000373FC.zip",
+      "name": "000373FC.zip",
+      "is_dir": false,
+      "size": 492,
+      "modified": "2020-12-21T07:42:54"
+    },
+    {
+      "path": "/DisclosureFiles/000374FC.zip",
+      "name": "000374FC.zip",
+      "is_dir": false,
+      "size": 4021,
+      "modified": "2021-03-01T09:48:37"
+    },
+    {
+      "path": "/DisclosureFiles/000375FC.zip",
+      "name": "000375FC.zip",
+      "is_dir": false,
+      "size": 7693,
+      "modified": "2021-04-26T14:27:57"
+    },
+    {
+      "path": "/DisclosureFiles/000376FC.zip",
+      "name": "000376FC.zip",
+      "is_dir": false,
+      "size": 428,
+      "modified": "2021-05-27T15:00:48"
+    },
+    {
+      "path": "/DisclosureFiles/000377FC.zip",
+      "name": "000377FC.zip",
+      "is_dir": false,
+      "size": 2492,
+      "modified": "2021-06-21T15:00:24"
+    },
+    {
+      "path": "/DisclosureFiles/000378FC.zip",
+      "name": "000378FC.zip",
+      "is_dir": false,
+      "size": 5686,
+      "modified": "2021-08-24T15:00:19"
+    },
+    {
+      "path": "/DisclosureFiles/000379FC.zip",
+      "name": "000379FC.zip",
+      "is_dir": false,
+      "size": 3311,
+      "modified": "2021-08-24T15:00:19"
+    },
+    {
+      "path": "/DisclosureFiles/000380FC.zip",
+      "name": "000380FC.zip",
+      "is_dir": false,
+      "size": 6933,
+      "modified": "2022-02-23T15:00:05"
+    },
+    {
+      "path": "/DisclosureFiles/000381FC.zip",
+      "name": "000381FC.zip",
+      "is_dir": false,
+      "size": 6590,
+      "modified": "2022-02-23T15:00:05"
+    },
+    {
+      "path": "/DisclosureFiles/000382FC.zip",
+      "name": "000382FC.zip",
+      "is_dir": false,
+      "size": 9673,
+      "modified": "2022-03-21T15:00:05"
+    },
+    {
+      "path": "/DisclosureFiles/000383FC.zip",
+      "name": "000383FC.zip",
+      "is_dir": false,
+      "size": 2723,
+      "modified": "2022-03-22T15:00:04"
+    },
+    {
+      "path": "/DisclosureFiles/000384FC.zip",
+      "name": "000384FC.zip",
+      "is_dir": false,
+      "size": 9246,
+      "modified": "2022-04-22T15:00:05"
+    },
+    {
+      "path": "/DisclosureFiles/000385FC.zip",
+      "name": "000385FC.zip",
+      "is_dir": false,
+      "size": 6164,
+      "modified": "2022-04-25T15:00:04"
+    },
+    {
+      "path": "/DisclosureFiles/000386FC.zip",
+      "name": "000386FC.zip",
+      "is_dir": false,
+      "size": 3356,
+      "modified": "2022-05-25T15:00:04"
+    },
+    {
+      "path": "/DisclosureFiles/000387FC.zip",
+      "name": "000387FC.zip",
+      "is_dir": false,
+      "size": 427,
+      "modified": "2022-06-29T15:00:22"
+    },
+    {
+      "path": "/DisclosureFiles/000388FC.zip",
+      "name": "000388FC.zip",
+      "is_dir": false,
+      "size": 3863,
+      "modified": "2022-06-27T15:00:18"
+    },
+    {
+      "path": "/DisclosureFiles/000389FC.zip",
+      "name": "000389FC.zip",
+      "is_dir": false,
+      "size": 4268,
+      "modified": "2022-12-22T15:00:05"
+    },
+    {
+      "path": "/DisclosureFiles/000390FC.zip",
+      "name": "000390FC.zip",
+      "is_dir": false,
+      "size": 3696,
+      "modified": "2023-01-30T15:00:21"
+    },
+    {
+      "path": "/DisclosureFiles/000391FC.zip",
+      "name": "000391FC.zip",
+      "is_dir": false,
+      "size": 13079,
+      "modified": "2023-10-25T14:05:06"
+    },
+    {
+      "path": "/DisclosureFiles/000392FC.zip",
+      "name": "000392FC.zip",
+      "is_dir": false,
+      "size": 3132,
+      "modified": "2023-10-25T14:07:02"
+    },
+    {
+      "path": "/DisclosureFiles/000393FC.zip",
+      "name": "000393FC.zip",
+      "is_dir": false,
+      "size": 5821,
+      "modified": "2023-10-25T14:13:01"
+    },
+    {
+      "path": "/DisclosureFiles/000394FC.zip",
+      "name": "000394FC.zip",
+      "is_dir": false,
+      "size": 5860,
+      "modified": "2023-10-25T13:32:46"
+    },
+    {
+      "path": "/DisclosureFiles/000395FC.zip",
+      "name": "000395FC.zip",
+      "is_dir": false,
+      "size": 7504,
+      "modified": "2023-10-25T13:34:05"
+    },
+    {
+      "path": "/DisclosureFiles/000396FC.zip",
+      "name": "000396FC.zip",
+      "is_dir": false,
+      "size": 6798,
+      "modified": "2023-10-25T14:00:44"
+    },
+    {
+      "path": "/DisclosureFiles/000397FC.zip",
+      "name": "000397FC.zip",
+      "is_dir": false,
+      "size": 12424,
+      "modified": "2023-10-25T14:03:16"
+    },
+    {
+      "path": "/DisclosureFiles/000398FC.zip",
+      "name": "000398FC.zip",
+      "is_dir": false,
+      "size": 5367,
+      "modified": "2023-10-25T14:17:03"
+    },
+    {
+      "path": "/DisclosureFiles/000399FC.zip",
+      "name": "000399FC.zip",
+      "is_dir": false,
+      "size": 3920,
+      "modified": "2023-10-25T14:18:35"
+    },
+    {
+      "path": "/DisclosureFiles/000400FC.zip",
+      "name": "000400FC.zip",
+      "is_dir": false,
+      "size": 2508,
+      "modified": "2023-10-25T14:20:46"
+    },
+    {
+      "path": "/DisclosureFiles/000401FC.zip",
+      "name": "000401FC.zip",
+      "is_dir": false,
+      "size": 2569,
+      "modified": "2023-10-25T14:22:52"
+    },
+    {
+      "path": "/DisclosureFiles/000402FC.zip",
+      "name": "000402FC.zip",
+      "is_dir": false,
+      "size": 429,
+      "modified": "2023-08-31T15:00:58"
+    },
+    {
+      "path": "/DisclosureFiles/000403FC.zip",
+      "name": "000403FC.zip",
+      "is_dir": false,
+      "size": 3428,
+      "modified": "2023-10-25T13:25:20"
+    },
+    {
+      "path": "/DisclosureFiles/000404FC.zip",
+      "name": "000404FC.zip",
+      "is_dir": false,
+      "size": 2427,
+      "modified": "2023-10-25T13:28:16"
+    },
+    {
+      "path": "/DisclosureFiles/000405FC.zip",
+      "name": "000405FC.zip",
+      "is_dir": false,
+      "size": 3773,
+      "modified": "2023-10-25T13:29:14"
+    },
+    {
+      "path": "/DisclosureFiles/000406FC.zip",
+      "name": "000406FC.zip",
+      "is_dir": false,
+      "size": 1018,
+      "modified": "2023-09-29T15:00:33"
+    },
+    {
+      "path": "/DisclosureFiles/000407FC.zip",
+      "name": "000407FC.zip",
+      "is_dir": false,
+      "size": 1241,
+      "modified": "2023-12-27T15:00:12"
+    },
+    {
+      "path": "/DisclosureFiles/000408FC.zip",
+      "name": "000408FC.zip",
+      "is_dir": false,
+      "size": 5690,
+      "modified": "2023-12-27T15:00:12"
+    },
+    {
+      "path": "/DisclosureFiles/000409FC.zip",
+      "name": "000409FC.zip",
+      "is_dir": false,
+      "size": 3443,
+      "modified": "2024-01-30T15:00:13"
+    },
+    {
+      "path": "/DisclosureFiles/000410FC.zip",
+      "name": "000410FC.zip",
+      "is_dir": false,
+      "size": 11663,
+      "modified": "2024-01-30T15:00:14"
+    },
+    {
+      "path": "/DisclosureFiles/000411FC.zip",
+      "name": "000411FC.zip",
+      "is_dir": false,
+      "size": 7144,
+      "modified": "2024-01-30T15:00:14"
+    },
+    {
+      "path": "/DisclosureFiles/000412FC.zip",
+      "name": "000412FC.zip",
+      "is_dir": false,
+      "size": 11429,
+      "modified": "2024-03-22T15:00:05"
+    },
+    {
+      "path": "/DisclosureFiles/000413FC.zip",
+      "name": "000413FC.zip",
+      "is_dir": false,
+      "size": 3592,
+      "modified": "2024-04-30T15:00:32"
+    },
+    {
+      "path": "/DisclosureFiles/000414FC.zip",
+      "name": "000414FC.zip",
+      "is_dir": false,
+      "size": 4667,
+      "modified": "2024-05-29T15:00:11"
+    },
+    {
+      "path": "/DisclosureFiles/000415FC.zip",
+      "name": "000415FC.zip",
+      "is_dir": false,
+      "size": 1371,
+      "modified": "2024-06-27T15:00:11"
+    },
+    {
+      "path": "/DisclosureFiles/000416FC.zip",
+      "name": "000416FC.zip",
+      "is_dir": false,
+      "size": 2952,
+      "modified": "2024-09-27T15:00:12"
+    },
+    {
+      "path": "/DisclosureFiles/000417FC.zip",
+      "name": "000417FC.zip",
+      "is_dir": false,
+      "size": 3311,
+      "modified": "2024-10-30T15:00:12"
+    },
+    {
+      "path": "/DisclosureFiles/000418FC.zip",
+      "name": "000418FC.zip",
+      "is_dir": false,
+      "size": 4163,
+      "modified": "2024-10-30T15:00:12"
+    },
+    {
+      "path": "/DisclosureFiles/000419FC.zip",
+      "name": "000419FC.zip",
+      "is_dir": false,
+      "size": 4374,
+      "modified": "2025-01-30T15:00:08"
+    },
+    {
+      "path": "/DisclosureFiles/000420FC.zip",
+      "name": "000420FC.zip",
+      "is_dir": false,
+      "size": 1330,
+      "modified": "2025-02-27T15:00:08"
+    },
+    {
+      "path": "/DisclosureFiles/000421FC.zip",
+      "name": "000421FC.zip",
+      "is_dir": false,
+      "size": 3406,
+      "modified": "2025-03-28T15:00:10"
+    },
+    {
+      "path": "/DisclosureFiles/000422FC.zip",
+      "name": "000422FC.zip",
+      "is_dir": false,
+      "size": 7870,
+      "modified": "2025-04-29T15:00:12"
+    },
+    {
+      "path": "/DisclosureFiles/000423FC.zip",
+      "name": "000423FC.zip",
+      "is_dir": false,
+      "size": 14077,
+      "modified": "2025-06-24T15:00:03"
+    },
+    {
+      "path": "/DisclosureFiles/000424FC.zip",
+      "name": "000424FC.zip",
+      "is_dir": false,
+      "size": 2064,
+      "modified": "2025-08-28T15:00:02"
+    },
+    {
+      "path": "/DisclosureFiles/004866SC_AT.zip",
+      "name": "004866SC_AT.zip",
+      "is_dir": false,
+      "size": 665,
+      "modified": "2019-04-11T12:30:05"
+    },
+    {
+      "path": "/DisclosureFiles/004868SC_AT.zip",
+      "name": "004868SC_AT.zip",
+      "is_dir": false,
+      "size": 541,
+      "modified": "2019-04-11T12:30:26"
+    },
+    {
+      "path": "/DisclosureFiles/004885SC_AT.zip",
+      "name": "004885SC_AT.zip",
+      "is_dir": false,
+      "size": 922,
+      "modified": "2019-05-31T15:32:06"
+    },
+    {
+      "path": "/DisclosureFiles/004886SC_AT.zip",
+      "name": "004886SC_AT.zip",
+      "is_dir": false,
+      "size": 734,
+      "modified": "2019-05-31T15:32:12"
+    },
+    {
+      "path": "/DisclosureFiles/004887SC_AT.zip",
+      "name": "004887SC_AT.zip",
+      "is_dir": false,
+      "size": 1432,
+      "modified": "2019-05-30T15:31:18"
+    },
+    {
+      "path": "/DisclosureFiles/004888SC_AT.zip",
+      "name": "004888SC_AT.zip",
+      "is_dir": false,
+      "size": 1581,
+      "modified": "2019-05-31T15:32:14"
+    },
+    {
+      "path": "/DisclosureFiles/004889SC_AT.zip",
+      "name": "004889SC_AT.zip",
+      "is_dir": false,
+      "size": 483,
+      "modified": "2019-05-31T15:32:09"
+    },
+    {
+      "path": "/DisclosureFiles/004890SC_AT.zip",
+      "name": "004890SC_AT.zip",
+      "is_dir": false,
+      "size": 515,
+      "modified": "2019-05-30T15:31:19"
+    },
+    {
+      "path": "/DisclosureFiles/004891SC_AT.zip",
+      "name": "004891SC_AT.zip",
+      "is_dir": false,
+      "size": 2432,
+      "modified": "2019-05-30T15:31:19"
+    },
+    {
+      "path": "/DisclosureFiles/004892SC_AT.zip",
+      "name": "004892SC_AT.zip",
+      "is_dir": false,
+      "size": 3083,
+      "modified": "2019-06-28T16:00:09"
+    },
+    {
+      "path": "/DisclosureFiles/004892SC_AT_REV.txt",
+      "name": "004892SC_AT_REV.txt",
+      "is_dir": false,
+      "size": 9545,
+      "modified": "2019-10-08T08:30:02"
+    },
+    {
+      "path": "/DisclosureFiles/004893SC_AT.txt",
+      "name": "004893SC_AT.txt",
+      "is_dir": false,
+      "size": 1821,
+      "modified": "2019-05-31T15:32:14"
+    },
+    {
+      "path": "/DisclosureFiles/004893SC_AT.zip",
+      "name": "004893SC_AT.zip",
+      "is_dir": false,
+      "size": 813,
+      "modified": "2019-06-01T03:30:03"
+    },
+    {
+      "path": "/DisclosureFiles/004894SC_AT.zip",
+      "name": "004894SC_AT.zip",
+      "is_dir": false,
+      "size": 1485,
+      "modified": "2019-06-28T16:00:07"
+    },
+    {
+      "path": "/DisclosureFiles/004895SC_AT.zip",
+      "name": "004895SC_AT.zip",
+      "is_dir": false,
+      "size": 10013,
+      "modified": "2019-06-28T16:00:05"
+    },
+    {
+      "path": "/DisclosureFiles/004896SC_AT.zip",
+      "name": "004896SC_AT.zip",
+      "is_dir": false,
+      "size": 3593,
+      "modified": "2019-06-28T16:00:06"
+    },
+    {
+      "path": "/DisclosureFiles/004897SC_AT.zip",
+      "name": "004897SC_AT.zip",
+      "is_dir": false,
+      "size": 3243,
+      "modified": "2019-06-28T16:00:06"
+    },
+    {
+      "path": "/DisclosureFiles/004898SC_AT.zip",
+      "name": "004898SC_AT.zip",
+      "is_dir": false,
+      "size": 3890,
+      "modified": "2019-06-28T16:00:08"
+    },
+    {
+      "path": "/DisclosureFiles/004899SC_AT.zip",
+      "name": "004899SC_AT.zip",
+      "is_dir": false,
+      "size": 4213,
+      "modified": "2019-07-01T03:30:52"
+    },
+    {
+      "path": "/DisclosureFiles/004900SC_AT.zip",
+      "name": "004900SC_AT.zip",
+      "is_dir": false,
+      "size": 1642,
+      "modified": "2019-07-31T15:32:56"
+    },
+    {
+      "path": "/DisclosureFiles/004901SC_AT.zip",
+      "name": "004901SC_AT.zip",
+      "is_dir": false,
+      "size": 35419,
+      "modified": "2019-07-01T03:30:53"
+    },
+    {
+      "path": "/DisclosureFiles/004902SC_AT.zip",
+      "name": "004902SC_AT.zip",
+      "is_dir": false,
+      "size": 1494,
+      "modified": "2019-07-31T15:32:59"
+    },
+    {
+      "path": "/DisclosureFiles/004903SC_AT.zip",
+      "name": "004903SC_AT.zip",
+      "is_dir": false,
+      "size": 10164,
+      "modified": "2019-07-31T15:33:01"
+    },
+    {
+      "path": "/DisclosureFiles/004904SC_AT.zip",
+      "name": "004904SC_AT.zip",
+      "is_dir": false,
+      "size": 1588,
+      "modified": "2019-07-31T15:32:50"
+    },
+    {
+      "path": "/DisclosureFiles/004904SC_AT_REV.txt",
+      "name": "004904SC_AT_REV.txt",
+      "is_dir": false,
+      "size": 4516,
+      "modified": "2019-10-08T08:30:05"
+    },
+    {
+      "path": "/DisclosureFiles/004905SC_AT.zip",
+      "name": "004905SC_AT.zip",
+      "is_dir": false,
+      "size": 1499,
+      "modified": "2019-07-31T15:33:00"
+    },
+    {
+      "path": "/DisclosureFiles/004906SC_AT.zip",
+      "name": "004906SC_AT.zip",
+      "is_dir": false,
+      "size": 5372,
+      "modified": "2019-08-30T15:32:29"
+    },
+    {
+      "path": "/DisclosureFiles/004907SC_AT.zip",
+      "name": "004907SC_AT.zip",
+      "is_dir": false,
+      "size": 488,
+      "modified": "2019-07-31T15:32:58"
+    },
+    {
+      "path": "/DisclosureFiles/004908SC_AT.zip",
+      "name": "004908SC_AT.zip",
+      "is_dir": false,
+      "size": 4271,
+      "modified": "2019-08-30T15:32:23"
+    },
+    {
+      "path": "/DisclosureFiles/004909SC_AT.zip",
+      "name": "004909SC_AT.zip",
+      "is_dir": false,
+      "size": 1856,
+      "modified": "2019-08-30T15:32:15"
+    },
+    {
+      "path": "/DisclosureFiles/004910SC_AT.zip",
+      "name": "004910SC_AT.zip",
+      "is_dir": false,
+      "size": 1788,
+      "modified": "2019-08-30T15:32:16"
+    },
+    {
+      "path": "/DisclosureFiles/004911SC_AT.zip",
+      "name": "004911SC_AT.zip",
+      "is_dir": false,
+      "size": 1649,
+      "modified": "2019-08-30T15:32:11"
+    },
+    {
+      "path": "/DisclosureFiles/004912SC_AT.zip",
+      "name": "004912SC_AT.zip",
+      "is_dir": false,
+      "size": 1130,
+      "modified": "2019-08-30T15:32:06"
+    },
+    {
+      "path": "/DisclosureFiles/004913SC_AT.zip",
+      "name": "004913SC_AT.zip",
+      "is_dir": false,
+      "size": 4928,
+      "modified": "2019-08-30T15:32:17"
+    },
+    {
+      "path": "/DisclosureFiles/004914SC_AT.zip",
+      "name": "004914SC_AT.zip",
+      "is_dir": false,
+      "size": 1928,
+      "modified": "2019-08-30T15:32:24"
+    },
+    {
+      "path": "/DisclosureFiles/004915SC_AT.zip",
+      "name": "004915SC_AT.zip",
+      "is_dir": false,
+      "size": 1576,
+      "modified": "2019-08-30T15:32:13"
+    },
+    {
+      "path": "/DisclosureFiles/004916SC_AT.zip",
+      "name": "004916SC_AT.zip",
+      "is_dir": false,
+      "size": 27373,
+      "modified": "2019-08-30T15:32:30"
+    },
+    {
+      "path": "/DisclosureFiles/004917SC_AT.zip",
+      "name": "004917SC_AT.zip",
+      "is_dir": false,
+      "size": 2292,
+      "modified": "2019-09-30T15:30:30"
+    },
+    {
+      "path": "/DisclosureFiles/004918SC_AT.zip",
+      "name": "004918SC_AT.zip",
+      "is_dir": false,
+      "size": 12664,
+      "modified": "2019-09-30T15:30:40"
+    },
+    {
+      "path": "/DisclosureFiles/004919SC_AT.zip",
+      "name": "004919SC_AT.zip",
+      "is_dir": false,
+      "size": 2241,
+      "modified": "2019-09-30T15:30:29"
+    },
+    {
+      "path": "/DisclosureFiles/004920SC_AT.zip",
+      "name": "004920SC_AT.zip",
+      "is_dir": false,
+      "size": 2741,
+      "modified": "2019-09-30T15:30:22"
+    },
+    {
+      "path": "/DisclosureFiles/004921SC_AT.zip",
+      "name": "004921SC_AT.zip",
+      "is_dir": false,
+      "size": 660,
+      "modified": "2019-09-30T15:30:31"
+    },
+    {
+      "path": "/DisclosureFiles/004922SC_AT.zip",
+      "name": "004922SC_AT.zip",
+      "is_dir": false,
+      "size": 1133,
+      "modified": "2019-09-30T15:30:37"
+    },
+    {
+      "path": "/DisclosureFiles/004923SC_AT.zip",
+      "name": "004923SC_AT.zip",
+      "is_dir": false,
+      "size": 3957,
+      "modified": "2019-10-31T15:31:12"
+    },
+    {
+      "path": "/DisclosureFiles/004924SC_AT.zip",
+      "name": "004924SC_AT.zip",
+      "is_dir": false,
+      "size": 3382,
+      "modified": "2019-09-30T15:30:45"
+    },
+    {
+      "path": "/DisclosureFiles/004925SC_AT.zip",
+      "name": "004925SC_AT.zip",
+      "is_dir": false,
+      "size": 2244,
+      "modified": "2019-09-30T15:30:40"
+    },
+    {
+      "path": "/DisclosureFiles/004926SC_AT.zip",
+      "name": "004926SC_AT.zip",
+      "is_dir": false,
+      "size": 2566,
+      "modified": "2019-10-31T15:31:21"
+    },
+    {
+      "path": "/DisclosureFiles/004927SC_AT.zip",
+      "name": "004927SC_AT.zip",
+      "is_dir": false,
+      "size": 3301,
+      "modified": "2019-10-31T15:31:21"
+    },
+    {
+      "path": "/DisclosureFiles/004928SC_AT.zip",
+      "name": "004928SC_AT.zip",
+      "is_dir": false,
+      "size": 1369,
+      "modified": "2019-10-31T15:31:04"
+    },
+    {
+      "path": "/DisclosureFiles/004929SC_AT.zip",
+      "name": "004929SC_AT.zip",
+      "is_dir": false,
+      "size": 2542,
+      "modified": "2019-10-30T15:31:54"
+    },
+    {
+      "path": "/DisclosureFiles/004930SC_AT.zip",
+      "name": "004930SC_AT.zip",
+      "is_dir": false,
+      "size": 3776,
+      "modified": "2019-10-31T15:31:13"
+    },
+    {
+      "path": "/DisclosureFiles/004931SC_AT.zip",
+      "name": "004931SC_AT.zip",
+      "is_dir": false,
+      "size": 2434,
+      "modified": "2019-10-31T15:31:13"
+    },
+    {
+      "path": "/DisclosureFiles/004932SC_AT.zip",
+      "name": "004932SC_AT.zip",
+      "is_dir": false,
+      "size": 5392,
+      "modified": "2019-11-29T15:30:34"
+    },
+    {
+      "path": "/DisclosureFiles/004933SC_AT.zip",
+      "name": "004933SC_AT.zip",
+      "is_dir": false,
+      "size": 1448,
+      "modified": "2019-11-29T15:30:27"
+    },
+    {
+      "path": "/DisclosureFiles/004934SC_AT.zip",
+      "name": "004934SC_AT.zip",
+      "is_dir": false,
+      "size": 424,
+      "modified": "2019-11-29T15:30:35"
+    },
+    {
+      "path": "/DisclosureFiles/004935SC_AT.zip",
+      "name": "004935SC_AT.zip",
+      "is_dir": false,
+      "size": 3038,
+      "modified": "2019-11-27T15:32:08"
+    },
+    {
+      "path": "/DisclosureFiles/004936SC_AT.zip",
+      "name": "004936SC_AT.zip",
+      "is_dir": false,
+      "size": 1144,
+      "modified": "2019-11-29T15:30:30"
+    },
+    {
+      "path": "/DisclosureFiles/004937SC_AT.zip",
+      "name": "004937SC_AT.zip",
+      "is_dir": false,
+      "size": 3359,
+      "modified": "2019-11-29T15:30:31"
+    },
+    {
+      "path": "/DisclosureFiles/004938SC_AT.zip",
+      "name": "004938SC_AT.zip",
+      "is_dir": false,
+      "size": 1296,
+      "modified": "2019-11-29T15:30:33"
+    },
+    {
+      "path": "/DisclosureFiles/004939SC_AT.zip",
+      "name": "004939SC_AT.zip",
+      "is_dir": false,
+      "size": 676,
+      "modified": "2019-11-29T15:30:14"
+    },
+    {
+      "path": "/DisclosureFiles/004940SC_AT.zip",
+      "name": "004940SC_AT.zip",
+      "is_dir": false,
+      "size": 1301,
+      "modified": "2019-12-30T15:30:31"
+    },
+    {
+      "path": "/DisclosureFiles/004941SC_AT.zip",
+      "name": "004941SC_AT.zip",
+      "is_dir": false,
+      "size": 3022,
+      "modified": "2019-12-31T15:31:04"
+    },
+    {
+      "path": "/DisclosureFiles/004942SC_AT.zip",
+      "name": "004942SC_AT.zip",
+      "is_dir": false,
+      "size": 1839,
+      "modified": "2019-12-31T15:31:05"
+    },
+    {
+      "path": "/DisclosureFiles/004943SC_AT.zip",
+      "name": "004943SC_AT.zip",
+      "is_dir": false,
+      "size": 1672,
+      "modified": "2019-12-31T15:31:04"
+    },
+    {
+      "path": "/DisclosureFiles/004944SC_AT.zip",
+      "name": "004944SC_AT.zip",
+      "is_dir": false,
+      "size": 34793,
+      "modified": "2019-12-30T15:30:46"
+    },
+    {
+      "path": "/DisclosureFiles/004945SC_AT.zip",
+      "name": "004945SC_AT.zip",
+      "is_dir": false,
+      "size": 10893,
+      "modified": "2019-12-31T15:31:05"
+    },
+    {
+      "path": "/DisclosureFiles/004946SC_AT.zip",
+      "name": "004946SC_AT.zip",
+      "is_dir": false,
+      "size": 561,
+      "modified": "2019-12-30T15:30:31"
+    },
+    {
+      "path": "/DisclosureFiles/004947SC_AT.zip",
+      "name": "004947SC_AT.zip",
+      "is_dir": false,
+      "size": 586,
+      "modified": "2019-12-30T15:30:19"
+    },
+    {
+      "path": "/DisclosureFiles/004948SC_AT.zip",
+      "name": "004948SC_AT.zip",
+      "is_dir": false,
+      "size": 506,
+      "modified": "2020-01-31T15:30:25"
+    },
+    {
+      "path": "/DisclosureFiles/004949SC_AT.zip",
+      "name": "004949SC_AT.zip",
+      "is_dir": false,
+      "size": 3337,
+      "modified": "2020-01-31T15:30:28"
+    },
+    {
+      "path": "/DisclosureFiles/004950SC_AT.zip",
+      "name": "004950SC_AT.zip",
+      "is_dir": false,
+      "size": 1232,
+      "modified": "2020-01-31T15:30:30"
+    },
+    {
+      "path": "/DisclosureFiles/004951SC_AT.zip",
+      "name": "004951SC_AT.zip",
+      "is_dir": false,
+      "size": 674,
+      "modified": "2020-01-31T15:30:29"
+    },
+    {
+      "path": "/DisclosureFiles/004952SC_AT.zip",
+      "name": "004952SC_AT.zip",
+      "is_dir": false,
+      "size": 1241,
+      "modified": "2020-01-31T15:30:28"
+    },
+    {
+      "path": "/DisclosureFiles/004953SC_AT.zip",
+      "name": "004953SC_AT.zip",
+      "is_dir": false,
+      "size": 4227,
+      "modified": "2020-01-31T15:30:22"
+    },
+    {
+      "path": "/DisclosureFiles/004954SC_AT.zip",
+      "name": "004954SC_AT.zip",
+      "is_dir": false,
+      "size": 5237,
+      "modified": "2020-01-31T15:30:22"
+    },
+    {
+      "path": "/DisclosureFiles/004955SC_AT.zip",
+      "name": "004955SC_AT.zip",
+      "is_dir": false,
+      "size": 1462,
+      "modified": "2020-01-30T15:31:36"
+    },
+    {
+      "path": "/DisclosureFiles/004956SC_AT.zip",
+      "name": "004956SC_AT.zip",
+      "is_dir": false,
+      "size": 2035,
+      "modified": "2020-02-28T15:00:20"
+    },
+    {
+      "path": "/DisclosureFiles/004957SC_AT.zip",
+      "name": "004957SC_AT.zip",
+      "is_dir": false,
+      "size": 1701,
+      "modified": "2020-02-28T15:00:26"
+    },
+    {
+      "path": "/DisclosureFiles/004958SC_AT.zip",
+      "name": "004958SC_AT.zip",
+      "is_dir": false,
+      "size": 685,
+      "modified": "2020-02-28T15:00:19"
+    },
+    {
+      "path": "/DisclosureFiles/004959SC_AT.zip",
+      "name": "004959SC_AT.zip",
+      "is_dir": false,
+      "size": 1400,
+      "modified": "2020-02-28T15:00:25"
+    },
+    {
+      "path": "/DisclosureFiles/004960SC_AT.zip",
+      "name": "004960SC_AT.zip",
+      "is_dir": false,
+      "size": 1633,
+      "modified": "2020-02-28T15:00:25"
+    },
+    {
+      "path": "/DisclosureFiles/004961SC_AT.zip",
+      "name": "004961SC_AT.zip",
+      "is_dir": false,
+      "size": 696,
+      "modified": "2020-02-28T15:00:25"
+    },
+    {
+      "path": "/DisclosureFiles/004962SC_AT.zip",
+      "name": "004962SC_AT.zip",
+      "is_dir": false,
+      "size": 477,
+      "modified": "2020-02-28T15:00:25"
+    },
+    {
+      "path": "/DisclosureFiles/004963SC_AT.zip",
+      "name": "004963SC_AT.zip",
+      "is_dir": false,
+      "size": 473,
+      "modified": "2020-02-28T15:00:17"
+    },
+    {
+      "path": "/DisclosureFiles/004964SC_AT.zip",
+      "name": "004964SC_AT.zip",
+      "is_dir": false,
+      "size": 808,
+      "modified": "2020-02-28T15:00:16"
+    },
+    {
+      "path": "/DisclosureFiles/004965SC_AT.zip",
+      "name": "004965SC_AT.zip",
+      "is_dir": false,
+      "size": 1402,
+      "modified": "2020-03-31T15:04:25"
+    },
+    {
+      "path": "/DisclosureFiles/004966SC_AT.zip",
+      "name": "004966SC_AT.zip",
+      "is_dir": false,
+      "size": 1545,
+      "modified": "2020-03-31T15:04:22"
+    },
+    {
+      "path": "/DisclosureFiles/004967SC_AT.zip",
+      "name": "004967SC_AT.zip",
+      "is_dir": false,
+      "size": 6184,
+      "modified": "2020-04-30T15:00:34"
+    },
+    {
+      "path": "/DisclosureFiles/004968SC_AT.zip",
+      "name": "004968SC_AT.zip",
+      "is_dir": false,
+      "size": 1535,
+      "modified": "2020-03-31T15:04:25"
+    },
+    {
+      "path": "/DisclosureFiles/004969SC_AT.zip",
+      "name": "004969SC_AT.zip",
+      "is_dir": false,
+      "size": 498,
+      "modified": "2020-03-31T15:04:25"
+    },
+    {
+      "path": "/DisclosureFiles/004970SC_AT.zip",
+      "name": "004970SC_AT.zip",
+      "is_dir": false,
+      "size": 825,
+      "modified": "2020-03-31T15:04:26"
+    },
+    {
+      "path": "/DisclosureFiles/004971SC_AT.zip",
+      "name": "004971SC_AT.zip",
+      "is_dir": false,
+      "size": 425,
+      "modified": "2020-03-31T15:04:26"
+    },
+    {
+      "path": "/DisclosureFiles/004972SC_AT.zip",
+      "name": "004972SC_AT.zip",
+      "is_dir": false,
+      "size": 2802,
+      "modified": "2020-04-30T15:00:31"
+    },
+    {
+      "path": "/DisclosureFiles/004973SC_AT.zip",
+      "name": "004973SC_AT.zip",
+      "is_dir": false,
+      "size": 7215,
+      "modified": "2020-04-30T15:00:37"
+    },
+    {
+      "path": "/DisclosureFiles/004974SC_AT.zip",
+      "name": "004974SC_AT.zip",
+      "is_dir": false,
+      "size": 2177,
+      "modified": "2020-04-30T15:00:35"
+    },
+    {
+      "path": "/DisclosureFiles/004975SC_AT.zip",
+      "name": "004975SC_AT.zip",
+      "is_dir": false,
+      "size": 3305,
+      "modified": "2020-04-30T15:00:35"
+    },
+    {
+      "path": "/DisclosureFiles/004976SC_AT.zip",
+      "name": "004976SC_AT.zip",
+      "is_dir": false,
+      "size": 3916,
+      "modified": "2020-04-30T15:00:33"
+    },
+    {
+      "path": "/DisclosureFiles/004977SC_AT.zip",
+      "name": "004977SC_AT.zip",
+      "is_dir": false,
+      "size": 7435,
+      "modified": "2020-04-30T15:00:36"
+    },
+    {
+      "path": "/DisclosureFiles/004978SC_AT.zip",
+      "name": "004978SC_AT.zip",
+      "is_dir": false,
+      "size": 4485,
+      "modified": "2020-04-30T15:00:37"
+    },
+    {
+      "path": "/DisclosureFiles/004979SC_AT.zip",
+      "name": "004979SC_AT.zip",
+      "is_dir": false,
+      "size": 2484,
+      "modified": "2020-05-29T15:00:59"
+    },
+    {
+      "path": "/DisclosureFiles/004980SC_AT.zip",
+      "name": "004980SC_AT.zip",
+      "is_dir": false,
+      "size": 13081,
+      "modified": "2020-05-29T15:01:03"
+    },
+    {
+      "path": "/DisclosureFiles/004981SC_AT.zip",
+      "name": "004981SC_AT.zip",
+      "is_dir": false,
+      "size": 18913,
+      "modified": "2020-05-29T15:00:56"
+    },
+    {
+      "path": "/DisclosureFiles/004982SC_AT.zip",
+      "name": "004982SC_AT.zip",
+      "is_dir": false,
+      "size": 716,
+      "modified": "2020-05-29T15:00:48"
+    },
+    {
+      "path": "/DisclosureFiles/004983SC_AT.zip",
+      "name": "004983SC_AT.zip",
+      "is_dir": false,
+      "size": 5359,
+      "modified": "2020-05-29T15:00:52"
+    },
+    {
+      "path": "/DisclosureFiles/004984SC_AT.zip",
+      "name": "004984SC_AT.zip",
+      "is_dir": false,
+      "size": 4226,
+      "modified": "2020-05-29T15:00:48"
+    },
+    {
+      "path": "/DisclosureFiles/004985SC_AT.zip",
+      "name": "004985SC_AT.zip",
+      "is_dir": false,
+      "size": 1735,
+      "modified": "2020-05-29T15:00:51"
+    },
+    {
+      "path": "/DisclosureFiles/004986SC_AT.zip",
+      "name": "004986SC_AT.zip",
+      "is_dir": false,
+      "size": 3262,
+      "modified": "2020-05-29T15:00:49"
+    },
+    {
+      "path": "/DisclosureFiles/004987SC_AT.zip",
+      "name": "004987SC_AT.zip",
+      "is_dir": false,
+      "size": 4630,
+      "modified": "2020-05-29T15:00:51"
+    },
+    {
+      "path": "/DisclosureFiles/004988SC_AT.zip",
+      "name": "004988SC_AT.zip",
+      "is_dir": false,
+      "size": 11069,
+      "modified": "2020-06-30T15:00:43"
+    },
+    {
+      "path": "/DisclosureFiles/004989SC_AT.zip",
+      "name": "004989SC_AT.zip",
+      "is_dir": false,
+      "size": 11115,
+      "modified": "2020-06-30T15:00:31"
+    },
+    {
+      "path": "/DisclosureFiles/004990SC_AT.zip",
+      "name": "004990SC_AT.zip",
+      "is_dir": false,
+      "size": 3768,
+      "modified": "2020-06-30T15:00:27"
+    },
+    {
+      "path": "/DisclosureFiles/004991SC_AT.zip",
+      "name": "004991SC_AT.zip",
+      "is_dir": false,
+      "size": 991,
+      "modified": "2020-06-30T15:00:38"
+    },
+    {
+      "path": "/DisclosureFiles/004992SC_AT.zip",
+      "name": "004992SC_AT.zip",
+      "is_dir": false,
+      "size": 1598,
+      "modified": "2020-06-30T15:00:23"
+    },
+    {
+      "path": "/DisclosureFiles/004993SC_AT.zip",
+      "name": "004993SC_AT.zip",
+      "is_dir": false,
+      "size": 6861,
+      "modified": "2020-06-30T15:00:29"
+    },
+    {
+      "path": "/DisclosureFiles/004994SC_AT.zip",
+      "name": "004994SC_AT.zip",
+      "is_dir": false,
+      "size": 5993,
+      "modified": "2020-06-30T15:00:43"
+    },
+    {
+      "path": "/DisclosureFiles/004995SC_AT.zip",
+      "name": "004995SC_AT.zip",
+      "is_dir": false,
+      "size": 2909,
+      "modified": "2020-06-30T15:00:33"
+    },
+    {
+      "path": "/DisclosureFiles/004996SC_AT.zip",
+      "name": "004996SC_AT.zip",
+      "is_dir": false,
+      "size": 778,
+      "modified": "2020-06-30T15:00:34"
+    },
+    {
+      "path": "/DisclosureFiles/004997SC_AT.zip",
+      "name": "004997SC_AT.zip",
+      "is_dir": false,
+      "size": 2838,
+      "modified": "2020-06-26T15:00:25"
+    },
+    {
+      "path": "/DisclosureFiles/004998SC_AT.zip",
+      "name": "004998SC_AT.zip",
+      "is_dir": false,
+      "size": 3980,
+      "modified": "2020-07-30T15:00:15"
+    },
+    {
+      "path": "/DisclosureFiles/004999SC_AT.zip",
+      "name": "004999SC_AT.zip",
+      "is_dir": false,
+      "size": 5801,
+      "modified": "2020-07-30T15:00:16"
+    },
+    {
+      "path": "/DisclosureFiles/005000SC_AT.zip",
+      "name": "005000SC_AT.zip",
+      "is_dir": false,
+      "size": 4348,
+      "modified": "2020-07-31T15:00:49"
+    },
+    {
+      "path": "/DisclosureFiles/005001SC_AT.zip",
+      "name": "005001SC_AT.zip",
+      "is_dir": false,
+      "size": 465,
+      "modified": "2020-06-30T15:00:37"
+    },
+    {
+      "path": "/DisclosureFiles/005002SC_AT.zip",
+      "name": "005002SC_AT.zip",
+      "is_dir": false,
+      "size": 554,
+      "modified": "2020-06-29T15:00:08"
+    },
+    {
+      "path": "/DisclosureFiles/005003SC_AT.zip",
+      "name": "005003SC_AT.zip",
+      "is_dir": false,
+      "size": 1381,
+      "modified": "2020-07-31T15:00:38"
+    },
+    {
+      "path": "/DisclosureFiles/005004SC_AT.zip",
+      "name": "005004SC_AT.zip",
+      "is_dir": false,
+      "size": 5257,
+      "modified": "2020-07-31T15:00:46"
+    },
+    {
+      "path": "/DisclosureFiles/005005SC_AT.zip",
+      "name": "005005SC_AT.zip",
+      "is_dir": false,
+      "size": 1102,
+      "modified": "2020-07-31T15:00:36"
+    },
+    {
+      "path": "/DisclosureFiles/005006SC_AT.zip",
+      "name": "005006SC_AT.zip",
+      "is_dir": false,
+      "size": 428,
+      "modified": "2020-07-31T15:00:39"
+    },
+    {
+      "path": "/DisclosureFiles/005007SC_AT.zip",
+      "name": "005007SC_AT.zip",
+      "is_dir": false,
+      "size": 15602,
+      "modified": "2020-08-03T02:55:06"
+    },
+    {
+      "path": "/DisclosureFiles/005008SC_AT.zip",
+      "name": "005008SC_AT.zip",
+      "is_dir": false,
+      "size": 14515,
+      "modified": "2020-08-31T15:00:37"
+    },
+    {
+      "path": "/DisclosureFiles/005009SC_AT.zip",
+      "name": "005009SC_AT.zip",
+      "is_dir": false,
+      "size": 8070,
+      "modified": "2020-08-31T15:00:38"
+    },
+    {
+      "path": "/DisclosureFiles/005010SC_AT.zip",
+      "name": "005010SC_AT.zip",
+      "is_dir": false,
+      "size": 6828,
+      "modified": "2020-08-31T15:00:19"
+    },
+    {
+      "path": "/DisclosureFiles/005011SC_AT.zip",
+      "name": "005011SC_AT.zip",
+      "is_dir": false,
+      "size": 3266,
+      "modified": "2020-08-31T15:00:23"
+    },
+    {
+      "path": "/DisclosureFiles/005012SC_AT.zip",
+      "name": "005012SC_AT.zip",
+      "is_dir": false,
+      "size": 1941,
+      "modified": "2020-08-31T15:00:32"
+    },
+    {
+      "path": "/DisclosureFiles/005013SC_AT.zip",
+      "name": "005013SC_AT.zip",
+      "is_dir": false,
+      "size": 4247,
+      "modified": "2020-08-31T15:00:31"
+    },
+    {
+      "path": "/DisclosureFiles/005014SC_AT.zip",
+      "name": "005014SC_AT.zip",
+      "is_dir": false,
+      "size": 1685,
+      "modified": "2020-08-31T15:00:33"
+    },
+    {
+      "path": "/DisclosureFiles/005015SC_AT.zip",
+      "name": "005015SC_AT.zip",
+      "is_dir": false,
+      "size": 919,
+      "modified": "2020-08-31T15:00:28"
+    },
+    {
+      "path": "/DisclosureFiles/005016SC_AT.zip",
+      "name": "005016SC_AT.zip",
+      "is_dir": false,
+      "size": 1909,
+      "modified": "2020-08-31T15:00:30"
+    },
+    {
+      "path": "/DisclosureFiles/005017SC_AT.zip",
+      "name": "005017SC_AT.zip",
+      "is_dir": false,
+      "size": 510,
+      "modified": "2020-08-31T15:00:18"
+    },
+    {
+      "path": "/DisclosureFiles/005018SC_AT.zip",
+      "name": "005018SC_AT.zip",
+      "is_dir": false,
+      "size": 4750,
+      "modified": "2020-09-30T15:01:06"
+    },
+    {
+      "path": "/DisclosureFiles/005019SC_AT.zip",
+      "name": "005019SC_AT.zip",
+      "is_dir": false,
+      "size": 1802,
+      "modified": "2020-09-30T15:00:56"
+    },
+    {
+      "path": "/DisclosureFiles/005020SC_AT.zip",
+      "name": "005020SC_AT.zip",
+      "is_dir": false,
+      "size": 6346,
+      "modified": "2020-09-30T15:01:08"
+    },
+    {
+      "path": "/DisclosureFiles/005021SC_AT.zip",
+      "name": "005021SC_AT.zip",
+      "is_dir": false,
+      "size": 709,
+      "modified": "2020-09-30T15:00:43"
+    },
+    {
+      "path": "/DisclosureFiles/005022SC_AT.zip",
+      "name": "005022SC_AT.zip",
+      "is_dir": false,
+      "size": 2916,
+      "modified": "2020-09-30T15:00:55"
+    },
+    {
+      "path": "/DisclosureFiles/005023SC_AT.zip",
+      "name": "005023SC_AT.zip",
+      "is_dir": false,
+      "size": 6783,
+      "modified": "2020-09-30T15:01:04"
+    },
+    {
+      "path": "/DisclosureFiles/005024SC_AT.zip",
+      "name": "005024SC_AT.zip",
+      "is_dir": false,
+      "size": 3012,
+      "modified": "2020-09-28T15:00:10"
+    },
+    {
+      "path": "/DisclosureFiles/005025SC_AT.zip",
+      "name": "005025SC_AT.zip",
+      "is_dir": false,
+      "size": 590,
+      "modified": "2020-09-30T15:00:47"
+    },
+    {
+      "path": "/DisclosureFiles/005026SC_AT.zip",
+      "name": "005026SC_AT.zip",
+      "is_dir": false,
+      "size": 498,
+      "modified": "2020-09-24T13:00:04"
+    },
+    {
+      "path": "/DisclosureFiles/005027SC_AT.zip",
+      "name": "005027SC_AT.zip",
+      "is_dir": false,
+      "size": 1860,
+      "modified": "2020-09-30T15:00:42"
+    },
+    {
+      "path": "/DisclosureFiles/005028SC_AT.zip",
+      "name": "005028SC_AT.zip",
+      "is_dir": false,
+      "size": 14721,
+      "modified": "2020-09-30T15:00:42"
+    },
+    {
+      "path": "/DisclosureFiles/005029SC_AT.zip",
+      "name": "005029SC_AT.zip",
+      "is_dir": false,
+      "size": 474,
+      "modified": "2020-09-29T15:00:13"
+    },
+    {
+      "path": "/DisclosureFiles/005030SC_AT.zip",
+      "name": "005030SC_AT.zip",
+      "is_dir": false,
+      "size": 14739,
+      "modified": "2020-09-30T15:01:03"
+    },
+    {
+      "path": "/DisclosureFiles/005031SC_AT.zip",
+      "name": "005031SC_AT.zip",
+      "is_dir": false,
+      "size": 11924,
+      "modified": "2020-09-30T15:00:48"
+    },
+    {
+      "path": "/DisclosureFiles/005032SC_AT.zip",
+      "name": "005032SC_AT.zip",
+      "is_dir": false,
+      "size": 580,
+      "modified": "2020-09-28T15:00:09"
+    },
+    {
+      "path": "/DisclosureFiles/005033SC_AT.zip",
+      "name": "005033SC_AT.zip",
+      "is_dir": false,
+      "size": 1854,
+      "modified": "2020-09-30T15:00:39"
+    },
+    {
+      "path": "/DisclosureFiles/005034SC_AT.zip",
+      "name": "005034SC_AT.zip",
+      "is_dir": false,
+      "size": 11979,
+      "modified": "2020-10-30T15:01:07"
+    },
+    {
+      "path": "/DisclosureFiles/005035SC_AT.zip",
+      "name": "005035SC_AT.zip",
+      "is_dir": false,
+      "size": 3161,
+      "modified": "2020-10-30T15:01:13"
+    },
+    {
+      "path": "/DisclosureFiles/005036SC_AT.zip",
+      "name": "005036SC_AT.zip",
+      "is_dir": false,
+      "size": 2196,
+      "modified": "2020-10-30T15:01:10"
+    },
+    {
+      "path": "/DisclosureFiles/005037SC_AT.zip",
+      "name": "005037SC_AT.zip",
+      "is_dir": false,
+      "size": 1327,
+      "modified": "2020-10-30T15:01:12"
+    },
+    {
+      "path": "/DisclosureFiles/005038SC_AT.zip",
+      "name": "005038SC_AT.zip",
+      "is_dir": false,
+      "size": 5228,
+      "modified": "2020-10-30T15:01:08"
+    },
+    {
+      "path": "/DisclosureFiles/005039SC_AT.zip",
+      "name": "005039SC_AT.zip",
+      "is_dir": false,
+      "size": 3908,
+      "modified": "2020-10-29T15:00:14"
+    },
+    {
+      "path": "/DisclosureFiles/005040SC_AT.zip",
+      "name": "005040SC_AT.zip",
+      "is_dir": false,
+      "size": 7493,
+      "modified": "2020-10-30T15:00:56"
+    },
+    {
+      "path": "/DisclosureFiles/005041SC_AT.zip",
+      "name": "005041SC_AT.zip",
+      "is_dir": false,
+      "size": 5065,
+      "modified": "2020-10-30T15:01:02"
+    },
+    {
+      "path": "/DisclosureFiles/005042SC_AT.zip",
+      "name": "005042SC_AT.zip",
+      "is_dir": false,
+      "size": 3013,
+      "modified": "2020-10-30T15:01:09"
+    },
+    {
+      "path": "/DisclosureFiles/005043SC_AT.zip",
+      "name": "005043SC_AT.zip",
+      "is_dir": false,
+      "size": 610,
+      "modified": "2020-10-30T15:00:35"
+    },
+    {
+      "path": "/DisclosureFiles/005044SC_AT.zip",
+      "name": "005044SC_AT.zip",
+      "is_dir": false,
+      "size": 801,
+      "modified": "2020-10-29T15:00:12"
+    },
+    {
+      "path": "/DisclosureFiles/005045SC_AT.zip",
+      "name": "005045SC_AT.zip",
+      "is_dir": false,
+      "size": 940,
+      "modified": "2020-10-30T15:00:55"
+    },
+    {
+      "path": "/DisclosureFiles/005046SC_AT.zip",
+      "name": "005046SC_AT.zip",
+      "is_dir": false,
+      "size": 427,
+      "modified": "2020-10-29T15:00:11"
+    },
+    {
+      "path": "/DisclosureFiles/005047SC_AT.zip",
+      "name": "005047SC_AT.zip",
+      "is_dir": false,
+      "size": 1038,
+      "modified": "2020-11-30T15:00:58"
+    },
+    {
+      "path": "/DisclosureFiles/005048SC_AT.zip",
+      "name": "005048SC_AT.zip",
+      "is_dir": false,
+      "size": 2950,
+      "modified": "2020-11-30T15:01:19"
+    },
+    {
+      "path": "/DisclosureFiles/005049SC_AT.zip",
+      "name": "005049SC_AT.zip",
+      "is_dir": false,
+      "size": 1517,
+      "modified": "2020-11-30T15:00:59"
+    },
+    {
+      "path": "/DisclosureFiles/005050SC_AT.zip",
+      "name": "005050SC_AT.zip",
+      "is_dir": false,
+      "size": 4121,
+      "modified": "2020-11-30T15:01:14"
+    },
+    {
+      "path": "/DisclosureFiles/005051SC_AT.zip",
+      "name": "005051SC_AT.zip",
+      "is_dir": false,
+      "size": 3488,
+      "modified": "2020-11-30T15:01:14"
+    },
+    {
+      "path": "/DisclosureFiles/005052SC_AT.zip",
+      "name": "005052SC_AT.zip",
+      "is_dir": false,
+      "size": 3186,
+      "modified": "2020-11-30T15:00:45"
+    },
+    {
+      "path": "/DisclosureFiles/005053SC_AT.zip",
+      "name": "005053SC_AT.zip",
+      "is_dir": false,
+      "size": 3796,
+      "modified": "2020-11-30T15:00:59"
+    },
+    {
+      "path": "/DisclosureFiles/005054SC_AT.zip",
+      "name": "005054SC_AT.zip",
+      "is_dir": false,
+      "size": 644,
+      "modified": "2020-11-30T15:00:58"
+    },
+    {
+      "path": "/DisclosureFiles/005055SC_AT.zip",
+      "name": "005055SC_AT.zip",
+      "is_dir": false,
+      "size": 1196,
+      "modified": "2020-11-30T15:00:51"
+    },
+    {
+      "path": "/DisclosureFiles/005056SC_AT.zip",
+      "name": "005056SC_AT.zip",
+      "is_dir": false,
+      "size": 1148,
+      "modified": "2020-11-30T15:00:59"
+    },
+    {
+      "path": "/DisclosureFiles/005057SC_AT.zip",
+      "name": "005057SC_AT.zip",
+      "is_dir": false,
+      "size": 1603,
+      "modified": "2020-11-30T15:01:05"
+    },
+    {
+      "path": "/DisclosureFiles/005058SC_AT.zip",
+      "name": "005058SC_AT.zip",
+      "is_dir": false,
+      "size": 5229,
+      "modified": "2020-12-30T15:00:38"
+    },
+    {
+      "path": "/DisclosureFiles/005059SC_AT.zip",
+      "name": "005059SC_AT.zip",
+      "is_dir": false,
+      "size": 2073,
+      "modified": "2020-12-28T15:00:32"
+    },
+    {
+      "path": "/DisclosureFiles/005060SC_AT.zip",
+      "name": "005060SC_AT.zip",
+      "is_dir": false,
+      "size": 2394,
+      "modified": "2020-12-28T15:00:32"
+    },
+    {
+      "path": "/DisclosureFiles/005061SC_AT.zip",
+      "name": "005061SC_AT.zip",
+      "is_dir": false,
+      "size": 1109,
+      "modified": "2020-12-30T15:00:25"
+    },
+    {
+      "path": "/DisclosureFiles/005062SC_AT.zip",
+      "name": "005062SC_AT.zip",
+      "is_dir": false,
+      "size": 1416,
+      "modified": "2020-12-30T15:00:29"
+    },
+    {
+      "path": "/DisclosureFiles/005063SC_AT.zip",
+      "name": "005063SC_AT.zip",
+      "is_dir": false,
+      "size": 1322,
+      "modified": "2020-12-30T15:00:29"
+    },
+    {
+      "path": "/DisclosureFiles/005064SC_AT.zip",
+      "name": "005064SC_AT.zip",
+      "is_dir": false,
+      "size": 1017,
+      "modified": "2020-12-30T15:00:30"
+    },
+    {
+      "path": "/DisclosureFiles/005065SC_AT.zip",
+      "name": "005065SC_AT.zip",
+      "is_dir": false,
+      "size": 10937,
+      "modified": "2020-12-30T15:00:35"
+    },
+    {
+      "path": "/DisclosureFiles/005066SC_AT.zip",
+      "name": "005066SC_AT.zip",
+      "is_dir": false,
+      "size": 586,
+      "modified": "2020-12-31T15:01:14"
+    },
+    {
+      "path": "/DisclosureFiles/005067SC_AT.zip",
+      "name": "005067SC_AT.zip",
+      "is_dir": false,
+      "size": 3956,
+      "modified": "2020-12-30T15:00:25"
+    },
+    {
+      "path": "/DisclosureFiles/005068SC_AT.zip",
+      "name": "005068SC_AT.zip",
+      "is_dir": false,
+      "size": 2116,
+      "modified": "2020-12-30T15:00:30"
+    },
+    {
+      "path": "/DisclosureFiles/005069SC_AT.zip",
+      "name": "005069SC_AT.zip",
+      "is_dir": false,
+      "size": 2616,
+      "modified": "2021-01-29T15:01:51"
+    },
+    {
+      "path": "/DisclosureFiles/005070SC_AT.zip",
+      "name": "005070SC_AT.zip",
+      "is_dir": false,
+      "size": 6170,
+      "modified": "2021-01-29T15:01:57"
+    },
+    {
+      "path": "/DisclosureFiles/005071SC_AT.zip",
+      "name": "005071SC_AT.zip",
+      "is_dir": false,
+      "size": 2682,
+      "modified": "2021-01-29T15:02:03"
+    },
+    {
+      "path": "/DisclosureFiles/005072SC_AT.zip",
+      "name": "005072SC_AT.zip",
+      "is_dir": false,
+      "size": 4738,
+      "modified": "2021-01-29T15:01:50"
+    },
+    {
+      "path": "/DisclosureFiles/005073SC_AT.zip",
+      "name": "005073SC_AT.zip",
+      "is_dir": false,
+      "size": 1212,
+      "modified": "2021-01-29T15:01:57"
+    },
+    {
+      "path": "/DisclosureFiles/005074SC_AT.zip",
+      "name": "005074SC_AT.zip",
+      "is_dir": false,
+      "size": 4019,
+      "modified": "2021-01-29T15:01:58"
+    },
+    {
+      "path": "/DisclosureFiles/005075SC_AT.zip",
+      "name": "005075SC_AT.zip",
+      "is_dir": false,
+      "size": 802,
+      "modified": "2021-01-29T15:01:33"
+    },
+    {
+      "path": "/DisclosureFiles/005076SC_AT.zip",
+      "name": "005076SC_AT.zip",
+      "is_dir": false,
+      "size": 1872,
+      "modified": "2021-01-29T15:01:45"
+    },
+    {
+      "path": "/DisclosureFiles/005077SC_AT.zip",
+      "name": "005077SC_AT.zip",
+      "is_dir": false,
+      "size": 1621,
+      "modified": "2021-01-29T15:01:41"
+    },
+    {
+      "path": "/DisclosureFiles/005078SC_AT.zip",
+      "name": "005078SC_AT.zip",
+      "is_dir": false,
+      "size": 3784,
+      "modified": "2021-01-29T15:01:55"
+    },
+    {
+      "path": "/DisclosureFiles/005079SC_AT.zip",
+      "name": "005079SC_AT.zip",
+      "is_dir": false,
+      "size": 23918,
+      "modified": "2021-01-29T15:01:48"
+    },
+    {
+      "path": "/DisclosureFiles/005080SC_AT.zip",
+      "name": "005080SC_AT.zip",
+      "is_dir": false,
+      "size": 5952,
+      "modified": "2021-02-26T15:01:43"
+    },
+    {
+      "path": "/DisclosureFiles/005081SC_AT.zip",
+      "name": "005081SC_AT.zip",
+      "is_dir": false,
+      "size": 2855,
+      "modified": "2021-02-26T15:01:50"
+    },
+    {
+      "path": "/DisclosureFiles/005082SC_AT.zip",
+      "name": "005082SC_AT.zip",
+      "is_dir": false,
+      "size": 1431,
+      "modified": "2021-02-26T15:01:46"
+    },
+    {
+      "path": "/DisclosureFiles/005083SC_AT.zip",
+      "name": "005083SC_AT.zip",
+      "is_dir": false,
+      "size": 5107,
+      "modified": "2021-02-26T15:02:00"
+    },
+    {
+      "path": "/DisclosureFiles/005084SC_AT.zip",
+      "name": "005084SC_AT.zip",
+      "is_dir": false,
+      "size": 866,
+      "modified": "2021-02-26T15:01:39"
+    },
+    {
+      "path": "/DisclosureFiles/005085SC_AT.zip",
+      "name": "005085SC_AT.zip",
+      "is_dir": false,
+      "size": 4819,
+      "modified": "2021-02-26T15:01:49"
+    },
+    {
+      "path": "/DisclosureFiles/005086SC_AT.zip",
+      "name": "005086SC_AT.zip",
+      "is_dir": false,
+      "size": 4284,
+      "modified": "2021-02-26T15:01:53"
+    },
+    {
+      "path": "/DisclosureFiles/005087SC_AT.zip",
+      "name": "005087SC_AT.zip",
+      "is_dir": false,
+      "size": 1403,
+      "modified": "2021-02-26T15:01:35"
+    },
+    {
+      "path": "/DisclosureFiles/005088SC_AT.zip",
+      "name": "005088SC_AT.zip",
+      "is_dir": false,
+      "size": 2634,
+      "modified": "2021-02-26T15:01:31"
+    },
+    {
+      "path": "/DisclosureFiles/005089SC_AT.zip",
+      "name": "005089SC_AT.zip",
+      "is_dir": false,
+      "size": 570,
+      "modified": "2021-02-26T15:01:12"
+    },
+    {
+      "path": "/DisclosureFiles/005090SC_AT.zip",
+      "name": "005090SC_AT.zip",
+      "is_dir": false,
+      "size": 1275,
+      "modified": "2021-02-25T15:00:14"
+    },
+    {
+      "path": "/DisclosureFiles/005091SC_AT.zip",
+      "name": "005091SC_AT.zip",
+      "is_dir": false,
+      "size": 1650,
+      "modified": "2021-03-31T15:01:46"
+    },
+    {
+      "path": "/DisclosureFiles/005092SC_AT.zip",
+      "name": "005092SC_AT.zip",
+      "is_dir": false,
+      "size": 5810,
+      "modified": "2021-03-31T15:01:57"
+    },
+    {
+      "path": "/DisclosureFiles/005093SC_AT.zip",
+      "name": "005093SC_AT.zip",
+      "is_dir": false,
+      "size": 9472,
+      "modified": "2021-03-30T15:01:53"
+    },
+    {
+      "path": "/DisclosureFiles/005094SC_AT.zip",
+      "name": "005094SC_AT.zip",
+      "is_dir": false,
+      "size": 6161,
+      "modified": "2021-03-31T15:01:54"
+    },
+    {
+      "path": "/DisclosureFiles/005095SC_AT.zip",
+      "name": "005095SC_AT.zip",
+      "is_dir": false,
+      "size": 1184,
+      "modified": "2021-03-30T15:01:46"
+    },
+    {
+      "path": "/DisclosureFiles/005096SC_AT.zip",
+      "name": "005096SC_AT.zip",
+      "is_dir": false,
+      "size": 2369,
+      "modified": "2021-03-31T15:01:56"
+    },
+    {
+      "path": "/DisclosureFiles/005097SC_AT.zip",
+      "name": "005097SC_AT.zip",
+      "is_dir": false,
+      "size": 1473,
+      "modified": "2021-03-31T15:01:41"
+    },
+    {
+      "path": "/DisclosureFiles/005098SC_AT.zip",
+      "name": "005098SC_AT.zip",
+      "is_dir": false,
+      "size": 1542,
+      "modified": "2021-03-31T15:01:42"
+    },
+    {
+      "path": "/DisclosureFiles/005099SC_AT.zip",
+      "name": "005099SC_AT.zip",
+      "is_dir": false,
+      "size": 663,
+      "modified": "2021-03-31T15:01:42"
+    },
+    {
+      "path": "/DisclosureFiles/005100SC_AT.zip",
+      "name": "005100SC_AT.zip",
+      "is_dir": false,
+      "size": 1346,
+      "modified": "2021-04-30T18:18:27"
+    },
+    {
+      "path": "/DisclosureFiles/005101SC_AT.zip",
+      "name": "005101SC_AT.zip",
+      "is_dir": false,
+      "size": 1916,
+      "modified": "2021-03-31T15:01:40"
+    },
+    {
+      "path": "/DisclosureFiles/005102SC_AT.zip",
+      "name": "005102SC_AT.zip",
+      "is_dir": false,
+      "size": 1498,
+      "modified": "2021-03-30T15:01:46"
+    },
+    {
+      "path": "/DisclosureFiles/005103SC_AT.zip",
+      "name": "005103SC_AT.zip",
+      "is_dir": false,
+      "size": 3256,
+      "modified": "2021-04-30T18:18:28"
+    },
+    {
+      "path": "/DisclosureFiles/005104SC_AT.zip",
+      "name": "005104SC_AT.zip",
+      "is_dir": false,
+      "size": 7347,
+      "modified": "2021-04-30T18:18:30"
+    },
+    {
+      "path": "/DisclosureFiles/005105SC_AT.zip",
+      "name": "005105SC_AT.zip",
+      "is_dir": false,
+      "size": 1551,
+      "modified": "2021-04-30T18:18:26"
+    },
+    {
+      "path": "/DisclosureFiles/005106SC_AT.zip",
+      "name": "005106SC_AT.zip",
+      "is_dir": false,
+      "size": 636,
+      "modified": "2021-04-30T18:18:23"
+    },
+    {
+      "path": "/DisclosureFiles/005107SC_AT.zip",
+      "name": "005107SC_AT.zip",
+      "is_dir": false,
+      "size": 845,
+      "modified": "2021-04-30T18:18:29"
+    },
+    {
+      "path": "/DisclosureFiles/005108SC_AT.zip",
+      "name": "005108SC_AT.zip",
+      "is_dir": false,
+      "size": 1158,
+      "modified": "2021-04-30T18:18:12"
+    },
+    {
+      "path": "/DisclosureFiles/005109SC_AT.zip",
+      "name": "005109SC_AT.zip",
+      "is_dir": false,
+      "size": 1088,
+      "modified": "2021-04-30T18:18:16"
+    },
+    {
+      "path": "/DisclosureFiles/005110SC_AT.zip",
+      "name": "005110SC_AT.zip",
+      "is_dir": false,
+      "size": 1258,
+      "modified": "2021-04-30T18:18:23"
+    },
+    {
+      "path": "/DisclosureFiles/005111SC_AT.zip",
+      "name": "005111SC_AT.zip",
+      "is_dir": false,
+      "size": 554,
+      "modified": "2021-04-30T18:18:25"
+    },
+    {
+      "path": "/DisclosureFiles/005112SC_AT.zip",
+      "name": "005112SC_AT.zip",
+      "is_dir": false,
+      "size": 4280,
+      "modified": "2021-05-28T15:01:49"
+    },
+    {
+      "path": "/DisclosureFiles/005113SC_AT.zip",
+      "name": "005113SC_AT.zip",
+      "is_dir": false,
+      "size": 1518,
+      "modified": "2021-05-28T15:01:35"
+    },
+    {
+      "path": "/DisclosureFiles/005114SC_AT.zip",
+      "name": "005114SC_AT.zip",
+      "is_dir": false,
+      "size": 1872,
+      "modified": "2021-05-28T15:01:40"
+    },
+    {
+      "path": "/DisclosureFiles/005115SC_AT.zip",
+      "name": "005115SC_AT.zip",
+      "is_dir": false,
+      "size": 9108,
+      "modified": "2021-05-28T15:01:52"
+    },
+    {
+      "path": "/DisclosureFiles/005116SC_AT.zip",
+      "name": "005116SC_AT.zip",
+      "is_dir": false,
+      "size": 2516,
+      "modified": "2021-05-28T15:01:36"
+    },
+    {
+      "path": "/DisclosureFiles/005117SC_AT.zip",
+      "name": "005117SC_AT.zip",
+      "is_dir": false,
+      "size": 18010,
+      "modified": "2021-05-28T15:01:51"
+    },
+    {
+      "path": "/DisclosureFiles/005118SC_AT.zip",
+      "name": "005118SC_AT.zip",
+      "is_dir": false,
+      "size": 970,
+      "modified": "2021-05-28T15:01:33"
+    },
+    {
+      "path": "/DisclosureFiles/005119SC_AT.zip",
+      "name": "005119SC_AT.zip",
+      "is_dir": false,
+      "size": 3404,
+      "modified": "2021-05-28T15:01:38"
+    },
+    {
+      "path": "/DisclosureFiles/005120SC_AT.zip",
+      "name": "005120SC_AT.zip",
+      "is_dir": false,
+      "size": 2221,
+      "modified": "2021-05-21T15:00:12"
+    },
+    {
+      "path": "/DisclosureFiles/005121SC_AT.zip",
+      "name": "005121SC_AT.zip",
+      "is_dir": false,
+      "size": 3045,
+      "modified": "2021-05-28T15:01:49"
+    },
+    {
+      "path": "/DisclosureFiles/005122SC_AT.zip",
+      "name": "005122SC_AT.zip",
+      "is_dir": false,
+      "size": 3612,
+      "modified": "2021-06-30T15:01:44"
+    },
+    {
+      "path": "/DisclosureFiles/005123SC_AT.zip",
+      "name": "005123SC_AT.zip",
+      "is_dir": false,
+      "size": 4572,
+      "modified": "2021-06-30T15:01:41"
+    },
+    {
+      "path": "/DisclosureFiles/005124SC_AT.zip",
+      "name": "005124SC_AT.zip",
+      "is_dir": false,
+      "size": 2781,
+      "modified": "2021-06-30T15:01:46"
+    },
+    {
+      "path": "/DisclosureFiles/005125SC_AT.zip",
+      "name": "005125SC_AT.zip",
+      "is_dir": false,
+      "size": 5766,
+      "modified": "2021-06-30T15:01:49"
+    },
+    {
+      "path": "/DisclosureFiles/005126SC_AT.zip",
+      "name": "005126SC_AT.zip",
+      "is_dir": false,
+      "size": 879,
+      "modified": "2021-06-30T15:01:41"
+    },
+    {
+      "path": "/DisclosureFiles/005127SC_AT.zip",
+      "name": "005127SC_AT.zip",
+      "is_dir": false,
+      "size": 1592,
+      "modified": "2021-06-30T15:01:36"
+    },
+    {
+      "path": "/DisclosureFiles/005128SC_AT.zip",
+      "name": "005128SC_AT.zip",
+      "is_dir": false,
+      "size": 7137,
+      "modified": "2021-06-30T15:01:45"
+    },
+    {
+      "path": "/DisclosureFiles/005129SC_AT.zip",
+      "name": "005129SC_AT.zip",
+      "is_dir": false,
+      "size": 3517,
+      "modified": "2021-07-30T15:01:37"
+    },
+    {
+      "path": "/DisclosureFiles/005130SC_AT.zip",
+      "name": "005130SC_AT.zip",
+      "is_dir": false,
+      "size": 4885,
+      "modified": "2021-07-30T15:01:30"
+    },
+    {
+      "path": "/DisclosureFiles/005131SC_AT.zip",
+      "name": "005131SC_AT.zip",
+      "is_dir": false,
+      "size": 1146,
+      "modified": "2021-07-30T15:01:33"
+    },
+    {
+      "path": "/DisclosureFiles/005132SC_AT.zip",
+      "name": "005132SC_AT.zip",
+      "is_dir": false,
+      "size": 525,
+      "modified": "2021-07-30T15:01:32"
+    },
+    {
+      "path": "/DisclosureFiles/005133SC_AT.zip",
+      "name": "005133SC_AT.zip",
+      "is_dir": false,
+      "size": 1439,
+      "modified": "2021-07-30T15:01:30"
+    },
+    {
+      "path": "/DisclosureFiles/005134SC_AT.zip",
+      "name": "005134SC_AT.zip",
+      "is_dir": false,
+      "size": 10773,
+      "modified": "2021-07-30T15:01:37"
+    },
+    {
+      "path": "/DisclosureFiles/005135SC_AT.zip",
+      "name": "005135SC_AT.zip",
+      "is_dir": false,
+      "size": 909,
+      "modified": "2021-07-30T15:01:32"
+    },
+    {
+      "path": "/DisclosureFiles/005136SC_AT.zip",
+      "name": "005136SC_AT.zip",
+      "is_dir": false,
+      "size": 523,
+      "modified": "2021-07-30T15:01:30"
+    },
+    {
+      "path": "/DisclosureFiles/005137SC_AT.zip",
+      "name": "005137SC_AT.zip",
+      "is_dir": false,
+      "size": 4330,
+      "modified": "2021-08-31T15:01:32"
+    },
+    {
+      "path": "/DisclosureFiles/005138SC_AT.zip",
+      "name": "005138SC_AT.zip",
+      "is_dir": false,
+      "size": 2476,
+      "modified": "2021-08-31T15:01:42"
+    },
+    {
+      "path": "/DisclosureFiles/005139SC_AT.zip",
+      "name": "005139SC_AT.zip",
+      "is_dir": false,
+      "size": 1407,
+      "modified": "2021-08-31T15:01:40"
+    },
+    {
+      "path": "/DisclosureFiles/005140SC_AT.zip",
+      "name": "005140SC_AT.zip",
+      "is_dir": false,
+      "size": 3475,
+      "modified": "2021-08-31T15:01:24"
+    },
+    {
+      "path": "/DisclosureFiles/005141SC_AT.zip",
+      "name": "005141SC_AT.zip",
+      "is_dir": false,
+      "size": 1269,
+      "modified": "2021-08-31T15:01:40"
+    },
+    {
+      "path": "/DisclosureFiles/005142SC_AT.zip",
+      "name": "005142SC_AT.zip",
+      "is_dir": false,
+      "size": 4114,
+      "modified": "2021-08-31T15:01:48"
+    },
+    {
+      "path": "/DisclosureFiles/005143SC_AT.zip",
+      "name": "005143SC_AT.zip",
+      "is_dir": false,
+      "size": 691,
+      "modified": "2021-08-31T15:01:35"
+    },
+    {
+      "path": "/DisclosureFiles/005144SC_AT.zip",
+      "name": "005144SC_AT.zip",
+      "is_dir": false,
+      "size": 992,
+      "modified": "2021-08-31T15:01:24"
+    },
+    {
+      "path": "/DisclosureFiles/005145SC_AT.zip",
+      "name": "005145SC_AT.zip",
+      "is_dir": false,
+      "size": 6438,
+      "modified": "2021-08-31T15:01:29"
+    },
+    {
+      "path": "/DisclosureFiles/005146SC_AT.zip",
+      "name": "005146SC_AT.zip",
+      "is_dir": false,
+      "size": 4782,
+      "modified": "2021-08-31T15:01:51"
+    },
+    {
+      "path": "/DisclosureFiles/005147SC_AT.zip",
+      "name": "005147SC_AT.zip",
+      "is_dir": false,
+      "size": 1034,
+      "modified": "2021-09-30T15:02:03"
+    },
+    {
+      "path": "/DisclosureFiles/005148SC_AT.zip",
+      "name": "005148SC_AT.zip",
+      "is_dir": false,
+      "size": 1420,
+      "modified": "2021-09-30T15:02:12"
+    },
+    {
+      "path": "/DisclosureFiles/005149SC_AT.zip",
+      "name": "005149SC_AT.zip",
+      "is_dir": false,
+      "size": 4953,
+      "modified": "2021-09-30T15:02:24"
+    },
+    {
+      "path": "/DisclosureFiles/005150SC_AT.zip",
+      "name": "005150SC_AT.zip",
+      "is_dir": false,
+      "size": 1015,
+      "modified": "2021-09-30T15:02:07"
+    },
+    {
+      "path": "/DisclosureFiles/005151SC_AT.zip",
+      "name": "005151SC_AT.zip",
+      "is_dir": false,
+      "size": 1754,
+      "modified": "2021-09-30T15:02:12"
+    },
+    {
+      "path": "/DisclosureFiles/005152SC_AT.zip",
+      "name": "005152SC_AT.zip",
+      "is_dir": false,
+      "size": 11597,
+      "modified": "2021-09-30T15:02:27"
+    },
+    {
+      "path": "/DisclosureFiles/005153SC_AT.zip",
+      "name": "005153SC_AT.zip",
+      "is_dir": false,
+      "size": 2800,
+      "modified": "2021-09-30T15:02:20"
+    },
+    {
+      "path": "/DisclosureFiles/005154SC_AT.zip",
+      "name": "005154SC_AT.zip",
+      "is_dir": false,
+      "size": 640,
+      "modified": "2021-09-30T15:02:02"
+    },
+    {
+      "path": "/DisclosureFiles/005155SC_AT.zip",
+      "name": "005155SC_AT.zip",
+      "is_dir": false,
+      "size": 10691,
+      "modified": "2021-09-30T15:02:08"
+    },
+    {
+      "path": "/DisclosureFiles/005156SC_AT.zip",
+      "name": "005156SC_AT.zip",
+      "is_dir": false,
+      "size": 1682,
+      "modified": "2021-09-30T15:01:59"
+    },
+    {
+      "path": "/DisclosureFiles/005157SC_AT.zip",
+      "name": "005157SC_AT.zip",
+      "is_dir": false,
+      "size": 998,
+      "modified": "2021-09-30T15:02:02"
+    },
+    {
+      "path": "/DisclosureFiles/005158SC_AT.zip",
+      "name": "005158SC_AT.zip",
+      "is_dir": false,
+      "size": 1019,
+      "modified": "2021-10-29T15:01:00"
+    },
+    {
+      "path": "/DisclosureFiles/005159SC_AT.zip",
+      "name": "005159SC_AT.zip",
+      "is_dir": false,
+      "size": 13286,
+      "modified": "2021-10-29T15:01:15"
+    },
+    {
+      "path": "/DisclosureFiles/005160SC_AT.zip",
+      "name": "005160SC_AT.zip",
+      "is_dir": false,
+      "size": 4778,
+      "modified": "2021-10-29T15:01:08"
+    },
+    {
+      "path": "/DisclosureFiles/005161SC_AT.zip",
+      "name": "005161SC_AT.zip",
+      "is_dir": false,
+      "size": 2548,
+      "modified": "2021-10-29T15:00:50"
+    },
+    {
+      "path": "/DisclosureFiles/005162SC_AT.zip",
+      "name": "005162SC_AT.zip",
+      "is_dir": false,
+      "size": 9653,
+      "modified": "2021-10-29T15:01:07"
+    },
+    {
+      "path": "/DisclosureFiles/005163SC_AT.zip",
+      "name": "005163SC_AT.zip",
+      "is_dir": false,
+      "size": 4411,
+      "modified": "2021-10-29T15:00:59"
+    },
+    {
+      "path": "/DisclosureFiles/005164SC_AT.zip",
+      "name": "005164SC_AT.zip",
+      "is_dir": false,
+      "size": 1357,
+      "modified": "2021-10-29T15:01:09"
+    },
+    {
+      "path": "/DisclosureFiles/005165SC_AT.zip",
+      "name": "005165SC_AT.zip",
+      "is_dir": false,
+      "size": 513,
+      "modified": "2021-10-29T15:00:52"
+    },
+    {
+      "path": "/DisclosureFiles/005166SC_AT.zip",
+      "name": "005166SC_AT.zip",
+      "is_dir": false,
+      "size": 898,
+      "modified": "2021-10-29T15:00:49"
+    },
+    {
+      "path": "/DisclosureFiles/005167SC_AT.zip",
+      "name": "005167SC_AT.zip",
+      "is_dir": false,
+      "size": 2964,
+      "modified": "2021-10-29T15:01:00"
+    },
+    {
+      "path": "/DisclosureFiles/005168SC_AT.zip",
+      "name": "005168SC_AT.zip",
+      "is_dir": false,
+      "size": 2921,
+      "modified": "2021-10-29T15:01:01"
+    },
+    {
+      "path": "/DisclosureFiles/005169SC_AT.zip",
+      "name": "005169SC_AT.zip",
+      "is_dir": false,
+      "size": 3253,
+      "modified": "2021-11-30T15:00:54"
+    },
+    {
+      "path": "/DisclosureFiles/005170SC_AT.zip",
+      "name": "005170SC_AT.zip",
+      "is_dir": false,
+      "size": 7672,
+      "modified": "2021-11-30T15:00:54"
+    },
+    {
+      "path": "/DisclosureFiles/005171SC_AT.zip",
+      "name": "005171SC_AT.zip",
+      "is_dir": false,
+      "size": 2941,
+      "modified": "2021-11-30T15:00:54"
+    },
+    {
+      "path": "/DisclosureFiles/005172SC_AT.zip",
+      "name": "005172SC_AT.zip",
+      "is_dir": false,
+      "size": 8680,
+      "modified": "2021-11-30T15:00:54"
+    },
+    {
+      "path": "/DisclosureFiles/005173SC_AT.zip",
+      "name": "005173SC_AT.zip",
+      "is_dir": false,
+      "size": 1234,
+      "modified": "2021-11-30T15:00:39"
+    },
+    {
+      "path": "/DisclosureFiles/005174SC_AT.zip",
+      "name": "005174SC_AT.zip",
+      "is_dir": false,
+      "size": 2100,
+      "modified": "2021-11-30T15:00:42"
+    },
+    {
+      "path": "/DisclosureFiles/005175SC_AT.zip",
+      "name": "005175SC_AT.zip",
+      "is_dir": false,
+      "size": 629,
+      "modified": "2021-11-30T15:00:41"
+    },
+    {
+      "path": "/DisclosureFiles/005176SC_AT.zip",
+      "name": "005176SC_AT.zip",
+      "is_dir": false,
+      "size": 1845,
+      "modified": "2021-11-30T15:00:37"
+    },
+    {
+      "path": "/DisclosureFiles/005177SC_AT.zip",
+      "name": "005177SC_AT.zip",
+      "is_dir": false,
+      "size": 4823,
+      "modified": "2021-11-30T15:00:53"
+    },
+    {
+      "path": "/DisclosureFiles/005178SC_AT.zip",
+      "name": "005178SC_AT.zip",
+      "is_dir": false,
+      "size": 3686,
+      "modified": "2021-12-30T15:00:41"
+    },
+    {
+      "path": "/DisclosureFiles/005179SC_AT.zip",
+      "name": "005179SC_AT.zip",
+      "is_dir": false,
+      "size": 1082,
+      "modified": "2021-12-30T15:00:38"
+    },
+    {
+      "path": "/DisclosureFiles/005180SC_AT.zip",
+      "name": "005180SC_AT.zip",
+      "is_dir": false,
+      "size": 824,
+      "modified": "2021-12-31T15:00:50"
+    },
+    {
+      "path": "/DisclosureFiles/005181SC_AT.zip",
+      "name": "005181SC_AT.zip",
+      "is_dir": false,
+      "size": 3345,
+      "modified": "2022-01-03T09:00:16"
+    },
+    {
+      "path": "/DisclosureFiles/005182SC_AT.zip",
+      "name": "005182SC_AT.zip",
+      "is_dir": false,
+      "size": 1672,
+      "modified": "2021-12-30T15:00:42"
+    },
+    {
+      "path": "/DisclosureFiles/005183SC_AT.zip",
+      "name": "005183SC_AT.zip",
+      "is_dir": false,
+      "size": 2252,
+      "modified": "2021-12-30T15:00:41"
+    },
+    {
+      "path": "/DisclosureFiles/005184SC_AT.zip",
+      "name": "005184SC_AT.zip",
+      "is_dir": false,
+      "size": 1868,
+      "modified": "2021-12-30T15:00:38"
+    },
+    {
+      "path": "/DisclosureFiles/005185SC_AT.zip",
+      "name": "005185SC_AT.zip",
+      "is_dir": false,
+      "size": 659,
+      "modified": "2021-12-30T15:00:41"
+    },
+    {
+      "path": "/DisclosureFiles/005186SC_AT.zip",
+      "name": "005186SC_AT.zip",
+      "is_dir": false,
+      "size": 543,
+      "modified": "2021-12-15T15:00:05"
+    },
+    {
+      "path": "/DisclosureFiles/005187SC_AT.zip",
+      "name": "005187SC_AT.zip",
+      "is_dir": false,
+      "size": 4970,
+      "modified": "2021-12-30T15:00:42"
+    },
+    {
+      "path": "/DisclosureFiles/005188SC_AT.zip",
+      "name": "005188SC_AT.zip",
+      "is_dir": false,
+      "size": 3489,
+      "modified": "2022-01-31T15:01:13"
+    },
+    {
+      "path": "/DisclosureFiles/005189SC_AT.zip",
+      "name": "005189SC_AT.zip",
+      "is_dir": false,
+      "size": 820,
+      "modified": "2022-01-31T15:01:15"
+    },
+    {
+      "path": "/DisclosureFiles/005190SC_AT.zip",
+      "name": "005190SC_AT.zip",
+      "is_dir": false,
+      "size": 7237,
+      "modified": "2022-01-31T15:01:27"
+    },
+    {
+      "path": "/DisclosureFiles/005191SC_AT.zip",
+      "name": "005191SC_AT.zip",
+      "is_dir": false,
+      "size": 2808,
+      "modified": "2022-02-01T02:56:01"
+    },
+    {
+      "path": "/DisclosureFiles/005192SC_AT.zip",
+      "name": "005192SC_AT.zip",
+      "is_dir": false,
+      "size": 1861,
+      "modified": "2022-01-28T15:00:24"
+    },
+    {
+      "path": "/DisclosureFiles/005193SC_AT.zip",
+      "name": "005193SC_AT.zip",
+      "is_dir": false,
+      "size": 3038,
+      "modified": "2022-01-31T15:01:06"
+    },
+    {
+      "path": "/DisclosureFiles/005194SC_AT.zip",
+      "name": "005194SC_AT.zip",
+      "is_dir": false,
+      "size": 1172,
+      "modified": "2022-01-31T15:01:08"
+    },
+    {
+      "path": "/DisclosureFiles/005195SC_AT.zip",
+      "name": "005195SC_AT.zip",
+      "is_dir": false,
+      "size": 2183,
+      "modified": "2022-01-31T15:01:12"
+    },
+    {
+      "path": "/DisclosureFiles/005196SC_AT.zip",
+      "name": "005196SC_AT.zip",
+      "is_dir": false,
+      "size": 3049,
+      "modified": "2022-01-31T15:01:15"
+    },
+    {
+      "path": "/DisclosureFiles/005197SC_AT.zip",
+      "name": "005197SC_AT.zip",
+      "is_dir": false,
+      "size": 649,
+      "modified": "2022-01-31T15:01:06"
+    },
+    {
+      "path": "/DisclosureFiles/005198SC_AT.zip",
+      "name": "005198SC_AT.zip",
+      "is_dir": false,
+      "size": 3183,
+      "modified": "2022-01-31T15:01:28"
+    },
+    {
+      "path": "/DisclosureFiles/005199SC_AT.zip",
+      "name": "005199SC_AT.zip",
+      "is_dir": false,
+      "size": 9370,
+      "modified": "2022-02-28T15:01:10"
+    },
+    {
+      "path": "/DisclosureFiles/005200SC_AT.zip",
+      "name": "005200SC_AT.zip",
+      "is_dir": false,
+      "size": 2575,
+      "modified": "2022-02-28T15:01:09"
+    },
+    {
+      "path": "/DisclosureFiles/005201SC_AT.zip",
+      "name": "005201SC_AT.zip",
+      "is_dir": false,
+      "size": 4052,
+      "modified": "2022-02-28T15:00:58"
+    },
+    {
+      "path": "/DisclosureFiles/005202SC_AT.zip",
+      "name": "005202SC_AT.zip",
+      "is_dir": false,
+      "size": 22903,
+      "modified": "2022-02-28T15:01:15"
+    },
+    {
+      "path": "/DisclosureFiles/005203SC_AT.zip",
+      "name": "005203SC_AT.zip",
+      "is_dir": false,
+      "size": 3657,
+      "modified": "2022-02-28T15:01:06"
+    },
+    {
+      "path": "/DisclosureFiles/005204SC_AT.zip",
+      "name": "005204SC_AT.zip",
+      "is_dir": false,
+      "size": 1773,
+      "modified": "2022-02-28T15:01:01"
+    },
+    {
+      "path": "/DisclosureFiles/005205SC_AT.zip",
+      "name": "005205SC_AT.zip",
+      "is_dir": false,
+      "size": 1907,
+      "modified": "2022-02-28T15:01:05"
+    },
+    {
+      "path": "/DisclosureFiles/005206SC_AT.zip",
+      "name": "005206SC_AT.zip",
+      "is_dir": false,
+      "size": 1686,
+      "modified": "2022-03-31T15:01:10"
+    },
+    {
+      "path": "/DisclosureFiles/005207SC_AT.zip",
+      "name": "005207SC_AT.zip",
+      "is_dir": false,
+      "size": 1724,
+      "modified": "2022-02-28T15:00:53"
+    },
+    {
+      "path": "/DisclosureFiles/005208SC_AT.zip",
+      "name": "005208SC_AT.zip",
+      "is_dir": false,
+      "size": 2524,
+      "modified": "2022-04-01T02:56:08"
+    },
+    {
+      "path": "/DisclosureFiles/005209SC_AT.zip",
+      "name": "005209SC_AT.zip",
+      "is_dir": false,
+      "size": 1162,
+      "modified": "2022-03-31T15:01:12"
+    },
+    {
+      "path": "/DisclosureFiles/005210SC_AT.zip",
+      "name": "005210SC_AT.zip",
+      "is_dir": false,
+      "size": 4284,
+      "modified": "2022-03-31T15:01:03"
+    },
+    {
+      "path": "/DisclosureFiles/005211SC_AT.zip",
+      "name": "005211SC_AT.zip",
+      "is_dir": false,
+      "size": 439,
+      "modified": "2022-03-14T15:00:05"
+    },
+    {
+      "path": "/DisclosureFiles/005212SC_AT.zip",
+      "name": "005212SC_AT.zip",
+      "is_dir": false,
+      "size": 3299,
+      "modified": "2022-03-31T15:00:55"
+    },
+    {
+      "path": "/DisclosureFiles/005213SC_AT.zip",
+      "name": "005213SC_AT.zip",
+      "is_dir": false,
+      "size": 2002,
+      "modified": "2022-04-05T02:56:00"
+    },
+    {
+      "path": "/DisclosureFiles/005214SC_AT.zip",
+      "name": "005214SC_AT.zip",
+      "is_dir": false,
+      "size": 13079,
+      "modified": "2022-04-05T02:56:00"
+    },
+    {
+      "path": "/DisclosureFiles/005215SC_AT.zip",
+      "name": "005215SC_AT.zip",
+      "is_dir": false,
+      "size": 1740,
+      "modified": "2022-03-31T15:00:49"
+    },
+    {
+      "path": "/DisclosureFiles/005216SC_AT.zip",
+      "name": "005216SC_AT.zip",
+      "is_dir": false,
+      "size": 675,
+      "modified": "2022-04-05T02:55:59"
+    },
+    {
+      "path": "/DisclosureFiles/005217SC_AT.zip",
+      "name": "005217SC_AT.zip",
+      "is_dir": false,
+      "size": 18145,
+      "modified": "2022-04-05T02:56:00"
+    },
+    {
+      "path": "/DisclosureFiles/005218SC_AT.zip",
+      "name": "005218SC_AT.zip",
+      "is_dir": false,
+      "size": 589,
+      "modified": "2022-04-29T15:00:58"
+    },
+    {
+      "path": "/DisclosureFiles/005219SC_AT.zip",
+      "name": "005219SC_AT.zip",
+      "is_dir": false,
+      "size": 1320,
+      "modified": "2022-04-29T15:00:47"
+    },
+    {
+      "path": "/DisclosureFiles/005220SC_AT.zip",
+      "name": "005220SC_AT.zip",
+      "is_dir": false,
+      "size": 2734,
+      "modified": "2022-04-29T15:01:00"
+    },
+    {
+      "path": "/DisclosureFiles/005221SC_AT.zip",
+      "name": "005221SC_AT.zip",
+      "is_dir": false,
+      "size": 6619,
+      "modified": "2022-04-29T15:01:08"
+    },
+    {
+      "path": "/DisclosureFiles/005222SC_AT.zip",
+      "name": "005222SC_AT.zip",
+      "is_dir": false,
+      "size": 1265,
+      "modified": "2022-04-29T15:00:58"
+    },
+    {
+      "path": "/DisclosureFiles/005223SC_AT.zip",
+      "name": "005223SC_AT.zip",
+      "is_dir": false,
+      "size": 9737,
+      "modified": "2022-04-29T15:01:08"
+    },
+    {
+      "path": "/DisclosureFiles/005224SC_AT.zip",
+      "name": "005224SC_AT.zip",
+      "is_dir": false,
+      "size": 5953,
+      "modified": "2022-04-29T15:01:01"
+    },
+    {
+      "path": "/DisclosureFiles/005225SC_AT.zip",
+      "name": "005225SC_AT.zip",
+      "is_dir": false,
+      "size": 3467,
+      "modified": "2022-04-29T15:01:06"
+    },
+    {
+      "path": "/DisclosureFiles/005226SC_AT.zip",
+      "name": "005226SC_AT.zip",
+      "is_dir": false,
+      "size": 641,
+      "modified": "2022-04-29T15:00:56"
+    },
+    {
+      "path": "/DisclosureFiles/005227SC_AT.zip",
+      "name": "005227SC_AT.zip",
+      "is_dir": false,
+      "size": 783,
+      "modified": "2022-04-29T15:00:58"
+    },
+    {
+      "path": "/DisclosureFiles/005228SC_AT.zip",
+      "name": "005228SC_AT.zip",
+      "is_dir": false,
+      "size": 3544,
+      "modified": "2022-05-31T15:01:04"
+    },
+    {
+      "path": "/DisclosureFiles/005229SC_AT.zip",
+      "name": "005229SC_AT.zip",
+      "is_dir": false,
+      "size": 690,
+      "modified": "2022-05-31T15:01:04"
+    },
+    {
+      "path": "/DisclosureFiles/005230SC_AT.zip",
+      "name": "005230SC_AT.zip",
+      "is_dir": false,
+      "size": 2082,
+      "modified": "2022-05-31T15:01:03"
+    },
+    {
+      "path": "/DisclosureFiles/005231SC_AT.zip",
+      "name": "005231SC_AT.zip",
+      "is_dir": false,
+      "size": 488,
+      "modified": "2022-05-31T15:00:56"
+    },
+    {
+      "path": "/DisclosureFiles/005232SC_AT.zip",
+      "name": "005232SC_AT.zip",
+      "is_dir": false,
+      "size": 1104,
+      "modified": "2022-05-31T15:01:03"
+    },
+    {
+      "path": "/DisclosureFiles/005233SC_AT.zip",
+      "name": "005233SC_AT.zip",
+      "is_dir": false,
+      "size": 1851,
+      "modified": "2022-05-27T15:00:26"
+    },
+    {
+      "path": "/DisclosureFiles/005234SC_AT.zip",
+      "name": "005234SC_AT.zip",
+      "is_dir": false,
+      "size": 795,
+      "modified": "2022-05-27T15:00:26"
+    },
+    {
+      "path": "/DisclosureFiles/005235SC_AT.zip",
+      "name": "005235SC_AT.zip",
+      "is_dir": false,
+      "size": 4448,
+      "modified": "2022-05-31T15:00:59"
+    },
+    {
+      "path": "/DisclosureFiles/005236SC_AT.zip",
+      "name": "005236SC_AT.zip",
+      "is_dir": false,
+      "size": 2673,
+      "modified": "2022-07-01T02:58:04"
+    },
+    {
+      "path": "/DisclosureFiles/005237SC_AT.zip",
+      "name": "005237SC_AT.zip",
+      "is_dir": false,
+      "size": 1827,
+      "modified": "2022-07-01T02:58:04"
+    },
+    {
+      "path": "/DisclosureFiles/005238SC_AT.zip",
+      "name": "005238SC_AT.zip",
+      "is_dir": false,
+      "size": 712,
+      "modified": "2022-07-01T02:58:03"
+    },
+    {
+      "path": "/DisclosureFiles/005239SC_AT.zip",
+      "name": "005239SC_AT.zip",
+      "is_dir": false,
+      "size": 5314,
+      "modified": "2022-07-01T02:58:02"
+    },
+    {
+      "path": "/DisclosureFiles/005240SC_AT.zip",
+      "name": "005240SC_AT.zip",
+      "is_dir": false,
+      "size": 1097,
+      "modified": "2022-07-01T02:57:54"
+    },
+    {
+      "path": "/DisclosureFiles/005241SC_AT.zip",
+      "name": "005241SC_AT.zip",
+      "is_dir": false,
+      "size": 503,
+      "modified": "2022-07-01T02:57:53"
+    },
+    {
+      "path": "/DisclosureFiles/005242SC_AT.zip",
+      "name": "005242SC_AT.zip",
+      "is_dir": false,
+      "size": 897,
+      "modified": "2022-07-01T02:58:00"
+    },
+    {
+      "path": "/DisclosureFiles/005243SC_AT.zip",
+      "name": "005243SC_AT.zip",
+      "is_dir": false,
+      "size": 988,
+      "modified": "2022-07-01T02:57:58"
+    },
+    {
+      "path": "/DisclosureFiles/005244SC_AT.zip",
+      "name": "005244SC_AT.zip",
+      "is_dir": false,
+      "size": 933,
+      "modified": "2022-07-01T02:58:01"
+    },
+    {
+      "path": "/DisclosureFiles/005245SC_AT.zip",
+      "name": "005245SC_AT.zip",
+      "is_dir": false,
+      "size": 1888,
+      "modified": "2022-07-29T15:00:55"
+    },
+    {
+      "path": "/DisclosureFiles/005246SC_AT.zip",
+      "name": "005246SC_AT.zip",
+      "is_dir": false,
+      "size": 427,
+      "modified": "2022-07-29T15:00:51"
+    },
+    {
+      "path": "/DisclosureFiles/005247SC_AT.zip",
+      "name": "005247SC_AT.zip",
+      "is_dir": false,
+      "size": 6272,
+      "modified": "2022-07-29T15:00:56"
+    },
+    {
+      "path": "/DisclosureFiles/005248SC_AT.zip",
+      "name": "005248SC_AT.zip",
+      "is_dir": false,
+      "size": 580,
+      "modified": "2022-07-29T15:00:48"
+    },
+    {
+      "path": "/DisclosureFiles/005249SC_AT.zip",
+      "name": "005249SC_AT.zip",
+      "is_dir": false,
+      "size": 1302,
+      "modified": "2022-07-29T15:00:55"
+    },
+    {
+      "path": "/DisclosureFiles/005250SC_AT.zip",
+      "name": "005250SC_AT.zip",
+      "is_dir": false,
+      "size": 1045,
+      "modified": "2022-07-29T15:00:58"
+    },
+    {
+      "path": "/DisclosureFiles/005251SC_AT.zip",
+      "name": "005251SC_AT.zip",
+      "is_dir": false,
+      "size": 1593,
+      "modified": "2022-07-29T15:00:48"
+    },
+    {
+      "path": "/DisclosureFiles/005252SC_AT.zip",
+      "name": "005252SC_AT.zip",
+      "is_dir": false,
+      "size": 2184,
+      "modified": "2022-08-31T15:01:49"
+    },
+    {
+      "path": "/DisclosureFiles/005253SC_AT.zip",
+      "name": "005253SC_AT.zip",
+      "is_dir": false,
+      "size": 676,
+      "modified": "2022-07-29T15:00:47"
+    },
+    {
+      "path": "/DisclosureFiles/005254SC_AT.zip",
+      "name": "005254SC_AT.zip",
+      "is_dir": false,
+      "size": 664,
+      "modified": "2022-08-31T15:01:48"
+    },
+    {
+      "path": "/DisclosureFiles/005255SC_AT.zip",
+      "name": "005255SC_AT.zip",
+      "is_dir": false,
+      "size": 511,
+      "modified": "2022-08-31T15:01:47"
+    },
+    {
+      "path": "/DisclosureFiles/005256SC_AT.zip",
+      "name": "005256SC_AT.zip",
+      "is_dir": false,
+      "size": 515,
+      "modified": "2022-08-31T15:01:45"
+    },
+    {
+      "path": "/DisclosureFiles/005257SC_AT.zip",
+      "name": "005257SC_AT.zip",
+      "is_dir": false,
+      "size": 873,
+      "modified": "2022-08-31T15:01:44"
+    },
+    {
+      "path": "/DisclosureFiles/005258SC_AT.zip",
+      "name": "005258SC_AT.zip",
+      "is_dir": false,
+      "size": 783,
+      "modified": "2022-08-31T15:01:48"
+    },
+    {
+      "path": "/DisclosureFiles/005259SC_AT.zip",
+      "name": "005259SC_AT.zip",
+      "is_dir": false,
+      "size": 582,
+      "modified": "2022-08-31T15:01:44"
+    },
+    {
+      "path": "/DisclosureFiles/005260SC_AT.zip",
+      "name": "005260SC_AT.zip",
+      "is_dir": false,
+      "size": 937,
+      "modified": "2022-08-30T15:00:19"
+    },
+    {
+      "path": "/DisclosureFiles/005261SC_AT.zip",
+      "name": "005261SC_AT.zip",
+      "is_dir": false,
+      "size": 826,
+      "modified": "2022-09-30T15:01:07"
+    },
+    {
+      "path": "/DisclosureFiles/005262SC_AT.zip",
+      "name": "005262SC_AT.zip",
+      "is_dir": false,
+      "size": 682,
+      "modified": "2022-09-30T15:01:07"
+    },
+    {
+      "path": "/DisclosureFiles/005263SC_AT.zip",
+      "name": "005263SC_AT.zip",
+      "is_dir": false,
+      "size": 584,
+      "modified": "2022-09-30T15:01:08"
+    },
+    {
+      "path": "/DisclosureFiles/005264SC_AT.zip",
+      "name": "005264SC_AT.zip",
+      "is_dir": false,
+      "size": 853,
+      "modified": "2022-09-30T15:01:10"
+    },
+    {
+      "path": "/DisclosureFiles/005265SC_AT.zip",
+      "name": "005265SC_AT.zip",
+      "is_dir": false,
+      "size": 474,
+      "modified": "2022-09-30T15:01:10"
+    },
+    {
+      "path": "/DisclosureFiles/005266SC_AT.zip",
+      "name": "005266SC_AT.zip",
+      "is_dir": false,
+      "size": 1364,
+      "modified": "2022-09-30T15:01:03"
+    },
+    {
+      "path": "/DisclosureFiles/005267SC_AT.zip",
+      "name": "005267SC_AT.zip",
+      "is_dir": false,
+      "size": 479,
+      "modified": "2022-09-30T15:01:03"
+    },
+    {
+      "path": "/DisclosureFiles/005268SC_AT.zip",
+      "name": "005268SC_AT.zip",
+      "is_dir": false,
+      "size": 930,
+      "modified": "2022-09-30T15:01:01"
+    },
+    {
+      "path": "/DisclosureFiles/005269SC_AT.zip",
+      "name": "005269SC_AT.zip",
+      "is_dir": false,
+      "size": 1526,
+      "modified": "2022-09-30T15:01:11"
+    },
+    {
+      "path": "/DisclosureFiles/005270SC_AT.zip",
+      "name": "005270SC_AT.zip",
+      "is_dir": false,
+      "size": 1511,
+      "modified": "2022-10-31T15:01:04"
+    },
+    {
+      "path": "/DisclosureFiles/005271SC_AT.zip",
+      "name": "005271SC_AT.zip",
+      "is_dir": false,
+      "size": 576,
+      "modified": "2022-10-31T15:00:58"
+    },
+    {
+      "path": "/DisclosureFiles/005272SC_AT.zip",
+      "name": "005272SC_AT.zip",
+      "is_dir": false,
+      "size": 471,
+      "modified": "2022-10-28T15:00:22"
+    },
+    {
+      "path": "/DisclosureFiles/005273SC_AT.zip",
+      "name": "005273SC_AT.zip",
+      "is_dir": false,
+      "size": 1215,
+      "modified": "2022-10-31T15:01:01"
+    },
+    {
+      "path": "/DisclosureFiles/005274SC_AT.zip",
+      "name": "005274SC_AT.zip",
+      "is_dir": false,
+      "size": 1542,
+      "modified": "2022-10-31T15:01:03"
+    },
+    {
+      "path": "/DisclosureFiles/005275SC_AT.zip",
+      "name": "005275SC_AT.zip",
+      "is_dir": false,
+      "size": 514,
+      "modified": "2022-10-31T15:00:57"
+    },
+    {
+      "path": "/DisclosureFiles/005276SC_AT.zip",
+      "name": "005276SC_AT.zip",
+      "is_dir": false,
+      "size": 598,
+      "modified": "2022-10-31T15:01:00"
+    },
+    {
+      "path": "/DisclosureFiles/005277SC_AT.zip",
+      "name": "005277SC_AT.zip",
+      "is_dir": false,
+      "size": 633,
+      "modified": "2022-10-31T15:00:58"
+    },
+    {
+      "path": "/DisclosureFiles/005278SC_AT.zip",
+      "name": "005278SC_AT.zip",
+      "is_dir": false,
+      "size": 1039,
+      "modified": "2022-10-31T15:01:03"
+    },
+    {
+      "path": "/DisclosureFiles/005279SC_AT.zip",
+      "name": "005279SC_AT.zip",
+      "is_dir": false,
+      "size": 600,
+      "modified": "2022-11-30T15:01:21"
+    },
+    {
+      "path": "/DisclosureFiles/005280SC_AT.zip",
+      "name": "005280SC_AT.zip",
+      "is_dir": false,
+      "size": 648,
+      "modified": "2022-11-30T15:01:23"
+    },
+    {
+      "path": "/DisclosureFiles/005281SC_AT.zip",
+      "name": "005281SC_AT.zip",
+      "is_dir": false,
+      "size": 442,
+      "modified": "2022-12-30T15:00:32"
+    },
+    {
+      "path": "/DisclosureFiles/005282SC_AT.zip",
+      "name": "005282SC_AT.zip",
+      "is_dir": false,
+      "size": 649,
+      "modified": "2022-11-30T15:01:25"
+    },
+    {
+      "path": "/DisclosureFiles/005283SC_AT.zip",
+      "name": "005283SC_AT.zip",
+      "is_dir": false,
+      "size": 508,
+      "modified": "2022-11-30T15:01:22"
+    },
+    {
+      "path": "/DisclosureFiles/005284SC_AT.zip",
+      "name": "005284SC_AT.zip",
+      "is_dir": false,
+      "size": 498,
+      "modified": "2022-11-30T15:01:24"
+    },
+    {
+      "path": "/DisclosureFiles/005285SC_AT.zip",
+      "name": "005285SC_AT.zip",
+      "is_dir": false,
+      "size": 468,
+      "modified": "2022-11-30T15:01:24"
+    },
+    {
+      "path": "/DisclosureFiles/005286SC_AT.zip",
+      "name": "005286SC_AT.zip",
+      "is_dir": false,
+      "size": 450,
+      "modified": "2022-12-30T15:00:31"
+    },
+    {
+      "path": "/DisclosureFiles/005287SC_AT.zip",
+      "name": "005287SC_AT.zip",
+      "is_dir": false,
+      "size": 647,
+      "modified": "2022-12-30T15:00:32"
+    },
+    {
+      "path": "/DisclosureFiles/005288SC_AT.zip",
+      "name": "005288SC_AT.zip",
+      "is_dir": false,
+      "size": 550,
+      "modified": "2022-12-29T15:00:24"
+    },
+    {
+      "path": "/DisclosureFiles/005289SC_AT.zip",
+      "name": "005289SC_AT.zip",
+      "is_dir": false,
+      "size": 662,
+      "modified": "2022-12-30T15:00:32"
+    },
+    {
+      "path": "/DisclosureFiles/005290SC_AT.zip",
+      "name": "005290SC_AT.zip",
+      "is_dir": false,
+      "size": 591,
+      "modified": "2023-01-31T15:00:32"
+    },
+    {
+      "path": "/DisclosureFiles/005291SC_AT.zip",
+      "name": "005291SC_AT.zip",
+      "is_dir": false,
+      "size": 428,
+      "modified": "2023-01-31T15:00:30"
+    },
+    {
+      "path": "/DisclosureFiles/005292SC_AT.zip",
+      "name": "005292SC_AT.zip",
+      "is_dir": false,
+      "size": 427,
+      "modified": "2023-01-31T15:00:31"
+    },
+    {
+      "path": "/DisclosureFiles/005293SC_AT.zip",
+      "name": "005293SC_AT.zip",
+      "is_dir": false,
+      "size": 1053,
+      "modified": "2023-01-31T15:00:32"
+    },
+    {
+      "path": "/DisclosureFiles/005294SC_AT.zip",
+      "name": "005294SC_AT.zip",
+      "is_dir": false,
+      "size": 1175,
+      "modified": "2023-01-31T15:00:30"
+    },
+    {
+      "path": "/DisclosureFiles/005295SC_AT.zip",
+      "name": "005295SC_AT.zip",
+      "is_dir": false,
+      "size": 563,
+      "modified": "2023-02-28T15:00:38"
+    },
+    {
+      "path": "/DisclosureFiles/005296SC_AT.zip",
+      "name": "005296SC_AT.zip",
+      "is_dir": false,
+      "size": 1228,
+      "modified": "2023-02-28T15:00:38"
+    },
+    {
+      "path": "/DisclosureFiles/005297SC_AT.zip",
+      "name": "005297SC_AT.zip",
+      "is_dir": false,
+      "size": 1219,
+      "modified": "2023-02-28T15:00:38"
+    },
+    {
+      "path": "/DisclosureFiles/005298SC_AT.zip",
+      "name": "005298SC_AT.zip",
+      "is_dir": false,
+      "size": 651,
+      "modified": "2023-02-28T15:00:37"
+    },
+    {
+      "path": "/DisclosureFiles/005299SC_AT.zip",
+      "name": "005299SC_AT.zip",
+      "is_dir": false,
+      "size": 725,
+      "modified": "2023-02-28T15:00:38"
+    },
+    {
+      "path": "/DisclosureFiles/005300SC_AT.zip",
+      "name": "005300SC_AT.zip",
+      "is_dir": false,
+      "size": 697,
+      "modified": "2023-03-31T15:00:57"
+    },
+    {
+      "path": "/DisclosureFiles/005301SC_AT.zip",
+      "name": "005301SC_AT.zip",
+      "is_dir": false,
+      "size": 673,
+      "modified": "2023-03-31T15:00:56"
+    },
+    {
+      "path": "/DisclosureFiles/005302SC_AT.zip",
+      "name": "005302SC_AT.zip",
+      "is_dir": false,
+      "size": 469,
+      "modified": "2023-03-31T15:00:55"
+    },
+    {
+      "path": "/DisclosureFiles/005303SC_AT.zip",
+      "name": "005303SC_AT.zip",
+      "is_dir": false,
+      "size": 1156,
+      "modified": "2023-03-31T15:00:57"
+    },
+    {
+      "path": "/DisclosureFiles/005304SC_AT.zip",
+      "name": "005304SC_AT.zip",
+      "is_dir": false,
+      "size": 496,
+      "modified": "2023-03-31T15:00:56"
+    },
+    {
+      "path": "/DisclosureFiles/005305SC_AT.zip",
+      "name": "005305SC_AT.zip",
+      "is_dir": false,
+      "size": 916,
+      "modified": "2023-03-31T15:00:56"
+    },
+    {
+      "path": "/DisclosureFiles/005306SC_AT.zip",
+      "name": "005306SC_AT.zip",
+      "is_dir": false,
+      "size": 514,
+      "modified": "2023-03-31T15:00:57"
+    },
+    {
+      "path": "/DisclosureFiles/005307SC_AT.zip",
+      "name": "005307SC_AT.zip",
+      "is_dir": false,
+      "size": 653,
+      "modified": "2023-04-28T15:00:52"
+    },
+    {
+      "path": "/DisclosureFiles/005308SC_AT.zip",
+      "name": "005308SC_AT.zip",
+      "is_dir": false,
+      "size": 428,
+      "modified": "2023-04-28T15:00:52"
+    },
+    {
+      "path": "/DisclosureFiles/005309SC_AT.zip",
+      "name": "005309SC_AT.zip",
+      "is_dir": false,
+      "size": 518,
+      "modified": "2023-04-28T15:00:54"
+    },
+    {
+      "path": "/DisclosureFiles/005310SC_AT.zip",
+      "name": "005310SC_AT.zip",
+      "is_dir": false,
+      "size": 1244,
+      "modified": "2023-04-28T15:00:55"
+    },
+    {
+      "path": "/DisclosureFiles/005311SC_AT.zip",
+      "name": "005311SC_AT.zip",
+      "is_dir": false,
+      "size": 439,
+      "modified": "2023-04-28T15:00:55"
+    },
+    {
+      "path": "/DisclosureFiles/005312SC_AT.zip",
+      "name": "005312SC_AT.zip",
+      "is_dir": false,
+      "size": 828,
+      "modified": "2023-04-28T15:00:54"
+    },
+    {
+      "path": "/DisclosureFiles/005313SC_AT.zip",
+      "name": "005313SC_AT.zip",
+      "is_dir": false,
+      "size": 617,
+      "modified": "2023-05-31T15:01:10"
+    },
+    {
+      "path": "/DisclosureFiles/005314SC_AT.zip",
+      "name": "005314SC_AT.zip",
+      "is_dir": false,
+      "size": 699,
+      "modified": "2023-05-30T15:00:23"
+    },
+    {
+      "path": "/DisclosureFiles/005315SC_AT.zip",
+      "name": "005315SC_AT.zip",
+      "is_dir": false,
+      "size": 1584,
+      "modified": "2023-05-31T15:01:11"
+    },
+    {
+      "path": "/DisclosureFiles/005316SC_AT.zip",
+      "name": "005316SC_AT.zip",
+      "is_dir": false,
+      "size": 477,
+      "modified": "2023-05-31T15:01:09"
+    },
+    {
+      "path": "/DisclosureFiles/005317SC_AT.zip",
+      "name": "005317SC_AT.zip",
+      "is_dir": false,
+      "size": 541,
+      "modified": "2023-05-31T15:01:09"
+    },
+    {
+      "path": "/DisclosureFiles/005318SC_AT.zip",
+      "name": "005318SC_AT.zip",
+      "is_dir": false,
+      "size": 1403,
+      "modified": "2023-05-31T15:01:09"
+    },
+    {
+      "path": "/DisclosureFiles/005319SC_AT.zip",
+      "name": "005319SC_AT.zip",
+      "is_dir": false,
+      "size": 781,
+      "modified": "2023-06-30T15:01:08"
+    },
+    {
+      "path": "/DisclosureFiles/005320SC_AT.zip",
+      "name": "005320SC_AT.zip",
+      "is_dir": false,
+      "size": 1371,
+      "modified": "2023-06-30T15:01:08"
+    },
+    {
+      "path": "/DisclosureFiles/005321SC_AT.zip",
+      "name": "005321SC_AT.zip",
+      "is_dir": false,
+      "size": 1111,
+      "modified": "2023-06-30T15:01:11"
+    },
+    {
+      "path": "/DisclosureFiles/005322SC_AT.zip",
+      "name": "005322SC_AT.zip",
+      "is_dir": false,
+      "size": 1227,
+      "modified": "2023-06-30T15:01:07"
+    },
+    {
+      "path": "/DisclosureFiles/005323SC_AT.zip",
+      "name": "005323SC_AT.zip",
+      "is_dir": false,
+      "size": 688,
+      "modified": "2023-06-30T15:01:09"
+    },
+    {
+      "path": "/DisclosureFiles/005324SC_AT.zip",
+      "name": "005324SC_AT.zip",
+      "is_dir": false,
+      "size": 427,
+      "modified": "2023-06-30T15:01:08"
+    },
+    {
+      "path": "/DisclosureFiles/005325SC_AT.zip",
+      "name": "005325SC_AT.zip",
+      "is_dir": false,
+      "size": 951,
+      "modified": "2023-06-30T15:01:07"
+    },
+    {
+      "path": "/DisclosureFiles/005326SC_AT.zip",
+      "name": "005326SC_AT.zip",
+      "is_dir": false,
+      "size": 1624,
+      "modified": "2023-07-31T15:01:11"
+    },
+    {
+      "path": "/DisclosureFiles/005327SC_AT.zip",
+      "name": "005327SC_AT.zip",
+      "is_dir": false,
+      "size": 427,
+      "modified": "2023-07-31T15:01:07"
+    },
+    {
+      "path": "/DisclosureFiles/005328SC_AT.zip",
+      "name": "005328SC_AT.zip",
+      "is_dir": false,
+      "size": 466,
+      "modified": "2023-07-31T15:01:07"
+    },
+    {
+      "path": "/DisclosureFiles/005329SC_AT.zip",
+      "name": "005329SC_AT.zip",
+      "is_dir": false,
+      "size": 705,
+      "modified": "2023-07-31T15:01:06"
+    },
+    {
+      "path": "/DisclosureFiles/005330SC_AT.zip",
+      "name": "005330SC_AT.zip",
+      "is_dir": false,
+      "size": 1919,
+      "modified": "2023-07-31T15:01:08"
+    },
+    {
+      "path": "/DisclosureFiles/005331SC_AT.zip",
+      "name": "005331SC_AT.zip",
+      "is_dir": false,
+      "size": 768,
+      "modified": "2023-07-31T15:01:09"
+    },
+    {
+      "path": "/DisclosureFiles/005332SC_AT.zip",
+      "name": "005332SC_AT.zip",
+      "is_dir": false,
+      "size": 1190,
+      "modified": "2023-07-31T15:01:07"
+    },
+    {
+      "path": "/DisclosureFiles/005333SC_AT.zip",
+      "name": "005333SC_AT.zip",
+      "is_dir": false,
+      "size": 1312,
+      "modified": "2023-08-31T15:00:51"
+    },
+    {
+      "path": "/DisclosureFiles/005334SC_AT.zip",
+      "name": "005334SC_AT.zip",
+      "is_dir": false,
+      "size": 614,
+      "modified": "2023-08-31T15:00:51"
+    },
+    {
+      "path": "/DisclosureFiles/005335SC_AT.zip",
+      "name": "005335SC_AT.zip",
+      "is_dir": false,
+      "size": 3557,
+      "modified": "2023-08-31T15:01:00"
+    },
+    {
+      "path": "/DisclosureFiles/005336SC_AT.zip",
+      "name": "005336SC_AT.zip",
+      "is_dir": false,
+      "size": 739,
+      "modified": "2023-08-31T15:00:56"
+    },
+    {
+      "path": "/DisclosureFiles/005337SC_AT.zip",
+      "name": "005337SC_AT.zip",
+      "is_dir": false,
+      "size": 627,
+      "modified": "2023-08-31T15:00:57"
+    },
+    {
+      "path": "/DisclosureFiles/005338SC_AT.zip",
+      "name": "005338SC_AT.zip",
+      "is_dir": false,
+      "size": 1433,
+      "modified": "2023-08-31T15:00:59"
+    },
+    {
+      "path": "/DisclosureFiles/005339SC_AT.zip",
+      "name": "005339SC_AT.zip",
+      "is_dir": false,
+      "size": 1684,
+      "modified": "2023-08-31T15:00:56"
+    },
+    {
+      "path": "/DisclosureFiles/005340SC_AT.zip",
+      "name": "005340SC_AT.zip",
+      "is_dir": false,
+      "size": 1347,
+      "modified": "2023-08-31T15:00:54"
+    },
+    {
+      "path": "/DisclosureFiles/005341SC_AT.zip",
+      "name": "005341SC_AT.zip",
+      "is_dir": false,
+      "size": 803,
+      "modified": "2023-09-29T15:00:30"
+    },
+    {
+      "path": "/DisclosureFiles/005342SC_AT.zip",
+      "name": "005342SC_AT.zip",
+      "is_dir": false,
+      "size": 1630,
+      "modified": "2023-09-29T15:00:32"
+    },
+    {
+      "path": "/DisclosureFiles/005343SC_AT.zip",
+      "name": "005343SC_AT.zip",
+      "is_dir": false,
+      "size": 1096,
+      "modified": "2023-09-29T15:00:28"
+    },
+    {
+      "path": "/DisclosureFiles/005344SC_AT.zip",
+      "name": "005344SC_AT.zip",
+      "is_dir": false,
+      "size": 616,
+      "modified": "2023-09-29T15:00:27"
+    },
+    {
+      "path": "/DisclosureFiles/005345SC_AT.zip",
+      "name": "005345SC_AT.zip",
+      "is_dir": false,
+      "size": 1287,
+      "modified": "2023-09-29T15:00:30"
+    },
+    {
+      "path": "/DisclosureFiles/005346SC_AT.zip",
+      "name": "005346SC_AT.zip",
+      "is_dir": false,
+      "size": 4503,
+      "modified": "2023-09-29T15:00:30"
+    },
+    {
+      "path": "/DisclosureFiles/005347SC_AT.zip",
+      "name": "005347SC_AT.zip",
+      "is_dir": false,
+      "size": 1371,
+      "modified": "2023-09-29T15:00:32"
+    },
+    {
+      "path": "/DisclosureFiles/005348SC_AT.zip",
+      "name": "005348SC_AT.zip",
+      "is_dir": false,
+      "size": 428,
+      "modified": "2023-09-29T15:00:31"
+    },
+    {
+      "path": "/DisclosureFiles/005349SC_AT.zip",
+      "name": "005349SC_AT.zip",
+      "is_dir": false,
+      "size": 1149,
+      "modified": "2023-09-29T15:00:31"
+    },
+    {
+      "path": "/DisclosureFiles/005350SC_AT.zip",
+      "name": "005350SC_AT.zip",
+      "is_dir": false,
+      "size": 9934,
+      "modified": "2023-10-31T15:00:34"
+    },
+    {
+      "path": "/DisclosureFiles/005351SC_AT.zip",
+      "name": "005351SC_AT.zip",
+      "is_dir": false,
+      "size": 8840,
+      "modified": "2023-10-31T15:00:35"
+    },
+    {
+      "path": "/DisclosureFiles/005352SC_AT.zip",
+      "name": "005352SC_AT.zip",
+      "is_dir": false,
+      "size": 1252,
+      "modified": "2023-10-31T15:00:34"
+    },
+    {
+      "path": "/DisclosureFiles/005353SC_AT.zip",
+      "name": "005353SC_AT.zip",
+      "is_dir": false,
+      "size": 2322,
+      "modified": "2023-10-31T15:00:35"
+    },
+    {
+      "path": "/DisclosureFiles/005354SC_AT.zip",
+      "name": "005354SC_AT.zip",
+      "is_dir": false,
+      "size": 1311,
+      "modified": "2023-10-31T15:00:35"
+    },
+    {
+      "path": "/DisclosureFiles/005355SC_AT.zip",
+      "name": "005355SC_AT.zip",
+      "is_dir": false,
+      "size": 475,
+      "modified": "2023-10-31T15:00:34"
+    },
+    {
+      "path": "/DisclosureFiles/005356SC_AT.zip",
+      "name": "005356SC_AT.zip",
+      "is_dir": false,
+      "size": 1715,
+      "modified": "2023-10-31T15:00:24"
+    },
+    {
+      "path": "/DisclosureFiles/005357SC_AT.zip",
+      "name": "005357SC_AT.zip",
+      "is_dir": false,
+      "size": 1583,
+      "modified": "2023-10-31T15:00:30"
+    },
+    {
+      "path": "/DisclosureFiles/005358SC_AT.zip",
+      "name": "005358SC_AT.zip",
+      "is_dir": false,
+      "size": 2278,
+      "modified": "2023-10-31T15:00:27"
+    },
+    {
+      "path": "/DisclosureFiles/005359SC_AT.zip",
+      "name": "005359SC_AT.zip",
+      "is_dir": false,
+      "size": 437,
+      "modified": "2023-10-31T15:00:25"
+    },
+    {
+      "path": "/DisclosureFiles/005360SC_AT.zip",
+      "name": "005360SC_AT.zip",
+      "is_dir": false,
+      "size": 668,
+      "modified": "2023-11-30T15:00:27"
+    },
+    {
+      "path": "/DisclosureFiles/005361SC_AT.zip",
+      "name": "005361SC_AT.zip",
+      "is_dir": false,
+      "size": 495,
+      "modified": "2023-11-30T15:00:26"
+    },
+    {
+      "path": "/DisclosureFiles/005362SC_AT.zip",
+      "name": "005362SC_AT.zip",
+      "is_dir": false,
+      "size": 4642,
+      "modified": "2023-12-01T02:55:26"
+    },
+    {
+      "path": "/DisclosureFiles/005363SC_AT.zip",
+      "name": "005363SC_AT.zip",
+      "is_dir": false,
+      "size": 1707,
+      "modified": "2023-11-30T15:00:32"
+    },
+    {
+      "path": "/DisclosureFiles/005364SC_AT.zip",
+      "name": "005364SC_AT.zip",
+      "is_dir": false,
+      "size": 490,
+      "modified": "2023-11-30T15:00:30"
+    },
+    {
+      "path": "/DisclosureFiles/005365SC_AT.zip",
+      "name": "005365SC_AT.zip",
+      "is_dir": false,
+      "size": 626,
+      "modified": "2023-11-30T15:00:28"
+    },
+    {
+      "path": "/DisclosureFiles/005366SC_AT.zip",
+      "name": "005366SC_AT.zip",
+      "is_dir": false,
+      "size": 816,
+      "modified": "2023-11-30T15:00:30"
+    },
+    {
+      "path": "/DisclosureFiles/005367SC_AT.zip",
+      "name": "005367SC_AT.zip",
+      "is_dir": false,
+      "size": 1990,
+      "modified": "2023-11-30T15:00:29"
+    },
+    {
+      "path": "/DisclosureFiles/005368SC_AT.zip",
+      "name": "005368SC_AT.zip",
+      "is_dir": false,
+      "size": 667,
+      "modified": "2023-11-30T15:00:32"
+    },
+    {
+      "path": "/DisclosureFiles/005369SC_AT.zip",
+      "name": "005369SC_AT.zip",
+      "is_dir": false,
+      "size": 1831,
+      "modified": "2023-12-29T15:00:42"
+    },
+    {
+      "path": "/DisclosureFiles/005370SC_AT.zip",
+      "name": "005370SC_AT.zip",
+      "is_dir": false,
+      "size": 2101,
+      "modified": "2023-12-29T15:00:46"
+    },
+    {
+      "path": "/DisclosureFiles/005371SC_AT.zip",
+      "name": "005371SC_AT.zip",
+      "is_dir": false,
+      "size": 1283,
+      "modified": "2023-12-29T15:00:44"
+    },
+    {
+      "path": "/DisclosureFiles/005372SC_AT.zip",
+      "name": "005372SC_AT.zip",
+      "is_dir": false,
+      "size": 1236,
+      "modified": "2023-12-29T15:00:40"
+    },
+    {
+      "path": "/DisclosureFiles/005373SC_AT.zip",
+      "name": "005373SC_AT.zip",
+      "is_dir": false,
+      "size": 1631,
+      "modified": "2023-12-29T15:00:38"
+    },
+    {
+      "path": "/DisclosureFiles/005374SC_AT.zip",
+      "name": "005374SC_AT.zip",
+      "is_dir": false,
+      "size": 700,
+      "modified": "2023-12-29T15:00:41"
+    },
+    {
+      "path": "/DisclosureFiles/005375SC_AT.zip",
+      "name": "005375SC_AT.zip",
+      "is_dir": false,
+      "size": 452,
+      "modified": "2023-12-29T15:00:42"
+    },
+    {
+      "path": "/DisclosureFiles/005376SC_AT.zip",
+      "name": "005376SC_AT.zip",
+      "is_dir": false,
+      "size": 826,
+      "modified": "2023-12-29T15:00:44"
+    },
+    {
+      "path": "/DisclosureFiles/005377SC_AT.zip",
+      "name": "005377SC_AT.zip",
+      "is_dir": false,
+      "size": 825,
+      "modified": "2023-12-29T15:00:42"
+    },
+    {
+      "path": "/DisclosureFiles/005378SC_AT.zip",
+      "name": "005378SC_AT.zip",
+      "is_dir": false,
+      "size": 1843,
+      "modified": "2024-01-31T15:00:36"
+    },
+    {
+      "path": "/DisclosureFiles/005379SC_AT.zip",
+      "name": "005379SC_AT.zip",
+      "is_dir": false,
+      "size": 2560,
+      "modified": "2024-01-31T15:00:32"
+    },
+    {
+      "path": "/DisclosureFiles/005380SC_AT.zip",
+      "name": "005380SC_AT.zip",
+      "is_dir": false,
+      "size": 501,
+      "modified": "2024-01-31T15:00:33"
+    },
+    {
+      "path": "/DisclosureFiles/005381SC_AT.zip",
+      "name": "005381SC_AT.zip",
+      "is_dir": false,
+      "size": 1091,
+      "modified": "2024-01-31T15:00:34"
+    },
+    {
+      "path": "/DisclosureFiles/005382SC_AT.zip",
+      "name": "005382SC_AT.zip",
+      "is_dir": false,
+      "size": 1340,
+      "modified": "2024-01-31T15:00:32"
+    },
+    {
+      "path": "/DisclosureFiles/005383SC_AT.zip",
+      "name": "005383SC_AT.zip",
+      "is_dir": false,
+      "size": 7074,
+      "modified": "2024-02-01T10:14:54"
+    },
+    {
+      "path": "/DisclosureFiles/005384SC_AT.zip",
+      "name": "005384SC_AT.zip",
+      "is_dir": false,
+      "size": 665,
+      "modified": "2024-01-31T15:00:30"
+    },
+    {
+      "path": "/DisclosureFiles/005385SC_AT.zip",
+      "name": "005385SC_AT.zip",
+      "is_dir": false,
+      "size": 6816,
+      "modified": "2024-01-31T15:00:37"
+    },
+    {
+      "path": "/DisclosureFiles/005386SC_AT.zip",
+      "name": "005386SC_AT.zip",
+      "is_dir": false,
+      "size": 1148,
+      "modified": "2024-02-29T15:00:43"
+    },
+    {
+      "path": "/DisclosureFiles/005387SC_AT.zip",
+      "name": "005387SC_AT.zip",
+      "is_dir": false,
+      "size": 2266,
+      "modified": "2024-02-29T15:00:40"
+    },
+    {
+      "path": "/DisclosureFiles/005388SC_AT.zip",
+      "name": "005388SC_AT.zip",
+      "is_dir": false,
+      "size": 856,
+      "modified": "2024-02-29T15:00:37"
+    },
+    {
+      "path": "/DisclosureFiles/005389SC_AT.zip",
+      "name": "005389SC_AT.zip",
+      "is_dir": false,
+      "size": 2345,
+      "modified": "2024-02-29T15:00:43"
+    },
+    {
+      "path": "/DisclosureFiles/005390SC_AT.zip",
+      "name": "005390SC_AT.zip",
+      "is_dir": false,
+      "size": 452,
+      "modified": "2024-02-29T15:00:26"
+    },
+    {
+      "path": "/DisclosureFiles/005391SC_AT.zip",
+      "name": "005391SC_AT.zip",
+      "is_dir": false,
+      "size": 5836,
+      "modified": "2024-02-29T15:00:37"
+    },
+    {
+      "path": "/DisclosureFiles/005392SC_AT.zip",
+      "name": "005392SC_AT.zip",
+      "is_dir": false,
+      "size": 3513,
+      "modified": "2024-02-29T15:00:30"
+    },
+    {
+      "path": "/DisclosureFiles/005393SC_AT.zip",
+      "name": "005393SC_AT.zip",
+      "is_dir": false,
+      "size": 9761,
+      "modified": "2024-02-29T15:00:35"
+    },
+    {
+      "path": "/DisclosureFiles/005394SC_AT.zip",
+      "name": "005394SC_AT.zip",
+      "is_dir": false,
+      "size": 1055,
+      "modified": "2024-02-29T15:00:33"
+    },
+    {
+      "path": "/DisclosureFiles/005395SC_AT.zip",
+      "name": "005395SC_AT.zip",
+      "is_dir": false,
+      "size": 837,
+      "modified": "2024-03-28T15:00:21"
+    },
+    {
+      "path": "/DisclosureFiles/005396SC_AT.zip",
+      "name": "005396SC_AT.zip",
+      "is_dir": false,
+      "size": 7467,
+      "modified": "2024-03-28T15:00:24"
+    },
+    {
+      "path": "/DisclosureFiles/005397SC_AT.zip",
+      "name": "005397SC_AT.zip",
+      "is_dir": false,
+      "size": 5662,
+      "modified": "2024-03-28T15:00:25"
+    },
+    {
+      "path": "/DisclosureFiles/005398SC_AT.zip",
+      "name": "005398SC_AT.zip",
+      "is_dir": false,
+      "size": 2910,
+      "modified": "2024-03-28T15:00:24"
+    },
+    {
+      "path": "/DisclosureFiles/005399SC_AT.zip",
+      "name": "005399SC_AT.zip",
+      "is_dir": false,
+      "size": 3681,
+      "modified": "2024-03-28T15:00:24"
+    },
+    {
+      "path": "/DisclosureFiles/005400SC_AT.zip",
+      "name": "005400SC_AT.zip",
+      "is_dir": false,
+      "size": 5308,
+      "modified": "2024-03-28T15:00:22"
+    },
+    {
+      "path": "/DisclosureFiles/005401SC_AT.zip",
+      "name": "005401SC_AT.zip",
+      "is_dir": false,
+      "size": 529,
+      "modified": "2024-03-28T15:00:20"
+    },
+    {
+      "path": "/DisclosureFiles/005402SC_AT.zip",
+      "name": "005402SC_AT.zip",
+      "is_dir": false,
+      "size": 1443,
+      "modified": "2024-03-28T15:00:18"
+    },
+    {
+      "path": "/DisclosureFiles/005403SC_AT.zip",
+      "name": "005403SC_AT.zip",
+      "is_dir": false,
+      "size": 2771,
+      "modified": "2024-03-28T15:00:20"
+    },
+    {
+      "path": "/DisclosureFiles/005404SC_AT.zip",
+      "name": "005404SC_AT.zip",
+      "is_dir": false,
+      "size": 1009,
+      "modified": "2024-03-28T15:00:19"
+    },
+    {
+      "path": "/DisclosureFiles/005405SC_AT.zip",
+      "name": "005405SC_AT.zip",
+      "is_dir": false,
+      "size": 673,
+      "modified": "2024-03-28T15:00:17"
+    },
+    {
+      "path": "/DisclosureFiles/005406SC_AT.zip",
+      "name": "005406SC_AT.zip",
+      "is_dir": false,
+      "size": 697,
+      "modified": "2024-03-28T15:00:20"
+    },
+    {
+      "path": "/DisclosureFiles/005407SC_AT.zip",
+      "name": "005407SC_AT.zip",
+      "is_dir": false,
+      "size": 2176,
+      "modified": "2024-04-30T15:00:35"
+    },
+    {
+      "path": "/DisclosureFiles/005408SC_AT.zip",
+      "name": "005408SC_AT.zip",
+      "is_dir": false,
+      "size": 2615,
+      "modified": "2024-04-30T15:00:35"
+    },
+    {
+      "path": "/DisclosureFiles/005409SC_AT.zip",
+      "name": "005409SC_AT.zip",
+      "is_dir": false,
+      "size": 3645,
+      "modified": "2024-04-30T15:00:36"
+    },
+    {
+      "path": "/DisclosureFiles/005410SC_AT.zip",
+      "name": "005410SC_AT.zip",
+      "is_dir": false,
+      "size": 2665,
+      "modified": "2024-04-30T15:00:36"
+    },
+    {
+      "path": "/DisclosureFiles/005411SC_AT.zip",
+      "name": "005411SC_AT.zip",
+      "is_dir": false,
+      "size": 6054,
+      "modified": "2024-04-30T15:00:31"
+    },
+    {
+      "path": "/DisclosureFiles/005412SC_AT.zip",
+      "name": "005412SC_AT.zip",
+      "is_dir": false,
+      "size": 2003,
+      "modified": "2024-04-30T15:00:30"
+    },
+    {
+      "path": "/DisclosureFiles/005413SC_AT.zip",
+      "name": "005413SC_AT.zip",
+      "is_dir": false,
+      "size": 2659,
+      "modified": "2024-04-30T15:00:34"
+    },
+    {
+      "path": "/DisclosureFiles/005414SC_AT.zip",
+      "name": "005414SC_AT.zip",
+      "is_dir": false,
+      "size": 582,
+      "modified": "2024-04-30T15:00:26"
+    },
+    {
+      "path": "/DisclosureFiles/005415SC_AT.zip",
+      "name": "005415SC_AT.zip",
+      "is_dir": false,
+      "size": 959,
+      "modified": "2024-04-30T15:00:28"
+    },
+    {
+      "path": "/DisclosureFiles/005416SC_AT.zip",
+      "name": "005416SC_AT.zip",
+      "is_dir": false,
+      "size": 1537,
+      "modified": "2024-05-31T15:00:56"
+    },
+    {
+      "path": "/DisclosureFiles/005417SC_AT.zip",
+      "name": "005417SC_AT.zip",
+      "is_dir": false,
+      "size": 651,
+      "modified": "2024-05-31T15:00:58"
+    },
+    {
+      "path": "/DisclosureFiles/005418SC_AT.zip",
+      "name": "005418SC_AT.zip",
+      "is_dir": false,
+      "size": 1544,
+      "modified": "2024-05-31T15:00:58"
+    },
+    {
+      "path": "/DisclosureFiles/005419SC_AT.zip",
+      "name": "005419SC_AT.zip",
+      "is_dir": false,
+      "size": 1927,
+      "modified": "2024-05-31T15:00:53"
+    },
+    {
+      "path": "/DisclosureFiles/005420SC_AT.zip",
+      "name": "005420SC_AT.zip",
+      "is_dir": false,
+      "size": 2276,
+      "modified": "2024-05-31T15:01:00"
+    },
+    {
+      "path": "/DisclosureFiles/005421SC_AT.zip",
+      "name": "005421SC_AT.zip",
+      "is_dir": false,
+      "size": 990,
+      "modified": "2024-05-31T15:00:57"
+    },
+    {
+      "path": "/DisclosureFiles/005422SC_AT.zip",
+      "name": "005422SC_AT.zip",
+      "is_dir": false,
+      "size": 2775,
+      "modified": "2024-05-31T15:00:59"
+    },
+    {
+      "path": "/DisclosureFiles/005423SC_AT.zip",
+      "name": "005423SC_AT.zip",
+      "is_dir": false,
+      "size": 576,
+      "modified": "2024-05-31T15:00:58"
+    },
+    {
+      "path": "/DisclosureFiles/005424SC_AT.zip",
+      "name": "005424SC_AT.zip",
+      "is_dir": false,
+      "size": 1347,
+      "modified": "2024-05-31T15:00:51"
+    },
+    {
+      "path": "/DisclosureFiles/005425SC_AT.zip",
+      "name": "005425SC_AT.zip",
+      "is_dir": false,
+      "size": 1010,
+      "modified": "2024-05-31T15:00:51"
+    },
+    {
+      "path": "/DisclosureFiles/005426SC_AT.zip",
+      "name": "005426SC_AT.zip",
+      "is_dir": false,
+      "size": 15288,
+      "modified": "2024-05-31T15:00:59"
+    },
+    {
+      "path": "/DisclosureFiles/005427SC_AT.zip",
+      "name": "005427SC_AT.zip",
+      "is_dir": false,
+      "size": 1371,
+      "modified": "2024-06-28T15:00:33"
+    },
+    {
+      "path": "/DisclosureFiles/005428SC_AT.zip",
+      "name": "005428SC_AT.zip",
+      "is_dir": false,
+      "size": 987,
+      "modified": "2024-06-28T15:00:32"
+    },
+    {
+      "path": "/DisclosureFiles/005429SC_AT.zip",
+      "name": "005429SC_AT.zip",
+      "is_dir": false,
+      "size": 471,
+      "modified": "2024-06-28T15:00:31"
+    },
+    {
+      "path": "/DisclosureFiles/005430SC_AT.zip",
+      "name": "005430SC_AT.zip",
+      "is_dir": false,
+      "size": 1063,
+      "modified": "2024-06-28T15:00:30"
+    },
+    {
+      "path": "/DisclosureFiles/005431SC_AT.zip",
+      "name": "005431SC_AT.zip",
+      "is_dir": false,
+      "size": 1558,
+      "modified": "2024-06-28T15:00:29"
+    },
+    {
+      "path": "/DisclosureFiles/005432SC_AT.zip",
+      "name": "005432SC_AT.zip",
+      "is_dir": false,
+      "size": 437,
+      "modified": "2024-06-28T15:00:30"
+    },
+    {
+      "path": "/DisclosureFiles/005433SC_AT.zip",
+      "name": "005433SC_AT.zip",
+      "is_dir": false,
+      "size": 3314,
+      "modified": "2024-06-28T15:00:32"
+    },
+    {
+      "path": "/DisclosureFiles/005434SC_AT.zip",
+      "name": "005434SC_AT.zip",
+      "is_dir": false,
+      "size": 789,
+      "modified": "2024-06-28T15:00:29"
+    },
+    {
+      "path": "/DisclosureFiles/005435SC_AT.zip",
+      "name": "005435SC_AT.zip",
+      "is_dir": false,
+      "size": 2961,
+      "modified": "2024-06-28T15:00:33"
+    },
+    {
+      "path": "/DisclosureFiles/005436SC_AT.zip",
+      "name": "005436SC_AT.zip",
+      "is_dir": false,
+      "size": 448,
+      "modified": "2024-06-28T15:00:31"
+    },
+    {
+      "path": "/DisclosureFiles/005437SC_AT.zip",
+      "name": "005437SC_AT.zip",
+      "is_dir": false,
+      "size": 2290,
+      "modified": "2024-07-31T15:01:03"
+    },
+    {
+      "path": "/DisclosureFiles/005438SC_AT.zip",
+      "name": "005438SC_AT.zip",
+      "is_dir": false,
+      "size": 853,
+      "modified": "2024-07-31T15:00:57"
+    },
+    {
+      "path": "/DisclosureFiles/005439SC_AT.zip",
+      "name": "005439SC_AT.zip",
+      "is_dir": false,
+      "size": 2259,
+      "modified": "2024-07-31T15:00:57"
+    },
+    {
+      "path": "/DisclosureFiles/005440SC_AT.zip",
+      "name": "005440SC_AT.zip",
+      "is_dir": false,
+      "size": 3096,
+      "modified": "2024-07-31T15:01:02"
+    },
+    {
+      "path": "/DisclosureFiles/005441SC_AT.zip",
+      "name": "005441SC_AT.zip",
+      "is_dir": false,
+      "size": 2126,
+      "modified": "2024-07-31T15:00:59"
+    },
+    {
+      "path": "/DisclosureFiles/005442SC_AT.zip",
+      "name": "005442SC_AT.zip",
+      "is_dir": false,
+      "size": 5754,
+      "modified": "2024-07-31T15:00:49"
+    },
+    {
+      "path": "/DisclosureFiles/005443SC_AT.zip",
+      "name": "005443SC_AT.zip",
+      "is_dir": false,
+      "size": 875,
+      "modified": "2024-07-31T15:00:56"
+    },
+    {
+      "path": "/DisclosureFiles/005444SC_AT.zip",
+      "name": "005444SC_AT.zip",
+      "is_dir": false,
+      "size": 915,
+      "modified": "2024-07-31T15:00:56"
+    },
+    {
+      "path": "/DisclosureFiles/005445SC_AT.zip",
+      "name": "005445SC_AT.zip",
+      "is_dir": false,
+      "size": 3049,
+      "modified": "2024-07-31T15:00:53"
+    },
+    {
+      "path": "/DisclosureFiles/005446SC_AT.zip",
+      "name": "005446SC_AT.zip",
+      "is_dir": false,
+      "size": 4484,
+      "modified": "2024-07-31T15:00:56"
+    },
+    {
+      "path": "/DisclosureFiles/005447SC_AT.zip",
+      "name": "005447SC_AT.zip",
+      "is_dir": false,
+      "size": 437,
+      "modified": "2024-07-31T15:00:47"
+    },
+    {
+      "path": "/DisclosureFiles/005448SC_AT.zip",
+      "name": "005448SC_AT.zip",
+      "is_dir": false,
+      "size": 716,
+      "modified": "2024-08-30T15:00:53"
+    },
+    {
+      "path": "/DisclosureFiles/005449SC_AT.zip",
+      "name": "005449SC_AT.zip",
+      "is_dir": false,
+      "size": 3106,
+      "modified": "2024-08-30T15:00:53"
+    },
+    {
+      "path": "/DisclosureFiles/005450SC_AT.zip",
+      "name": "005450SC_AT.zip",
+      "is_dir": false,
+      "size": 4383,
+      "modified": "2024-08-30T15:00:57"
+    },
+    {
+      "path": "/DisclosureFiles/005451SC_AT.zip",
+      "name": "005451SC_AT.zip",
+      "is_dir": false,
+      "size": 2113,
+      "modified": "2024-08-30T15:00:56"
+    },
+    {
+      "path": "/DisclosureFiles/005452SC_AT.zip",
+      "name": "005452SC_AT.zip",
+      "is_dir": false,
+      "size": 6498,
+      "modified": "2024-08-30T15:00:57"
+    },
+    {
+      "path": "/DisclosureFiles/005453SC_AT.zip",
+      "name": "005453SC_AT.zip",
+      "is_dir": false,
+      "size": 2712,
+      "modified": "2024-08-30T15:00:48"
+    },
+    {
+      "path": "/DisclosureFiles/005454SC_AT.zip",
+      "name": "005454SC_AT.zip",
+      "is_dir": false,
+      "size": 3759,
+      "modified": "2024-08-30T15:00:54"
+    },
+    {
+      "path": "/DisclosureFiles/005455SC_AT.zip",
+      "name": "005455SC_AT.zip",
+      "is_dir": false,
+      "size": 850,
+      "modified": "2024-08-30T15:00:55"
+    },
+    {
+      "path": "/DisclosureFiles/005456SC_AT.zip",
+      "name": "005456SC_AT.zip",
+      "is_dir": false,
+      "size": 763,
+      "modified": "2024-08-30T15:00:52"
+    },
+    {
+      "path": "/DisclosureFiles/005457SC_AT.zip",
+      "name": "005457SC_AT.zip",
+      "is_dir": false,
+      "size": 1890,
+      "modified": "2024-09-30T15:00:53"
+    },
+    {
+      "path": "/DisclosureFiles/005458SC_AT.zip",
+      "name": "005458SC_AT.zip",
+      "is_dir": false,
+      "size": 4293,
+      "modified": "2024-09-30T15:00:55"
+    },
+    {
+      "path": "/DisclosureFiles/005459SC_AT.zip",
+      "name": "005459SC_AT.zip",
+      "is_dir": false,
+      "size": 497,
+      "modified": "2024-09-30T15:00:51"
+    },
+    {
+      "path": "/DisclosureFiles/005460SC_AT.zip",
+      "name": "005460SC_AT.zip",
+      "is_dir": false,
+      "size": 6652,
+      "modified": "2024-09-30T15:00:58"
+    },
+    {
+      "path": "/DisclosureFiles/005461SC_AT.zip",
+      "name": "005461SC_AT.zip",
+      "is_dir": false,
+      "size": 1180,
+      "modified": "2024-09-30T15:00:49"
+    },
+    {
+      "path": "/DisclosureFiles/005462SC_AT.zip",
+      "name": "005462SC_AT.zip",
+      "is_dir": false,
+      "size": 3318,
+      "modified": "2024-09-30T15:00:52"
+    },
+    {
+      "path": "/DisclosureFiles/005463SC_AT.zip",
+      "name": "005463SC_AT.zip",
+      "is_dir": false,
+      "size": 1042,
+      "modified": "2024-09-30T15:00:48"
+    },
+    {
+      "path": "/DisclosureFiles/005464SC_AT.zip",
+      "name": "005464SC_AT.zip",
+      "is_dir": false,
+      "size": 1463,
+      "modified": "2024-09-30T15:00:51"
+    },
+    {
+      "path": "/DisclosureFiles/005465SC_AT.zip",
+      "name": "005465SC_AT.zip",
+      "is_dir": false,
+      "size": 2094,
+      "modified": "2024-09-30T15:00:50"
+    },
+    {
+      "path": "/DisclosureFiles/005466SC_AT.zip",
+      "name": "005466SC_AT.zip",
+      "is_dir": false,
+      "size": 953,
+      "modified": "2024-09-30T15:00:47"
+    },
+    {
+      "path": "/DisclosureFiles/005467SC_AT.zip",
+      "name": "005467SC_AT.zip",
+      "is_dir": false,
+      "size": 1850,
+      "modified": "2024-09-30T15:00:43"
+    },
+    {
+      "path": "/DisclosureFiles/005468SC_AT.zip",
+      "name": "005468SC_AT.zip",
+      "is_dir": false,
+      "size": 4087,
+      "modified": "2024-10-31T15:00:34"
+    },
+    {
+      "path": "/DisclosureFiles/005469SC_AT.zip",
+      "name": "005469SC_AT.zip",
+      "is_dir": false,
+      "size": 508,
+      "modified": "2024-10-31T15:00:27"
+    },
+    {
+      "path": "/DisclosureFiles/005470SC_AT.zip",
+      "name": "005470SC_AT.zip",
+      "is_dir": false,
+      "size": 899,
+      "modified": "2024-10-31T15:00:29"
+    },
+    {
+      "path": "/DisclosureFiles/005471SC_AT.zip",
+      "name": "005471SC_AT.zip",
+      "is_dir": false,
+      "size": 3705,
+      "modified": "2024-10-31T15:00:37"
+    },
+    {
+      "path": "/DisclosureFiles/005472SC_AT.zip",
+      "name": "005472SC_AT.zip",
+      "is_dir": false,
+      "size": 552,
+      "modified": "2024-10-31T15:00:31"
+    },
+    {
+      "path": "/DisclosureFiles/005473SC_AT.zip",
+      "name": "005473SC_AT.zip",
+      "is_dir": false,
+      "size": 2007,
+      "modified": "2024-10-31T15:00:37"
+    },
+    {
+      "path": "/DisclosureFiles/005474SC_AT.zip",
+      "name": "005474SC_AT.zip",
+      "is_dir": false,
+      "size": 4558,
+      "modified": "2024-10-31T15:00:30"
+    },
+    {
+      "path": "/DisclosureFiles/005475SC_AT.zip",
+      "name": "005475SC_AT.zip",
+      "is_dir": false,
+      "size": 1856,
+      "modified": "2024-10-31T15:00:35"
+    },
+    {
+      "path": "/DisclosureFiles/005476SC_AT.zip",
+      "name": "005476SC_AT.zip",
+      "is_dir": false,
+      "size": 1765,
+      "modified": "2024-10-31T15:00:31"
+    },
+    {
+      "path": "/DisclosureFiles/005477SC_AT.zip",
+      "name": "005477SC_AT.zip",
+      "is_dir": false,
+      "size": 575,
+      "modified": "2024-10-31T15:00:25"
+    },
+    {
+      "path": "/DisclosureFiles/005478SC_AT.zip",
+      "name": "005478SC_AT.zip",
+      "is_dir": false,
+      "size": 2562,
+      "modified": "2024-11-29T15:00:24"
+    },
+    {
+      "path": "/DisclosureFiles/005479SC_AT.zip",
+      "name": "005479SC_AT.zip",
+      "is_dir": false,
+      "size": 499,
+      "modified": "2024-11-29T15:00:23"
+    },
+    {
+      "path": "/DisclosureFiles/005480SC_AT.zip",
+      "name": "005480SC_AT.zip",
+      "is_dir": false,
+      "size": 697,
+      "modified": "2024-11-29T15:00:19"
+    },
+    {
+      "path": "/DisclosureFiles/005481SC_AT.zip",
+      "name": "005481SC_AT.zip",
+      "is_dir": false,
+      "size": 4035,
+      "modified": "2024-11-29T15:00:25"
+    },
+    {
+      "path": "/DisclosureFiles/005482SC_AT.zip",
+      "name": "005482SC_AT.zip",
+      "is_dir": false,
+      "size": 2808,
+      "modified": "2024-11-29T15:00:22"
+    },
+    {
+      "path": "/DisclosureFiles/005483SC_AT.zip",
+      "name": "005483SC_AT.zip",
+      "is_dir": false,
+      "size": 2188,
+      "modified": "2024-11-29T15:00:19"
+    },
+    {
+      "path": "/DisclosureFiles/005484SC_AT.zip",
+      "name": "005484SC_AT.zip",
+      "is_dir": false,
+      "size": 971,
+      "modified": "2024-11-29T15:00:23"
+    },
+    {
+      "path": "/DisclosureFiles/005485SC_AT.zip",
+      "name": "005485SC_AT.zip",
+      "is_dir": false,
+      "size": 584,
+      "modified": "2024-11-29T15:00:22"
+    },
+    {
+      "path": "/DisclosureFiles/005486SC_AT.zip",
+      "name": "005486SC_AT.zip",
+      "is_dir": false,
+      "size": 1117,
+      "modified": "2024-11-29T15:00:17"
+    },
+    {
+      "path": "/DisclosureFiles/005487SC_AT.zip",
+      "name": "005487SC_AT.zip",
+      "is_dir": false,
+      "size": 859,
+      "modified": "2024-11-29T15:00:19"
+    },
+    {
+      "path": "/DisclosureFiles/005488SC_AT.zip",
+      "name": "005488SC_AT.zip",
+      "is_dir": false,
+      "size": 754,
+      "modified": "2024-11-29T15:00:23"
+    },
+    {
+      "path": "/DisclosureFiles/005489SC_AT.zip",
+      "name": "005489SC_AT.zip",
+      "is_dir": false,
+      "size": 558,
+      "modified": "2024-12-30T15:00:19"
+    },
+    {
+      "path": "/DisclosureFiles/005490SC_AT.zip",
+      "name": "005490SC_AT.zip",
+      "is_dir": false,
+      "size": 1738,
+      "modified": "2024-12-30T15:00:19"
+    },
+    {
+      "path": "/DisclosureFiles/005491SC_AT.zip",
+      "name": "005491SC_AT.zip",
+      "is_dir": false,
+      "size": 1010,
+      "modified": "2024-12-30T15:00:17"
+    },
+    {
+      "path": "/DisclosureFiles/005492SC_AT.zip",
+      "name": "005492SC_AT.zip",
+      "is_dir": false,
+      "size": 3220,
+      "modified": "2024-12-30T15:00:16"
+    },
+    {
+      "path": "/DisclosureFiles/005493SC_AT.zip",
+      "name": "005493SC_AT.zip",
+      "is_dir": false,
+      "size": 1474,
+      "modified": "2024-12-30T15:00:17"
+    },
+    {
+      "path": "/DisclosureFiles/005494SC_AT.zip",
+      "name": "005494SC_AT.zip",
+      "is_dir": false,
+      "size": 843,
+      "modified": "2024-12-30T15:00:19"
+    },
+    {
+      "path": "/DisclosureFiles/005495SC_AT.zip",
+      "name": "005495SC_AT.zip",
+      "is_dir": false,
+      "size": 1944,
+      "modified": "2024-12-30T15:00:19"
+    },
+    {
+      "path": "/DisclosureFiles/005496SC_AT.zip",
+      "name": "005496SC_AT.zip",
+      "is_dir": false,
+      "size": 501,
+      "modified": "2024-12-30T15:00:14"
+    },
+    {
+      "path": "/DisclosureFiles/005497SC_AT.zip",
+      "name": "005497SC_AT.zip",
+      "is_dir": false,
+      "size": 727,
+      "modified": "2024-12-30T15:00:17"
+    },
+    {
+      "path": "/DisclosureFiles/005498SC_AT.zip",
+      "name": "005498SC_AT.zip",
+      "is_dir": false,
+      "size": 4640,
+      "modified": "2024-12-30T15:00:16"
+    },
+    {
+      "path": "/DisclosureFiles/005499SC_AT.zip",
+      "name": "005499SC_AT.zip",
+      "is_dir": false,
+      "size": 1591,
+      "modified": "2025-01-31T15:00:34"
+    },
+    {
+      "path": "/DisclosureFiles/005500SC_AT.zip",
+      "name": "005500SC_AT.zip",
+      "is_dir": false,
+      "size": 1717,
+      "modified": "2025-01-31T15:00:33"
+    },
+    {
+      "path": "/DisclosureFiles/005501SC_AT.zip",
+      "name": "005501SC_AT.zip",
+      "is_dir": false,
+      "size": 2400,
+      "modified": "2025-01-31T15:00:26"
+    },
+    {
+      "path": "/DisclosureFiles/005502SC_AT.zip",
+      "name": "005502SC_AT.zip",
+      "is_dir": false,
+      "size": 791,
+      "modified": "2025-01-31T15:00:22"
+    },
+    {
+      "path": "/DisclosureFiles/005503SC_AT.zip",
+      "name": "005503SC_AT.zip",
+      "is_dir": false,
+      "size": 4463,
+      "modified": "2025-01-31T15:00:28"
+    },
+    {
+      "path": "/DisclosureFiles/005504SC_AT.zip",
+      "name": "005504SC_AT.zip",
+      "is_dir": false,
+      "size": 1316,
+      "modified": "2025-01-31T15:00:27"
+    },
+    {
+      "path": "/DisclosureFiles/005505SC_AT.zip",
+      "name": "005505SC_AT.zip",
+      "is_dir": false,
+      "size": 5831,
+      "modified": "2025-01-31T15:00:33"
+    },
+    {
+      "path": "/DisclosureFiles/005506SC_AT.zip",
+      "name": "005506SC_AT.zip",
+      "is_dir": false,
+      "size": 932,
+      "modified": "2025-01-31T15:00:20"
+    },
+    {
+      "path": "/DisclosureFiles/005507SC_AT.zip",
+      "name": "005507SC_AT.zip",
+      "is_dir": false,
+      "size": 871,
+      "modified": "2025-01-31T15:00:32"
+    },
+    {
+      "path": "/DisclosureFiles/005508SC_AT.zip",
+      "name": "005508SC_AT.zip",
+      "is_dir": false,
+      "size": 6090,
+      "modified": "2025-01-31T15:00:34"
+    },
+    {
+      "path": "/DisclosureFiles/005509SC_AT.zip",
+      "name": "005509SC_AT.zip",
+      "is_dir": false,
+      "size": 2400,
+      "modified": "2025-01-31T15:00:20"
+    },
+    {
+      "path": "/DisclosureFiles/005510SC_AT.zip",
+      "name": "005510SC_AT.zip",
+      "is_dir": false,
+      "size": 3801,
+      "modified": "2025-01-31T15:00:32"
+    },
+    {
+      "path": "/DisclosureFiles/005511SC_AT.zip",
+      "name": "005511SC_AT.zip",
+      "is_dir": false,
+      "size": 4351,
+      "modified": "2025-02-28T15:00:46"
+    },
+    {
+      "path": "/DisclosureFiles/005512SC_AT.zip",
+      "name": "005512SC_AT.zip",
+      "is_dir": false,
+      "size": 713,
+      "modified": "2025-02-28T15:00:43"
+    },
+    {
+      "path": "/DisclosureFiles/005513SC_AT.zip",
+      "name": "005513SC_AT.zip",
+      "is_dir": false,
+      "size": 2381,
+      "modified": "2025-02-28T15:00:46"
+    },
+    {
+      "path": "/DisclosureFiles/005514SC_AT.zip",
+      "name": "005514SC_AT.zip",
+      "is_dir": false,
+      "size": 1539,
+      "modified": "2025-02-28T15:00:43"
+    },
+    {
+      "path": "/DisclosureFiles/005515SC_AT.zip",
+      "name": "005515SC_AT.zip",
+      "is_dir": false,
+      "size": 9206,
+      "modified": "2025-02-28T15:00:41"
+    },
+    {
+      "path": "/DisclosureFiles/005516SC_AT.zip",
+      "name": "005516SC_AT.zip",
+      "is_dir": false,
+      "size": 853,
+      "modified": "2025-02-28T15:00:43"
+    },
+    {
+      "path": "/DisclosureFiles/005517SC_AT.zip",
+      "name": "005517SC_AT.zip",
+      "is_dir": false,
+      "size": 4877,
+      "modified": "2025-02-28T15:00:46"
+    },
+    {
+      "path": "/DisclosureFiles/005518SC_AT.zip",
+      "name": "005518SC_AT.zip",
+      "is_dir": false,
+      "size": 1364,
+      "modified": "2025-02-28T15:00:36"
+    },
+    {
+      "path": "/DisclosureFiles/005519SC_AT.zip",
+      "name": "005519SC_AT.zip",
+      "is_dir": false,
+      "size": 1158,
+      "modified": "2025-02-28T15:00:39"
+    },
+    {
+      "path": "/DisclosureFiles/005520SC_AT.zip",
+      "name": "005520SC_AT.zip",
+      "is_dir": false,
+      "size": 2968,
+      "modified": "2025-02-28T15:00:37"
+    },
+    {
+      "path": "/DisclosureFiles/005521SC_AT.zip",
+      "name": "005521SC_AT.zip",
+      "is_dir": false,
+      "size": 1329,
+      "modified": "2025-02-28T15:00:37"
+    },
+    {
+      "path": "/DisclosureFiles/005522SC_AT.zip",
+      "name": "005522SC_AT.zip",
+      "is_dir": false,
+      "size": 1404,
+      "modified": "2025-02-28T15:00:41"
+    },
+    {
+      "path": "/DisclosureFiles/005523SC_AT.zip",
+      "name": "005523SC_AT.zip",
+      "is_dir": false,
+      "size": 1142,
+      "modified": "2025-03-31T15:00:56"
+    },
+    {
+      "path": "/DisclosureFiles/005524SC_AT.zip",
+      "name": "005524SC_AT.zip",
+      "is_dir": false,
+      "size": 2127,
+      "modified": "2025-03-31T15:00:57"
+    },
+    {
+      "path": "/DisclosureFiles/005525SC_AT.zip",
+      "name": "005525SC_AT.zip",
+      "is_dir": false,
+      "size": 2661,
+      "modified": "2025-03-31T15:00:56"
+    },
+    {
+      "path": "/DisclosureFiles/005526SC_AT.zip",
+      "name": "005526SC_AT.zip",
+      "is_dir": false,
+      "size": 831,
+      "modified": "2025-03-31T15:00:53"
+    },
+    {
+      "path": "/DisclosureFiles/005527SC_AT.zip",
+      "name": "005527SC_AT.zip",
+      "is_dir": false,
+      "size": 655,
+      "modified": "2025-03-31T15:00:50"
+    },
+    {
+      "path": "/DisclosureFiles/005528SC_AT.zip",
+      "name": "005528SC_AT.zip",
+      "is_dir": false,
+      "size": 4672,
+      "modified": "2025-03-31T15:00:51"
+    },
+    {
+      "path": "/DisclosureFiles/005529SC_AT.zip",
+      "name": "005529SC_AT.zip",
+      "is_dir": false,
+      "size": 2486,
+      "modified": "2025-03-31T15:00:55"
+    },
+    {
+      "path": "/DisclosureFiles/005530SC_AT.zip",
+      "name": "005530SC_AT.zip",
+      "is_dir": false,
+      "size": 2377,
+      "modified": "2025-03-31T15:00:56"
+    },
+    {
+      "path": "/DisclosureFiles/005531SC_AT.zip",
+      "name": "005531SC_AT.zip",
+      "is_dir": false,
+      "size": 1383,
+      "modified": "2025-03-31T15:00:55"
+    },
+    {
+      "path": "/DisclosureFiles/005532SC_AT.zip",
+      "name": "005532SC_AT.zip",
+      "is_dir": false,
+      "size": 451,
+      "modified": "2025-03-17T15:00:03"
+    },
+    {
+      "path": "/DisclosureFiles/005533SC_AT.zip",
+      "name": "005533SC_AT.zip",
+      "is_dir": false,
+      "size": 908,
+      "modified": "2025-03-31T15:00:52"
+    },
+    {
+      "path": "/DisclosureFiles/005534SC_AT.zip",
+      "name": "005534SC_AT.zip",
+      "is_dir": false,
+      "size": 6222,
+      "modified": "2025-04-30T15:00:36"
+    },
+    {
+      "path": "/DisclosureFiles/005535SC_AT.zip",
+      "name": "005535SC_AT.zip",
+      "is_dir": false,
+      "size": 960,
+      "modified": "2025-04-30T15:00:35"
+    },
+    {
+      "path": "/DisclosureFiles/005536SC_AT.zip",
+      "name": "005536SC_AT.zip",
+      "is_dir": false,
+      "size": 1420,
+      "modified": "2025-04-30T15:00:32"
+    },
+    {
+      "path": "/DisclosureFiles/005537SC_AT.zip",
+      "name": "005537SC_AT.zip",
+      "is_dir": false,
+      "size": 6494,
+      "modified": "2025-04-30T15:00:35"
+    },
+    {
+      "path": "/DisclosureFiles/005538SC_AT.zip",
+      "name": "005538SC_AT.zip",
+      "is_dir": false,
+      "size": 1421,
+      "modified": "2025-04-30T15:00:28"
+    },
+    {
+      "path": "/DisclosureFiles/005539SC_AT.zip",
+      "name": "005539SC_AT.zip",
+      "is_dir": false,
+      "size": 730,
+      "modified": "2025-04-30T15:00:28"
+    },
+    {
+      "path": "/DisclosureFiles/005540SC_AT.zip",
+      "name": "005540SC_AT.zip",
+      "is_dir": false,
+      "size": 533,
+      "modified": "2025-04-30T15:00:26"
+    },
+    {
+      "path": "/DisclosureFiles/005541SC_AT.zip",
+      "name": "005541SC_AT.zip",
+      "is_dir": false,
+      "size": 5977,
+      "modified": "2025-04-30T15:00:27"
+    },
+    {
+      "path": "/DisclosureFiles/005542SC_AT.zip",
+      "name": "005542SC_AT.zip",
+      "is_dir": false,
+      "size": 1587,
+      "modified": "2025-04-30T15:00:34"
+    },
+    {
+      "path": "/DisclosureFiles/005543SC_AT.zip",
+      "name": "005543SC_AT.zip",
+      "is_dir": false,
+      "size": 1389,
+      "modified": "2025-05-30T15:00:28"
+    },
+    {
+      "path": "/DisclosureFiles/005544SC_AT.zip",
+      "name": "005544SC_AT.zip",
+      "is_dir": false,
+      "size": 5698,
+      "modified": "2025-05-30T15:00:34"
+    },
+    {
+      "path": "/DisclosureFiles/005545SC_AT.zip",
+      "name": "005545SC_AT.zip",
+      "is_dir": false,
+      "size": 1052,
+      "modified": "2025-05-30T15:00:32"
+    },
+    {
+      "path": "/DisclosureFiles/005546SC_AT.zip",
+      "name": "005546SC_AT.zip",
+      "is_dir": false,
+      "size": 1755,
+      "modified": "2025-05-30T15:00:34"
+    },
+    {
+      "path": "/DisclosureFiles/005547SC_AT.zip",
+      "name": "005547SC_AT.zip",
+      "is_dir": false,
+      "size": 4735,
+      "modified": "2025-05-30T15:00:33"
+    },
+    {
+      "path": "/DisclosureFiles/005548SC_AT.zip",
+      "name": "005548SC_AT.zip",
+      "is_dir": false,
+      "size": 3273,
+      "modified": "2025-05-30T15:00:33"
+    },
+    {
+      "path": "/DisclosureFiles/005549SC_AT.zip",
+      "name": "005549SC_AT.zip",
+      "is_dir": false,
+      "size": 5026,
+      "modified": "2025-05-30T15:00:34"
+    },
+    {
+      "path": "/DisclosureFiles/005550SC_AT.zip",
+      "name": "005550SC_AT.zip",
+      "is_dir": false,
+      "size": 676,
+      "modified": "2025-05-30T15:00:25"
+    },
+    {
+      "path": "/DisclosureFiles/005551SC_AT.zip",
+      "name": "005551SC_AT.zip",
+      "is_dir": false,
+      "size": 2063,
+      "modified": "2025-05-30T15:00:33"
+    },
+    {
+      "path": "/DisclosureFiles/005552SC_AT.zip",
+      "name": "005552SC_AT.zip",
+      "is_dir": false,
+      "size": 616,
+      "modified": "2025-05-30T15:00:25"
+    },
+    {
+      "path": "/DisclosureFiles/005553SC_AT.zip",
+      "name": "005553SC_AT.zip",
+      "is_dir": false,
+      "size": 986,
+      "modified": "2025-05-30T15:00:28"
+    },
+    {
+      "path": "/DisclosureFiles/005554SC_AT.zip",
+      "name": "005554SC_AT.zip",
+      "is_dir": false,
+      "size": 922,
+      "modified": "2025-06-30T15:00:33"
+    },
+    {
+      "path": "/DisclosureFiles/005555SC_AT.zip",
+      "name": "005555SC_AT.zip",
+      "is_dir": false,
+      "size": 1754,
+      "modified": "2025-06-30T15:00:35"
+    },
+    {
+      "path": "/DisclosureFiles/005556SC_AT.zip",
+      "name": "005556SC_AT.zip",
+      "is_dir": false,
+      "size": 767,
+      "modified": "2025-06-30T15:00:29"
+    },
+    {
+      "path": "/DisclosureFiles/005557SC_AT.zip",
+      "name": "005557SC_AT.zip",
+      "is_dir": false,
+      "size": 5057,
+      "modified": "2025-06-30T15:00:33"
+    },
+    {
+      "path": "/DisclosureFiles/005558SC_AT.zip",
+      "name": "005558SC_AT.zip",
+      "is_dir": false,
+      "size": 583,
+      "modified": "2025-06-30T15:00:36"
+    },
+    {
+      "path": "/DisclosureFiles/005559SC_AT.zip",
+      "name": "005559SC_AT.zip",
+      "is_dir": false,
+      "size": 767,
+      "modified": "2025-06-30T15:00:35"
+    },
+    {
+      "path": "/DisclosureFiles/005560SC_AT.zip",
+      "name": "005560SC_AT.zip",
+      "is_dir": false,
+      "size": 470,
+      "modified": "2025-06-30T15:00:36"
+    },
+    {
+      "path": "/DisclosureFiles/005561SC_AT.zip",
+      "name": "005561SC_AT.zip",
+      "is_dir": false,
+      "size": 1192,
+      "modified": "2025-06-30T15:00:36"
+    },
+    {
+      "path": "/DisclosureFiles/005562SC_AT.zip",
+      "name": "005562SC_AT.zip",
+      "is_dir": false,
+      "size": 1773,
+      "modified": "2025-06-30T15:00:34"
+    },
+    {
+      "path": "/DisclosureFiles/005563SC_AT.zip",
+      "name": "005563SC_AT.zip",
+      "is_dir": false,
+      "size": 4347,
+      "modified": "2025-07-31T15:00:12"
+    },
+    {
+      "path": "/DisclosureFiles/005564SC_AT.zip",
+      "name": "005564SC_AT.zip",
+      "is_dir": false,
+      "size": 11244,
+      "modified": "2025-07-31T15:00:14"
+    },
+    {
+      "path": "/DisclosureFiles/005565SC_AT.zip",
+      "name": "005565SC_AT.zip",
+      "is_dir": false,
+      "size": 4307,
+      "modified": "2025-07-31T15:00:14"
+    },
+    {
+      "path": "/DisclosureFiles/005566SC_AT.zip",
+      "name": "005566SC_AT.zip",
+      "is_dir": false,
+      "size": 3718,
+      "modified": "2025-07-31T15:00:15"
+    },
+    {
+      "path": "/DisclosureFiles/005567SC_AT.zip",
+      "name": "005567SC_AT.zip",
+      "is_dir": false,
+      "size": 1006,
+      "modified": "2025-07-31T15:00:13"
+    },
+    {
+      "path": "/DisclosureFiles/005568SC_AT.zip",
+      "name": "005568SC_AT.zip",
+      "is_dir": false,
+      "size": 693,
+      "modified": "2025-07-31T15:00:11"
+    },
+    {
+      "path": "/DisclosureFiles/005569SC_AT.zip",
+      "name": "005569SC_AT.zip",
+      "is_dir": false,
+      "size": 950,
+      "modified": "2025-07-31T15:00:13"
+    },
+    {
+      "path": "/DisclosureFiles/005570SC_AT.zip",
+      "name": "005570SC_AT.zip",
+      "is_dir": false,
+      "size": 1131,
+      "modified": "2025-07-31T15:00:13"
+    },
+    {
+      "path": "/DisclosureFiles/005571SC_AT.zip",
+      "name": "005571SC_AT.zip",
+      "is_dir": false,
+      "size": 2088,
+      "modified": "2025-07-31T15:00:10"
+    },
+    {
+      "path": "/DisclosureFiles/005572SC_AT.zip",
+      "name": "005572SC_AT.zip",
+      "is_dir": false,
+      "size": 2808,
+      "modified": "2025-08-29T15:00:23"
+    },
+    {
+      "path": "/DisclosureFiles/005573SC_AT.zip",
+      "name": "005573SC_AT.zip",
+      "is_dir": false,
+      "size": 2417,
+      "modified": "2025-08-29T15:00:16"
+    },
+    {
+      "path": "/DisclosureFiles/005574SC_AT.zip",
+      "name": "005574SC_AT.zip",
+      "is_dir": false,
+      "size": 5958,
+      "modified": "2025-08-29T15:00:24"
+    },
+    {
+      "path": "/DisclosureFiles/005575SC_AT.zip",
+      "name": "005575SC_AT.zip",
+      "is_dir": false,
+      "size": 3004,
+      "modified": "2025-08-29T15:00:22"
+    },
+    {
+      "path": "/DisclosureFiles/005576SC_AT.zip",
+      "name": "005576SC_AT.zip",
+      "is_dir": false,
+      "size": 730,
+      "modified": "2025-08-29T15:00:23"
+    },
+    {
+      "path": "/DisclosureFiles/005577SC_AT.zip",
+      "name": "005577SC_AT.zip",
+      "is_dir": false,
+      "size": 1756,
+      "modified": "2025-08-29T15:00:15"
+    },
+    {
+      "path": "/DisclosureFiles/005578SC_AT.zip",
+      "name": "005578SC_AT.zip",
+      "is_dir": false,
+      "size": 4556,
+      "modified": "2025-08-29T15:00:21"
+    },
+    {
+      "path": "/DisclosureFiles/005579SC_AT.zip",
+      "name": "005579SC_AT.zip",
+      "is_dir": false,
+      "size": 1095,
+      "modified": "2025-08-29T15:00:21"
+    },
+    {
+      "path": "/DisclosureFiles/005580SC_AT.zip",
+      "name": "005580SC_AT.zip",
+      "is_dir": false,
+      "size": 2504,
+      "modified": "2025-08-29T15:00:24"
+    },
+    {
+      "path": "/DisclosureFiles/005581SC_AT.zip",
+      "name": "005581SC_AT.zip",
+      "is_dir": false,
+      "size": 701,
+      "modified": "2025-08-29T15:00:20"
+    },
+    {
+      "path": "/DisclosureFiles/005582SC_AT.zip",
+      "name": "005582SC_AT.zip",
+      "is_dir": false,
+      "size": 2279,
+      "modified": "2025-09-30T15:00:24"
+    },
+    {
+      "path": "/DisclosureFiles/005583SC_AT.zip",
+      "name": "005583SC_AT.zip",
+      "is_dir": false,
+      "size": 756,
+      "modified": "2025-09-30T15:00:23"
+    },
+    {
+      "path": "/DisclosureFiles/005584SC_AT.zip",
+      "name": "005584SC_AT.zip",
+      "is_dir": false,
+      "size": 10165,
+      "modified": "2025-09-30T15:00:27"
+    },
+    {
+      "path": "/DisclosureFiles/005585SC_AT.zip",
+      "name": "005585SC_AT.zip",
+      "is_dir": false,
+      "size": 1356,
+      "modified": "2025-09-30T15:00:25"
+    },
+    {
+      "path": "/DisclosureFiles/005586SC_AT.zip",
+      "name": "005586SC_AT.zip",
+      "is_dir": false,
+      "size": 852,
+      "modified": "2025-09-12T02:55:04"
+    },
+    {
+      "path": "/DisclosureFiles/005587SC_AT.zip",
+      "name": "005587SC_AT.zip",
+      "is_dir": false,
+      "size": 2085,
+      "modified": "2025-09-30T15:00:25"
+    },
+    {
+      "path": "/DisclosureFiles/005588SC_AT.zip",
+      "name": "005588SC_AT.zip",
+      "is_dir": false,
+      "size": 6058,
+      "modified": "2025-09-30T15:00:25"
+    },
+    {
+      "path": "/DisclosureFiles/005589SC_AT.zip",
+      "name": "005589SC_AT.zip",
+      "is_dir": false,
+      "size": 1404,
+      "modified": "2025-09-30T15:00:24"
+    },
+    {
+      "path": "/DisclosureFiles/005590SC_AT.zip",
+      "name": "005590SC_AT.zip",
+      "is_dir": false,
+      "size": 624,
+      "modified": "2025-09-30T15:00:22"
+    },
+    {
+      "path": "/DisclosureFiles/005591SC_AT.zip",
+      "name": "005591SC_AT.zip",
+      "is_dir": false,
+      "size": 2756,
+      "modified": "2025-09-30T15:00:21"
+    },
+    {
+      "path": "/DisclosureFiles/005592SC_AT.zip",
+      "name": "005592SC_AT.zip",
+      "is_dir": false,
+      "size": 1582,
+      "modified": "2025-09-30T15:00:21"
+    },
+    {
+      "path": "/DisclosureFiles/005593SC_AT.zip",
+      "name": "005593SC_AT.zip",
+      "is_dir": false,
+      "size": 2939,
+      "modified": "2025-10-31T15:00:30"
+    },
+    {
+      "path": "/DisclosureFiles/005594SC_AT.zip",
+      "name": "005594SC_AT.zip",
+      "is_dir": false,
+      "size": 529,
+      "modified": "2025-10-31T15:00:27"
+    },
+    {
+      "path": "/DisclosureFiles/005595SC_AT.zip",
+      "name": "005595SC_AT.zip",
+      "is_dir": false,
+      "size": 453,
+      "modified": "2025-10-31T15:00:30"
+    },
+    {
+      "path": "/DisclosureFiles/005596SC_AT.zip",
+      "name": "005596SC_AT.zip",
+      "is_dir": false,
+      "size": 920,
+      "modified": "2025-10-31T15:00:25"
+    },
+    {
+      "path": "/DisclosureFiles/005597SC_AT.zip",
+      "name": "005597SC_AT.zip",
+      "is_dir": false,
+      "size": 2398,
+      "modified": "2025-10-31T15:00:26"
+    },
+    {
+      "path": "/DisclosureFiles/005598SC_AT.zip",
+      "name": "005598SC_AT.zip",
+      "is_dir": false,
+      "size": 6383,
+      "modified": "2025-10-31T15:00:31"
+    },
+    {
+      "path": "/DisclosureFiles/005599SC_AT.zip",
+      "name": "005599SC_AT.zip",
+      "is_dir": false,
+      "size": 2291,
+      "modified": "2025-10-31T15:00:31"
+    },
+    {
+      "path": "/DisclosureFiles/005600SC_AT.zip",
+      "name": "005600SC_AT.zip",
+      "is_dir": false,
+      "size": 2125,
+      "modified": "2025-10-31T15:00:28"
+    },
+    {
+      "path": "/DisclosureFiles/005601SC_AT.zip",
+      "name": "005601SC_AT.zip",
+      "is_dir": false,
+      "size": 5507,
+      "modified": "2025-10-31T15:00:30"
+    },
+    {
+      "path": "/DisclosureFiles/005602SC_AT.zip",
+      "name": "005602SC_AT.zip",
+      "is_dir": false,
+      "size": 481,
+      "modified": "2025-10-31T15:00:29"
+    },
+    {
+      "path": "/DisclosureFiles/005603SC_AT.zip",
+      "name": "005603SC_AT.zip",
+      "is_dir": false,
+      "size": 573,
+      "modified": "2025-10-31T15:00:27"
+    },
+    {
+      "path": "/DisclosureFiles/005604SC_AT.zip",
+      "name": "005604SC_AT.zip",
+      "is_dir": false,
+      "size": 4257,
+      "modified": "2025-11-28T15:00:22"
+    },
+    {
+      "path": "/DisclosureFiles/005605SC_AT.zip",
+      "name": "005605SC_AT.zip",
+      "is_dir": false,
+      "size": 6663,
+      "modified": "2025-11-28T15:00:24"
+    },
+    {
+      "path": "/DisclosureFiles/005606SC_AT.zip",
+      "name": "005606SC_AT.zip",
+      "is_dir": false,
+      "size": 1446,
+      "modified": "2025-11-28T15:00:22"
+    },
+    {
+      "path": "/DisclosureFiles/005607SC_AT.zip",
+      "name": "005607SC_AT.zip",
+      "is_dir": false,
+      "size": 4065,
+      "modified": "2025-11-28T15:00:25"
+    },
+    {
+      "path": "/DisclosureFiles/005608SC_AT.zip",
+      "name": "005608SC_AT.zip",
+      "is_dir": false,
+      "size": 499,
+      "modified": "2025-11-28T15:00:22"
+    },
+    {
+      "path": "/DisclosureFiles/005609SC_AT.zip",
+      "name": "005609SC_AT.zip",
+      "is_dir": false,
+      "size": 3140,
+      "modified": "2025-11-28T15:00:22"
+    },
+    {
+      "path": "/DisclosureFiles/005610SC_AT.zip",
+      "name": "005610SC_AT.zip",
+      "is_dir": false,
+      "size": 710,
+      "modified": "2025-11-28T15:00:21"
+    },
+    {
+      "path": "/DisclosureFiles/005611SC_AT.zip",
+      "name": "005611SC_AT.zip",
+      "is_dir": false,
+      "size": 726,
+      "modified": "2025-11-28T15:00:24"
+    },
+    {
+      "path": "/DisclosureFiles/005612SC_AT.zip",
+      "name": "005612SC_AT.zip",
+      "is_dir": false,
+      "size": 921,
+      "modified": "2025-11-28T15:00:20"
+    },
+    {
+      "path": "/DisclosureFiles/005613SC_AT.zip",
+      "name": "005613SC_AT.zip",
+      "is_dir": false,
+      "size": 5481,
+      "modified": "2025-12-30T15:00:14"
+    },
+    {
+      "path": "/DisclosureFiles/005614SC_AT.zip",
+      "name": "005614SC_AT.zip",
+      "is_dir": false,
+      "size": 1451,
+      "modified": "2025-12-30T15:00:15"
+    },
+    {
+      "path": "/DisclosureFiles/005615SC_AT.zip",
+      "name": "005615SC_AT.zip",
+      "is_dir": false,
+      "size": 3952,
+      "modified": "2025-12-30T15:00:16"
+    },
+    {
+      "path": "/DisclosureFiles/005616SC_AT.zip",
+      "name": "005616SC_AT.zip",
+      "is_dir": false,
+      "size": 3218,
+      "modified": "2025-12-30T15:00:14"
+    },
+    {
+      "path": "/DisclosureFiles/005617SC_AT.zip",
+      "name": "005617SC_AT.zip",
+      "is_dir": false,
+      "size": 1211,
+      "modified": "2025-12-30T15:00:16"
+    },
+    {
+      "path": "/DisclosureFiles/005618SC_AT.zip",
+      "name": "005618SC_AT.zip",
+      "is_dir": false,
+      "size": 3127,
+      "modified": "2025-12-30T15:00:14"
+    },
+    {
+      "path": "/DisclosureFiles/005619SC_AT.zip",
+      "name": "005619SC_AT.zip",
+      "is_dir": false,
+      "size": 2113,
+      "modified": "2025-12-30T15:00:09"
+    },
+    {
+      "path": "/DisclosureFiles/005620SC_AT.zip",
+      "name": "005620SC_AT.zip",
+      "is_dir": false,
+      "size": 503,
+      "modified": "2025-12-30T15:00:07"
+    },
+    {
+      "path": "/DisclosureFiles/005621SC_AT.zip",
+      "name": "005621SC_AT.zip",
+      "is_dir": false,
+      "size": 1796,
+      "modified": "2025-12-30T15:00:09"
+    },
+    {
+      "path": "/DisclosureFiles/005622SC_AT.zip",
+      "name": "005622SC_AT.zip",
+      "is_dir": false,
+      "size": 1628,
+      "modified": "2025-12-30T15:00:07"
+    },
+    {
+      "path": "/DisclosureFiles/0366fs.zip",
+      "name": "0366fs.zip",
+      "is_dir": false,
+      "size": 2350,
+      "modified": "2019-07-29T09:30:10"
+    },
+    {
+      "path": "/DisclosureFiles/0369fs.zip",
+      "name": "0369fs.zip",
+      "is_dir": false,
+      "size": 1789,
+      "modified": "2020-12-15T07:56:51"
+    },
+    {
+      "path": "/DisclosureFiles/0370fs.zip",
+      "name": "0370fs.zip",
+      "is_dir": false,
+      "size": 1841,
+      "modified": "2020-12-15T10:22:44"
+    },
+    {
+      "path": "/DisclosureFiles/0372fs.zip",
+      "name": "0372fs.zip",
+      "is_dir": false,
+      "size": 1841,
+      "modified": "2020-12-15T09:09:03"
+    },
+    {
+      "path": "/DisclosureFiles/0373fs.zip",
+      "name": "0373fs.zip",
+      "is_dir": false,
+      "size": 1904,
+      "modified": "2020-12-15T09:10:59"
+    },
+    {
+      "path": "/DisclosureFiles/0376fs.zip",
+      "name": "0376fs.zip",
+      "is_dir": false,
+      "size": 1598,
+      "modified": "2021-05-25T10:45:54"
+    },
+    {
+      "path": "/DisclosureFiles/0382fs.zip",
+      "name": "0382fs.zip",
+      "is_dir": false,
+      "size": 38568,
+      "modified": "2022-03-17T09:15:38"
+    },
+    {
+      "path": "/DisclosureFiles/0383fs.zip",
+      "name": "0383fs.zip",
+      "is_dir": false,
+      "size": 10510,
+      "modified": "2022-03-16T16:17:55"
+    },
+    {
+      "path": "/DisclosureFiles/0384fs.zip",
+      "name": "0384fs.zip",
+      "is_dir": false,
+      "size": 36608,
+      "modified": "2022-04-22T10:44:07"
+    },
+    {
+      "path": "/DisclosureFiles/0385fs.zip",
+      "name": "0385fs.zip",
+      "is_dir": false,
+      "size": 24047,
+      "modified": "2022-04-21T08:42:54"
+    },
+    {
+      "path": "/DisclosureFiles/0386fs.zip",
+      "name": "0386fs.zip",
+      "is_dir": false,
+      "size": 13847,
+      "modified": "2022-05-20T18:53:51"
+    },
+    {
+      "path": "/DisclosureFiles/0387fs.zip",
+      "name": "0387fs.zip",
+      "is_dir": false,
+      "size": 3515,
+      "modified": "2022-06-27T17:06:56"
+    },
+    {
+      "path": "/DisclosureFiles/0389fs.zip",
+      "name": "0389fs.zip",
+      "is_dir": false,
+      "size": 18061,
+      "modified": "2022-12-19T13:58:39"
+    },
+    {
+      "path": "/DisclosureFiles/0390fs.zip",
+      "name": "0390fs.zip",
+      "is_dir": false,
+      "size": 16263,
+      "modified": "2023-01-26T08:22:39"
+    },
+    {
+      "path": "/DisclosureFiles/0391fs.zip",
+      "name": "0391fs.zip",
+      "is_dir": false,
+      "size": 53196,
+      "modified": "2023-03-24T15:26:56"
+    },
+    {
+      "path": "/DisclosureFiles/0392fs.zip",
+      "name": "0392fs.zip",
+      "is_dir": false,
+      "size": 13336,
+      "modified": "2023-04-24T13:25:38"
+    },
+    {
+      "path": "/DisclosureFiles/0393fs.zip",
+      "name": "0393fs.zip",
+      "is_dir": false,
+      "size": 23992,
+      "modified": "2023-05-24T13:05:59"
+    },
+    {
+      "path": "/DisclosureFiles/0394fs.zip",
+      "name": "0394fs.zip",
+      "is_dir": false,
+      "size": 24949,
+      "modified": "2023-05-24T12:48:46"
+    },
+    {
+      "path": "/DisclosureFiles/0395fs.zip",
+      "name": "0395fs.zip",
+      "is_dir": false,
+      "size": 31063,
+      "modified": "2023-05-24T19:17:17"
+    },
+    {
+      "path": "/DisclosureFiles/0396fs.zip",
+      "name": "0396fs.zip",
+      "is_dir": false,
+      "size": 28105,
+      "modified": "2023-05-24T18:26:46"
+    },
+    {
+      "path": "/DisclosureFiles/0397fs.zip",
+      "name": "0397fs.zip",
+      "is_dir": false,
+      "size": 52992,
+      "modified": "2023-06-23T10:36:32"
+    },
+    {
+      "path": "/DisclosureFiles/0398fs.zip",
+      "name": "0398fs.zip",
+      "is_dir": false,
+      "size": 23103,
+      "modified": "2023-06-23T07:52:56"
+    },
+    {
+      "path": "/DisclosureFiles/0399fs.zip",
+      "name": "0399fs.zip",
+      "is_dir": false,
+      "size": 17144,
+      "modified": "2023-07-25T07:39:31"
+    },
+    {
+      "path": "/DisclosureFiles/0400fs.zip",
+      "name": "0400fs.zip",
+      "is_dir": false,
+      "size": 9985,
+      "modified": "2023-07-25T07:52:44"
+    },
+    {
+      "path": "/DisclosureFiles/0401fs.zip",
+      "name": "0401fs.zip",
+      "is_dir": false,
+      "size": 11362,
+      "modified": "2023-08-23T17:12:55"
+    },
+    {
+      "path": "/DisclosureFiles/0402fs.zip",
+      "name": "0402fs.zip",
+      "is_dir": false,
+      "size": 7109,
+      "modified": "2023-08-31T07:40:35"
+    },
+    {
+      "path": "/DisclosureFiles/0403fs.zip",
+      "name": "0403fs.zip",
+      "is_dir": false,
+      "size": 14380,
+      "modified": "2023-09-26T10:31:58"
+    },
+    {
+      "path": "/DisclosureFiles/0404fs.zip",
+      "name": "0404fs.zip",
+      "is_dir": false,
+      "size": 10483,
+      "modified": "2023-09-26T11:38:24"
+    },
+    {
+      "path": "/DisclosureFiles/0405fs.zip",
+      "name": "0405fs.zip",
+      "is_dir": false,
+      "size": 16142,
+      "modified": "2023-09-26T09:52:33"
+    },
+    {
+      "path": "/DisclosureFiles/0406fs.zip",
+      "name": "0406fs.zip",
+      "is_dir": false,
+      "size": 9270,
+      "modified": "2023-09-27T08:44:32"
+    },
+    {
+      "path": "/DisclosureFiles/0407fs.zip",
+      "name": "0407fs.zip",
+      "is_dir": false,
+      "size": 5139,
+      "modified": "2023-12-21T13:37:09"
+    },
+    {
+      "path": "/DisclosureFiles/0408fs.zip",
+      "name": "0408fs.zip",
+      "is_dir": false,
+      "size": 24079,
+      "modified": "2023-12-21T12:22:20"
+    },
+    {
+      "path": "/DisclosureFiles/0409fs.zip",
+      "name": "0409fs.zip",
+      "is_dir": false,
+      "size": 14684,
+      "modified": "2024-01-26T09:13:46"
+    },
+    {
+      "path": "/DisclosureFiles/0410fs.zip",
+      "name": "0410fs.zip",
+      "is_dir": false,
+      "size": 47535,
+      "modified": "2024-01-26T10:49:26"
+    },
+    {
+      "path": "/DisclosureFiles/0411fs.zip",
+      "name": "0411fs.zip",
+      "is_dir": false,
+      "size": 29528,
+      "modified": "2024-01-26T10:13:30"
+    },
+    {
+      "path": "/DisclosureFiles/0412fs.zip",
+      "name": "0412fs.zip",
+      "is_dir": false,
+      "size": 50602,
+      "modified": "2024-03-19T12:28:04"
+    },
+    {
+      "path": "/DisclosureFiles/0413fs.zip",
+      "name": "0413fs.zip",
+      "is_dir": false,
+      "size": 10237,
+      "modified": "2024-04-29T12:52:54"
+    },
+    {
+      "path": "/DisclosureFiles/0414fs.zip",
+      "name": "0414fs.zip",
+      "is_dir": false,
+      "size": 19760,
+      "modified": "2024-05-23T13:07:11"
+    },
+    {
+      "path": "/DisclosureFiles/0415fs.zip",
+      "name": "0415fs.zip",
+      "is_dir": false,
+      "size": 5980,
+      "modified": "2024-06-24T19:20:56"
+    },
+    {
+      "path": "/DisclosureFiles/0416fs.zip",
+      "name": "0416fs.zip",
+      "is_dir": false,
+      "size": 12268,
+      "modified": "2024-09-25T09:02:30"
+    },
+    {
+      "path": "/DisclosureFiles/0417fs.zip",
+      "name": "0417fs.zip",
+      "is_dir": false,
+      "size": 13674,
+      "modified": "2024-10-28T08:50:15"
+    },
+    {
+      "path": "/DisclosureFiles/0418fs.zip",
+      "name": "0418fs.zip",
+      "is_dir": false,
+      "size": 17868,
+      "modified": "2024-10-28T07:46:33"
+    },
+    {
+      "path": "/DisclosureFiles/0419fs.zip",
+      "name": "0419fs.zip",
+      "is_dir": false,
+      "size": 17799,
+      "modified": "2025-01-27T18:00:23"
+    },
+    {
+      "path": "/DisclosureFiles/0420fs.zip",
+      "name": "0420fs.zip",
+      "is_dir": false,
+      "size": 5829,
+      "modified": "2025-02-25T07:36:46"
+    },
+    {
+      "path": "/DisclosureFiles/0421fs.zip",
+      "name": "0421fs.zip",
+      "is_dir": false,
+      "size": 14804,
+      "modified": "2025-03-25T15:00:02"
+    },
+    {
+      "path": "/DisclosureFiles/0422fs.zip",
+      "name": "0422fs.zip",
+      "is_dir": false,
+      "size": 28580,
+      "modified": "2025-04-24T18:09:29"
+    },
+    {
+      "path": "/DisclosureFiles/0423fs.zip",
+      "name": "0423fs.zip",
+      "is_dir": false,
+      "size": 51793,
+      "modified": "2025-06-20T09:46:49"
+    },
+    {
+      "path": "/DisclosureFiles/0424fs.zip",
+      "name": "0424fs.zip",
+      "is_dir": false,
+      "size": 7532,
+      "modified": "2025-08-25T14:32:27"
+    },
+    {
+      "path": "/DisclosureFiles/102SC_AT.zip",
+      "name": "102SC_AT.zip",
+      "is_dir": false,
+      "size": 5200,
+      "modified": "2019-04-11T12:30:10"
+    },
+    {
+      "path": "/DisclosureFiles/102oc.pdf",
+      "name": "102oc.pdf",
+      "is_dir": false,
+      "size": 2052870,
+      "modified": "2019-04-11T12:30:22"
+    },
+    {
+      "path": "/DisclosureFiles/102pt.zip",
+      "name": "102pt.zip",
+      "is_dir": false,
+      "size": 6516,
+      "modified": "2019-04-11T12:30:13"
+    },
+    {
+      "path": "/DisclosureFiles/104SC_AT.zip",
+      "name": "104SC_AT.zip",
+      "is_dir": false,
+      "size": 4085,
+      "modified": "2019-04-11T12:30:13"
+    },
+    {
+      "path": "/DisclosureFiles/104oc.pdf",
+      "name": "104oc.pdf",
+      "is_dir": false,
+      "size": 1179443,
+      "modified": "2019-04-11T12:30:21"
+    },
+    {
+      "path": "/DisclosureFiles/104pt.zip",
+      "name": "104pt.zip",
+      "is_dir": false,
+      "size": 2257,
+      "modified": "2019-04-11T12:30:11"
+    },
+    {
+      "path": "/DisclosureFiles/106SC_AT.zip",
+      "name": "106SC_AT.zip",
+      "is_dir": false,
+      "size": 2315,
+      "modified": "2019-04-11T12:30:22"
+    },
+    {
+      "path": "/DisclosureFiles/106oc.pdf",
+      "name": "106oc.pdf",
+      "is_dir": false,
+      "size": 2120876,
+      "modified": "2019-04-11T12:30:25"
+    },
+    {
+      "path": "/DisclosureFiles/106pt.zip",
+      "name": "106pt.zip",
+      "is_dir": false,
+      "size": 9047,
+      "modified": "2019-04-11T12:30:19"
+    },
+    {
+      "path": "/DisclosureFiles/112SC_AT.zip",
+      "name": "112SC_AT.zip",
+      "is_dir": false,
+      "size": 2244,
+      "modified": "2019-04-11T12:30:10"
+    },
+    {
+      "path": "/DisclosureFiles/112oc.pdf",
+      "name": "112oc.pdf",
+      "is_dir": false,
+      "size": 2475627,
+      "modified": "2019-04-11T12:30:09"
+    },
+    {
+      "path": "/DisclosureFiles/112pt.zip",
+      "name": "112pt.zip",
+      "is_dir": false,
+      "size": 6704,
+      "modified": "2019-04-11T12:30:27"
+    },
+    {
+      "path": "/DisclosureFiles/133SC_AT.zip",
+      "name": "133SC_AT.zip",
+      "is_dir": false,
+      "size": 2671,
+      "modified": "2019-04-11T12:30:20"
+    },
+    {
+      "path": "/DisclosureFiles/133oc.pdf",
+      "name": "133oc.pdf",
+      "is_dir": false,
+      "size": 1776960,
+      "modified": "2019-04-11T12:30:17"
+    },
+    {
+      "path": "/DisclosureFiles/133pt.zip",
+      "name": "133pt.zip",
+      "is_dir": false,
+      "size": 6503,
+      "modified": "2019-04-11T12:30:26"
+    },
+    {
+      "path": "/DisclosureFiles/136SC_AT.zip",
+      "name": "136SC_AT.zip",
+      "is_dir": false,
+      "size": 1848,
+      "modified": "2019-04-11T12:30:20"
+    },
+    {
+      "path": "/DisclosureFiles/136oc.pdf",
+      "name": "136oc.pdf",
+      "is_dir": false,
+      "size": 2179242,
+      "modified": "2019-04-11T12:30:24"
+    },
+    {
+      "path": "/DisclosureFiles/136pt.zip",
+      "name": "136pt.zip",
+      "is_dir": false,
+      "size": 8500,
+      "modified": "2019-04-11T12:30:14"
+    },
+    {
+      "path": "/DisclosureFiles/138SC_AT.zip",
+      "name": "138SC_AT.zip",
+      "is_dir": false,
+      "size": 5435,
+      "modified": "2019-04-11T12:30:18"
+    },
+    {
+      "path": "/DisclosureFiles/138oc.pdf",
+      "name": "138oc.pdf",
+      "is_dir": false,
+      "size": 2255878,
+      "modified": "2019-04-11T12:30:21"
+    },
+    {
+      "path": "/DisclosureFiles/138pt.zip",
+      "name": "138pt.zip",
+      "is_dir": false,
+      "size": 10099,
+      "modified": "2019-04-11T12:30:28"
+    },
+    {
+      "path": "/DisclosureFiles/139SC_AT.zip",
+      "name": "139SC_AT.zip",
+      "is_dir": false,
+      "size": 2255,
+      "modified": "2019-04-11T12:30:12"
+    },
+    {
+      "path": "/DisclosureFiles/139oc.pdf",
+      "name": "139oc.pdf",
+      "is_dir": false,
+      "size": 3168989,
+      "modified": "2019-04-11T12:30:15"
+    },
+    {
+      "path": "/DisclosureFiles/139pt.zip",
+      "name": "139pt.zip",
+      "is_dir": false,
+      "size": 11383,
+      "modified": "2019-04-11T12:30:18"
+    },
+    {
+      "path": "/DisclosureFiles/139sh.zip",
+      "name": "139sh.zip",
+      "is_dir": false,
+      "size": 4496,
+      "modified": "2019-04-11T12:30:14"
+    },
+    {
+      "path": "/DisclosureFiles/140SC_AT.zip",
+      "name": "140SC_AT.zip",
+      "is_dir": false,
+      "size": 1461,
+      "modified": "2019-04-11T13:30:02"
+    },
+    {
+      "path": "/DisclosureFiles/140oc.pdf",
+      "name": "140oc.pdf",
+      "is_dir": false,
+      "size": 1019070,
+      "modified": "2019-04-11T12:30:16"
+    },
+    {
+      "path": "/DisclosureFiles/141SC_AT.zip",
+      "name": "141SC_AT.zip",
+      "is_dir": false,
+      "size": 1973,
+      "modified": "2019-04-11T13:30:04"
+    },
+    {
+      "path": "/DisclosureFiles/141oc.pdf",
+      "name": "141oc.pdf",
+      "is_dir": false,
+      "size": 2723611,
+      "modified": "2019-04-11T13:30:09"
+    },
+    {
+      "path": "/DisclosureFiles/141pt.zip",
+      "name": "141pt.zip",
+      "is_dir": false,
+      "size": 7660,
+      "modified": "2019-04-11T13:30:28"
+    },
+    {
+      "path": "/DisclosureFiles/146SC_AT.zip",
+      "name": "146SC_AT.zip",
+      "is_dir": false,
+      "size": 306,
+      "modified": "2019-04-11T13:30:22"
+    },
+    {
+      "path": "/DisclosureFiles/146oc.pdf",
+      "name": "146oc.pdf",
+      "is_dir": false,
+      "size": 5305262,
+      "modified": "2019-04-11T13:30:05"
+    },
+    {
+      "path": "/DisclosureFiles/146pt.zip",
+      "name": "146pt.zip",
+      "is_dir": false,
+      "size": 2735,
+      "modified": "2019-04-11T13:30:01"
+    },
+    {
+      "path": "/DisclosureFiles/147SC_AT.zip",
+      "name": "147SC_AT.zip",
+      "is_dir": false,
+      "size": 539,
+      "modified": "2019-04-11T13:30:34"
+    },
+    {
+      "path": "/DisclosureFiles/147pt.zip",
+      "name": "147pt.zip",
+      "is_dir": false,
+      "size": 7271,
+      "modified": "2019-04-11T13:30:30"
+    },
+    {
+      "path": "/DisclosureFiles/149SC_AT.zip",
+      "name": "149SC_AT.zip",
+      "is_dir": false,
+      "size": 3091,
+      "modified": "2019-04-11T13:30:28"
+    },
+    {
+      "path": "/DisclosureFiles/149oc.pdf",
+      "name": "149oc.pdf",
+      "is_dir": false,
+      "size": 2560409,
+      "modified": "2019-04-11T13:30:43"
+    },
+    {
+      "path": "/DisclosureFiles/149pt.zip",
+      "name": "149pt.zip",
+      "is_dir": false,
+      "size": 9560,
+      "modified": "2019-04-11T13:30:09"
+    },
+    {
+      "path": "/DisclosureFiles/149ss.pdf",
+      "name": "149ss.pdf",
+      "is_dir": false,
+      "size": 571733,
+      "modified": "2019-04-11T13:30:36"
+    },
+    {
+      "path": "/DisclosureFiles/151SC_AT.zip",
+      "name": "151SC_AT.zip",
+      "is_dir": false,
+      "size": 6265,
+      "modified": "2019-04-11T13:30:37"
+    },
+    {
+      "path": "/DisclosureFiles/151pt.zip",
+      "name": "151pt.zip",
+      "is_dir": false,
+      "size": 8618,
+      "modified": "2019-04-19T03:30:09"
+    },
+    {
+      "path": "/DisclosureFiles/152SC_AT.zip",
+      "name": "152SC_AT.zip",
+      "is_dir": false,
+      "size": 2027,
+      "modified": "2019-04-11T13:30:10"
+    },
+    {
+      "path": "/DisclosureFiles/152pt.zip",
+      "name": "152pt.zip",
+      "is_dir": false,
+      "size": 10351,
+      "modified": "2019-04-11T13:30:02"
+    },
+    {
+      "path": "/DisclosureFiles/153SC_AT.zip",
+      "name": "153SC_AT.zip",
+      "is_dir": false,
+      "size": 3092,
+      "modified": "2019-04-11T13:30:30"
+    },
+    {
+      "path": "/DisclosureFiles/153oc.pdf",
+      "name": "153oc.pdf",
+      "is_dir": false,
+      "size": 2168775,
+      "modified": "2019-04-11T13:30:25"
+    },
+    {
+      "path": "/DisclosureFiles/153pt.zip",
+      "name": "153pt.zip",
+      "is_dir": false,
+      "size": 5563,
+      "modified": "2019-04-11T13:30:33"
+    },
+    {
+      "path": "/DisclosureFiles/153sh.zip",
+      "name": "153sh.zip",
+      "is_dir": false,
+      "size": 2602,
+      "modified": "2019-04-11T13:30:16"
+    },
+    {
+      "path": "/DisclosureFiles/154SC_AT.zip",
+      "name": "154SC_AT.zip",
+      "is_dir": false,
+      "size": 6204,
+      "modified": "2019-04-11T13:30:03"
+    },
+    {
+      "path": "/DisclosureFiles/154pt.zip",
+      "name": "154pt.zip",
+      "is_dir": false,
+      "size": 3145,
+      "modified": "2019-04-11T13:30:38"
+    },
+    {
+      "path": "/DisclosureFiles/158SC_AT.zip",
+      "name": "158SC_AT.zip",
+      "is_dir": false,
+      "size": 2044,
+      "modified": "2019-04-11T13:30:37"
+    },
+    {
+      "path": "/DisclosureFiles/158oc.pdf",
+      "name": "158oc.pdf",
+      "is_dir": false,
+      "size": 2030085,
+      "modified": "2019-04-11T13:30:29"
+    },
+    {
+      "path": "/DisclosureFiles/158pt.zip",
+      "name": "158pt.zip",
+      "is_dir": false,
+      "size": 6356,
+      "modified": "2019-04-11T13:30:29"
+    },
+    {
+      "path": "/DisclosureFiles/159SC_AT.zip",
+      "name": "159SC_AT.zip",
+      "is_dir": false,
+      "size": 3294,
+      "modified": "2019-04-11T13:30:25"
+    },
+    {
+      "path": "/DisclosureFiles/159pt.zip",
+      "name": "159pt.zip",
+      "is_dir": false,
+      "size": 13550,
+      "modified": "2019-04-11T13:30:03"
+    },
+    {
+      "path": "/DisclosureFiles/159sh.zip",
+      "name": "159sh.zip",
+      "is_dir": false,
+      "size": 1334,
+      "modified": "2019-04-11T13:30:26"
+    },
+    {
+      "path": "/DisclosureFiles/160SC_AT.zip",
+      "name": "160SC_AT.zip",
+      "is_dir": false,
+      "size": 4572,
+      "modified": "2019-04-11T13:30:31"
+    },
+    {
+      "path": "/DisclosureFiles/162SC_AT.zip",
+      "name": "162SC_AT.zip",
+      "is_dir": false,
+      "size": 2390,
+      "modified": "2019-04-11T13:30:04"
+    },
+    {
+      "path": "/DisclosureFiles/162oc.pdf",
+      "name": "162oc.pdf",
+      "is_dir": false,
+      "size": 5597599,
+      "modified": "2019-04-11T13:30:31"
+    },
+    {
+      "path": "/DisclosureFiles/162pt.zip",
+      "name": "162pt.zip",
+      "is_dir": false,
+      "size": 3683,
+      "modified": "2019-04-11T13:30:32"
+    },
+    {
+      "path": "/DisclosureFiles/162sh.zip",
+      "name": "162sh.zip",
+      "is_dir": false,
+      "size": 2682,
+      "modified": "2019-04-11T13:30:04"
+    },
+    {
+      "path": "/DisclosureFiles/162ss.zip",
+      "name": "162ss.zip",
+      "is_dir": false,
+      "size": 1421,
+      "modified": "2019-04-11T13:30:10"
+    },
+    {
+      "path": "/DisclosureFiles/163SC_AT.zip",
+      "name": "163SC_AT.zip",
+      "is_dir": false,
+      "size": 4072,
+      "modified": "2019-04-11T13:30:16"
+    },
+    {
+      "path": "/DisclosureFiles/163oc.pdf",
+      "name": "163oc.pdf",
+      "is_dir": false,
+      "size": 3813114,
+      "modified": "2019-04-11T13:30:06"
+    },
+    {
+      "path": "/DisclosureFiles/163pt.zip",
+      "name": "163pt.zip",
+      "is_dir": false,
+      "size": 6412,
+      "modified": "2019-04-11T13:30:11"
+    },
+    {
+      "path": "/DisclosureFiles/163ss.zip",
+      "name": "163ss.zip",
+      "is_dir": false,
+      "size": 859,
+      "modified": "2019-04-11T13:30:11"
+    },
+    {
+      "path": "/DisclosureFiles/1643ss.pdf",
+      "name": "1643ss.pdf",
+      "is_dir": false,
+      "size": 5411939,
+      "modified": "2023-08-16T13:22:29"
+    },
+    {
+      "path": "/DisclosureFiles/164SC_AT.zip",
+      "name": "164SC_AT.zip",
+      "is_dir": false,
+      "size": 972,
+      "modified": "2019-04-11T13:30:20"
+    },
+    {
+      "path": "/DisclosureFiles/164oc.pdf",
+      "name": "164oc.pdf",
+      "is_dir": false,
+      "size": 4248795,
+      "modified": "2019-04-11T13:30:12"
+    },
+    {
+      "path": "/DisclosureFiles/164pt.zip",
+      "name": "164pt.zip",
+      "is_dir": false,
+      "size": 2767,
+      "modified": "2019-04-11T13:30:40"
+    },
+    {
+      "path": "/DisclosureFiles/164ss.zip",
+      "name": "164ss.zip",
+      "is_dir": false,
+      "size": 2081,
+      "modified": "2019-04-11T13:30:33"
+    },
+    {
+      "path": "/DisclosureFiles/165SC_AT.zip",
+      "name": "165SC_AT.zip",
+      "is_dir": false,
+      "size": 4095,
+      "modified": "2019-04-11T13:30:34"
+    },
+    {
+      "path": "/DisclosureFiles/165pt.zip",
+      "name": "165pt.zip",
+      "is_dir": false,
+      "size": 12511,
+      "modified": "2019-04-11T13:30:12"
+    },
+    {
+      "path": "/DisclosureFiles/165sh.zip",
+      "name": "165sh.zip",
+      "is_dir": false,
+      "size": 4412,
+      "modified": "2019-04-11T13:30:07"
+    },
+    {
+      "path": "/DisclosureFiles/165ss.zip",
+      "name": "165ss.zip",
+      "is_dir": false,
+      "size": 1223,
+      "modified": "2019-04-11T13:30:26"
+    },
+    {
+      "path": "/DisclosureFiles/166SC_AT.zip",
+      "name": "166SC_AT.zip",
+      "is_dir": false,
+      "size": 2541,
+      "modified": "2019-04-11T13:30:17"
+    },
+    {
+      "path": "/DisclosureFiles/166oc.pdf",
+      "name": "166oc.pdf",
+      "is_dir": false,
+      "size": 5082527,
+      "modified": "2019-04-11T13:30:38"
+    },
+    {
+      "path": "/DisclosureFiles/166pt.zip",
+      "name": "166pt.zip",
+      "is_dir": false,
+      "size": 2885,
+      "modified": "2019-04-11T13:30:13"
+    },
+    {
+      "path": "/DisclosureFiles/166sh.zip",
+      "name": "166sh.zip",
+      "is_dir": false,
+      "size": 2885,
+      "modified": "2019-04-11T13:30:18"
+    },
+    {
+      "path": "/DisclosureFiles/166ss.zip",
+      "name": "166ss.zip",
+      "is_dir": false,
+      "size": 1291,
+      "modified": "2019-04-11T13:30:21"
+    },
+    {
+      "path": "/DisclosureFiles/168SC_AT.zip",
+      "name": "168SC_AT.zip",
+      "is_dir": false,
+      "size": 3720,
+      "modified": "2019-04-11T13:30:21"
+    },
+    {
+      "path": "/DisclosureFiles/168oc.pdf",
+      "name": "168oc.pdf",
+      "is_dir": false,
+      "size": 4604500,
+      "modified": "2019-04-11T13:30:40"
+    },
+    {
+      "path": "/DisclosureFiles/168pt.zip",
+      "name": "168pt.zip",
+      "is_dir": false,
+      "size": 10021,
+      "modified": "2019-04-11T13:30:13"
+    },
+    {
+      "path": "/DisclosureFiles/168ss.zip",
+      "name": "168ss.zip",
+      "is_dir": false,
+      "size": 856,
+      "modified": "2019-04-11T13:30:35"
+    },
+    {
+      "path": "/DisclosureFiles/169SC_AT.zip",
+      "name": "169SC_AT.zip",
+      "is_dir": false,
+      "size": 5125,
+      "modified": "2019-04-11T13:30:14"
+    },
+    {
+      "path": "/DisclosureFiles/169oc.pdf",
+      "name": "169oc.pdf",
+      "is_dir": false,
+      "size": 1218014,
+      "modified": "2019-04-11T13:30:23"
+    },
+    {
+      "path": "/DisclosureFiles/169ss.zip",
+      "name": "169ss.zip",
+      "is_dir": false,
+      "size": 824,
+      "modified": "2019-04-11T13:30:39"
+    },
+    {
+      "path": "/DisclosureFiles/170SC_AT.zip",
+      "name": "170SC_AT.zip",
+      "is_dir": false,
+      "size": 3187,
+      "modified": "2019-04-11T13:30:17"
+    },
+    {
+      "path": "/DisclosureFiles/170oc.pdf",
+      "name": "170oc.pdf",
+      "is_dir": false,
+      "size": 4102201,
+      "modified": "2019-04-11T13:30:27"
+    },
+    {
+      "path": "/DisclosureFiles/170pt.zip",
+      "name": "170pt.zip",
+      "is_dir": false,
+      "size": 6235,
+      "modified": "2019-04-11T13:30:18"
+    },
+    {
+      "path": "/DisclosureFiles/170sh.zip",
+      "name": "170sh.zip",
+      "is_dir": false,
+      "size": 5494,
+      "modified": "2019-04-11T13:30:21"
+    },
+    {
+      "path": "/DisclosureFiles/172SC_AT.zip",
+      "name": "172SC_AT.zip",
+      "is_dir": false,
+      "size": 5314,
+      "modified": "2019-04-11T13:30:15"
+    },
+    {
+      "path": "/DisclosureFiles/172oc.pdf",
+      "name": "172oc.pdf",
+      "is_dir": false,
+      "size": 5096761,
+      "modified": "2019-04-11T13:30:14"
+    },
+    {
+      "path": "/DisclosureFiles/172pt.zip",
+      "name": "172pt.zip",
+      "is_dir": false,
+      "size": 6382,
+      "modified": "2019-04-11T13:30:41"
+    },
+    {
+      "path": "/DisclosureFiles/172sh.zip",
+      "name": "172sh.zip",
+      "is_dir": false,
+      "size": 2747,
+      "modified": "2019-04-11T13:30:24"
+    },
+    {
+      "path": "/DisclosureFiles/172ss.zip",
+      "name": "172ss.zip",
+      "is_dir": false,
+      "size": 1289,
+      "modified": "2019-04-11T13:30:35"
+    },
+    {
+      "path": "/DisclosureFiles/173SC_AT.zip",
+      "name": "173SC_AT.zip",
+      "is_dir": false,
+      "size": 3648,
+      "modified": "2019-04-11T13:30:39"
+    },
+    {
+      "path": "/DisclosureFiles/173oc.pdf",
+      "name": "173oc.pdf",
+      "is_dir": false,
+      "size": 5561422,
+      "modified": "2019-04-11T13:30:07"
+    },
+    {
+      "path": "/DisclosureFiles/173pt.zip",
+      "name": "173pt.zip",
+      "is_dir": false,
+      "size": 7721,
+      "modified": "2019-04-11T13:30:27"
+    },
+    {
+      "path": "/DisclosureFiles/173sh.zip",
+      "name": "173sh.zip",
+      "is_dir": false,
+      "size": 2772,
+      "modified": "2019-04-11T13:30:16"
+    },
+    {
+      "path": "/DisclosureFiles/173ss.zip",
+      "name": "173ss.zip",
+      "is_dir": false,
+      "size": 1249,
+      "modified": "2019-04-11T13:30:18"
+    },
+    {
+      "path": "/DisclosureFiles/174SC_AT.zip",
+      "name": "174SC_AT.zip",
+      "is_dir": false,
+      "size": 4048,
+      "modified": "2019-04-11T13:30:42"
+    },
+    {
+      "path": "/DisclosureFiles/174oc.pdf",
+      "name": "174oc.pdf",
+      "is_dir": false,
+      "size": 2563907,
+      "modified": "2019-04-11T13:30:19"
+    },
+    {
+      "path": "/DisclosureFiles/174pt.zip",
+      "name": "174pt.zip",
+      "is_dir": false,
+      "size": 654,
+      "modified": "2019-04-11T13:30:42"
+    },
+    {
+      "path": "/DisclosureFiles/174ss.zip",
+      "name": "174ss.zip",
+      "is_dir": false,
+      "size": 834,
+      "modified": "2019-04-11T13:30:22"
+    },
+    {
+      "path": "/DisclosureFiles/175SC_AT.zip",
+      "name": "175SC_AT.zip",
+      "is_dir": false,
+      "size": 2249,
+      "modified": "2019-04-12T03:31:32"
+    },
+    {
+      "path": "/DisclosureFiles/175oc.pdf",
+      "name": "175oc.pdf",
+      "is_dir": false,
+      "size": 3428966,
+      "modified": "2019-04-11T13:30:35"
+    },
+    {
+      "path": "/DisclosureFiles/175pt.zip",
+      "name": "175pt.zip",
+      "is_dir": false,
+      "size": 5855,
+      "modified": "2019-04-11T13:30:20"
+    },
+    {
+      "path": "/DisclosureFiles/175ss.zip",
+      "name": "175ss.zip",
+      "is_dir": false,
+      "size": 853,
+      "modified": "2019-04-12T03:31:17"
+    },
+    {
+      "path": "/DisclosureFiles/176SC_AT.zip",
+      "name": "176SC_AT.zip",
+      "is_dir": false,
+      "size": 3154,
+      "modified": "2019-04-12T03:30:06"
+    },
+    {
+      "path": "/DisclosureFiles/176oc.pdf",
+      "name": "176oc.pdf",
+      "is_dir": false,
+      "size": 3371639,
+      "modified": "2019-04-12T03:30:51"
+    },
+    {
+      "path": "/DisclosureFiles/176pt.zip",
+      "name": "176pt.zip",
+      "is_dir": false,
+      "size": 15826,
+      "modified": "2019-04-12T03:30:43"
+    },
+    {
+      "path": "/DisclosureFiles/176sh.zip",
+      "name": "176sh.zip",
+      "is_dir": false,
+      "size": 4404,
+      "modified": "2019-04-12T03:31:50"
+    },
+    {
+      "path": "/DisclosureFiles/177SC_AT.zip",
+      "name": "177SC_AT.zip",
+      "is_dir": false,
+      "size": 8356,
+      "modified": "2019-04-12T03:30:07"
+    },
+    {
+      "path": "/DisclosureFiles/177oc.pdf",
+      "name": "177oc.pdf",
+      "is_dir": false,
+      "size": 4244403,
+      "modified": "2019-04-12T03:30:07"
+    },
+    {
+      "path": "/DisclosureFiles/177pt.zip",
+      "name": "177pt.zip",
+      "is_dir": false,
+      "size": 3806,
+      "modified": "2019-04-12T03:30:52"
+    },
+    {
+      "path": "/DisclosureFiles/177ss.zip",
+      "name": "177ss.zip",
+      "is_dir": false,
+      "size": 4852,
+      "modified": "2019-04-12T03:31:18"
+    },
+    {
+      "path": "/DisclosureFiles/178SC_AT.zip",
+      "name": "178SC_AT.zip",
+      "is_dir": false,
+      "size": 2824,
+      "modified": "2019-04-12T03:31:36"
+    },
+    {
+      "path": "/DisclosureFiles/178pt.zip",
+      "name": "178pt.zip",
+      "is_dir": false,
+      "size": 4529,
+      "modified": "2019-04-12T03:31:07"
+    },
+    {
+      "path": "/DisclosureFiles/178ss.zip",
+      "name": "178ss.zip",
+      "is_dir": false,
+      "size": 1507,
+      "modified": "2019-04-12T03:30:08"
+    },
+    {
+      "path": "/DisclosureFiles/179SC_AT.zip",
+      "name": "179SC_AT.zip",
+      "is_dir": false,
+      "size": 395,
+      "modified": "2019-04-12T03:30:09"
+    },
+    {
+      "path": "/DisclosureFiles/179oc.pdf",
+      "name": "179oc.pdf",
+      "is_dir": false,
+      "size": 2768462,
+      "modified": "2019-04-12T03:31:57"
+    },
+    {
+      "path": "/DisclosureFiles/179pt.zip",
+      "name": "179pt.zip",
+      "is_dir": false,
+      "size": 3803,
+      "modified": "2019-04-12T03:32:02"
+    },
+    {
+      "path": "/DisclosureFiles/179sh.zip",
+      "name": "179sh.zip",
+      "is_dir": false,
+      "size": 3803,
+      "modified": "2019-04-12T03:30:08"
+    },
+    {
+      "path": "/DisclosureFiles/179ss.zip",
+      "name": "179ss.zip",
+      "is_dir": false,
+      "size": 4802,
+      "modified": "2019-04-12T03:31:50"
+    },
+    {
+      "path": "/DisclosureFiles/180SC_AT.zip",
+      "name": "180SC_AT.zip",
+      "is_dir": false,
+      "size": 2321,
+      "modified": "2019-04-12T03:30:52"
+    },
+    {
+      "path": "/DisclosureFiles/180oc.pdf",
+      "name": "180oc.pdf",
+      "is_dir": false,
+      "size": 3872957,
+      "modified": "2019-04-12T03:30:36"
+    },
+    {
+      "path": "/DisclosureFiles/180pt.zip",
+      "name": "180pt.zip",
+      "is_dir": false,
+      "size": 8544,
+      "modified": "2019-04-12T03:30:14"
+    },
+    {
+      "path": "/DisclosureFiles/180ss.zip",
+      "name": "180ss.zip",
+      "is_dir": false,
+      "size": 1589,
+      "modified": "2019-04-12T03:31:45"
+    },
+    {
+      "path": "/DisclosureFiles/182SC_AT.zip",
+      "name": "182SC_AT.zip",
+      "is_dir": false,
+      "size": 2787,
+      "modified": "2019-04-12T03:31:32"
+    },
+    {
+      "path": "/DisclosureFiles/182oc.pdf",
+      "name": "182oc.pdf",
+      "is_dir": false,
+      "size": 5449761,
+      "modified": "2019-04-12T03:32:02"
+    },
+    {
+      "path": "/DisclosureFiles/182pt.zip",
+      "name": "182pt.zip",
+      "is_dir": false,
+      "size": 4779,
+      "modified": "2019-04-12T03:31:18"
+    },
+    {
+      "path": "/DisclosureFiles/182ss.zip",
+      "name": "182ss.zip",
+      "is_dir": false,
+      "size": 699,
+      "modified": "2019-04-12T03:32:08"
+    },
+    {
+      "path": "/DisclosureFiles/183SC_AT.zip",
+      "name": "183SC_AT.zip",
+      "is_dir": false,
+      "size": 5794,
+      "modified": "2019-04-12T03:30:15"
+    },
+    {
+      "path": "/DisclosureFiles/183oc.pdf",
+      "name": "183oc.pdf",
+      "is_dir": false,
+      "size": 2762498,
+      "modified": "2019-04-12T03:31:08"
+    },
+    {
+      "path": "/DisclosureFiles/183ss.zip",
+      "name": "183ss.zip",
+      "is_dir": false,
+      "size": 1313,
+      "modified": "2019-04-12T03:31:51"
+    },
+    {
+      "path": "/DisclosureFiles/184SC_AT.zip",
+      "name": "184SC_AT.zip",
+      "is_dir": false,
+      "size": 3048,
+      "modified": "2019-04-12T03:31:45"
+    },
+    {
+      "path": "/DisclosureFiles/184oc.pdf",
+      "name": "184oc.pdf",
+      "is_dir": false,
+      "size": 4020005,
+      "modified": "2019-04-12T03:30:15"
+    },
+    {
+      "path": "/DisclosureFiles/184pt.zip",
+      "name": "184pt.zip",
+      "is_dir": false,
+      "size": 6176,
+      "modified": "2019-04-12T03:30:09"
+    },
+    {
+      "path": "/DisclosureFiles/184sh.zip",
+      "name": "184sh.zip",
+      "is_dir": false,
+      "size": 4917,
+      "modified": "2019-04-12T03:30:37"
+    },
+    {
+      "path": "/DisclosureFiles/184ss.zip",
+      "name": "184ss.zip",
+      "is_dir": false,
+      "size": 1404,
+      "modified": "2019-04-12T03:30:56"
+    },
+    {
+      "path": "/DisclosureFiles/186SC_AT.zip",
+      "name": "186SC_AT.zip",
+      "is_dir": false,
+      "size": 4827,
+      "modified": "2019-04-12T03:30:16"
+    },
+    {
+      "path": "/DisclosureFiles/186oc.pdf",
+      "name": "186oc.pdf",
+      "is_dir": false,
+      "size": 4401153,
+      "modified": "2019-04-12T03:31:32"
+    },
+    {
+      "path": "/DisclosureFiles/186pt.zip",
+      "name": "186pt.zip",
+      "is_dir": false,
+      "size": 8940,
+      "modified": "2019-04-12T03:31:19"
+    },
+    {
+      "path": "/DisclosureFiles/186sh.zip",
+      "name": "186sh.zip",
+      "is_dir": false,
+      "size": 2825,
+      "modified": "2019-04-12T03:31:09"
+    },
+    {
+      "path": "/DisclosureFiles/186ss.zip",
+      "name": "186ss.zip",
+      "is_dir": false,
+      "size": 697,
+      "modified": "2019-04-12T03:31:37"
+    },
+    {
+      "path": "/DisclosureFiles/187SC_AT.zip",
+      "name": "187SC_AT.zip",
+      "is_dir": false,
+      "size": 4775,
+      "modified": "2019-04-12T03:30:17"
+    },
+    {
+      "path": "/DisclosureFiles/187pt.zip",
+      "name": "187pt.zip",
+      "is_dir": false,
+      "size": 9572,
+      "modified": "2019-04-12T03:30:10"
+    },
+    {
+      "path": "/DisclosureFiles/187ss.zip",
+      "name": "187ss.zip",
+      "is_dir": false,
+      "size": 665,
+      "modified": "2019-04-12T03:31:51"
+    }
+  ]
+}
