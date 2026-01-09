@@ -652,3 +652,85 @@ Every time new factor files arrive:
 3. Recalculate `servicer_prepay_scores` with rolling windows
 4. Check for alerts and notify if thresholds exceeded
 5. Update `dim_pool.servicer_prepay_risk` with latest category
+
+---
+
+## Data Sources for Prepay Analysis
+
+### Freddie Mac Disclosure Files (from CSS SFTP)
+
+Based on the [Freddie Mac Single-Family Disclosure Guide](https://www.freddiemac.com/mbs), the key files are:
+
+| File | Pattern | Contents | Use |
+|------|---------|----------|-----|
+| **Monthly Factor** | `FRE_DPR_Fctr_YYYYMM.zip` | Pool factors | Calculate CPR/SMM |
+| **Loan Level** | `FRE_ILLD_YYYYMM.zip` | Loan details + **Servicer** | Link pools to servicers |
+| **Security Supp** | `FRE_ISS_YYYYMM.zip` | Security details + **Servicer Name** | Pool-level servicer |
+| **Daily Issuance** | `FRE_FISS_YYYYMMDD.zip` | New issuance | Track new pools |
+
+### Prepay Calculation from Factor Files
+
+We calculate CPR/SMM from consecutive factor files:
+
+```python
+def calculate_prepay_from_factors(factor_t1: float, factor_t0: float, 
+                                   scheduled_prin_pct: float) -> dict:
+    """
+    Calculate prepay metrics from two consecutive monthly factors.
+    
+    factor = current_upb / original_upb
+    """
+    # Factor change (negative = paydown)
+    factor_change = factor_t1 - factor_t0
+    
+    # Unscheduled principal = prepayments
+    # SMM = prepayments / beginning_upb (approximated from factors)
+    # Note: This is simplified - full calc needs scheduled amortization
+    smm = 1 - (factor_t1 / factor_t0) if factor_t0 > 0 else 0
+    
+    # CPR = annualized prepay rate
+    cpr = 1 - (1 - smm) ** 12
+    
+    return {
+        'smm': smm * 100,  # As percentage
+        'cpr': cpr * 100,  # As percentage
+        'factor_change': factor_change
+    }
+```
+
+### Servicer Attribution from Loan Level Files
+
+The **FRE_ILLD** files contain servicer information per loan:
+
+| Field | Description |
+|-------|-------------|
+| `Servicer Name` | Current servicer name |
+| `Seller Name` | Original seller/originator |
+| `Pool Number` | Pool ID to join with factor data |
+
+### Alternative: eMBS API
+
+If Freddie Mac data is insufficient, [eMBS](https://www.embs.com) provides:
+- Real-time prepay speeds (CPR/SMM) by pool
+- Servicer-level aggregations
+- Historical prepay data
+
+**License required** for API access. Consider for Phase 2 if Freddie data gaps exist.
+
+### Data Pipeline
+
+```
+┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
+│  FRE_DPR_Fctr   │     │   FRE_ILLD      │     │  Calculate      │
+│  (Factor Files) │────▶│  (Loan Level)   │────▶│  Servicer CPR   │
+│                 │     │  + Servicer     │     │                 │
+└─────────────────┘     └─────────────────┘     └─────────────────┘
+        │                       │                       │
+        │  Pool factors         │  Pool → Servicer      │  Monthly servicer
+        │  by month             │  mapping              │  prepay scores
+        ▼                       ▼                       ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                    servicer_prepay_metrics                       │
+│  (servicer_id, as_of_month, avg_cpr, cpr_vs_universe, ...)      │
+└─────────────────────────────────────────────────────────────────┘
+```
