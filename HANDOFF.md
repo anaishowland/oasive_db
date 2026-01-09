@@ -150,10 +150,21 @@ gcloud run jobs execute freddie-ingestor --region=us-central1 \
 
 ### 2. Recurring Schedulers (✅ DONE)
 
-Cloud Scheduler jobs created:
-- **freddie-ingestor-daily**: `0 12 * * 1-5 UTC` (7 AM ET, weekdays)
-  - Runs incremental mode to download new files
-- **fred-ingestor-daily**: `30 11 * * * UTC` (6:30 AM ET, daily)
+**FRED Scheduler:**
+- `fred-ingestor-daily`: `30 11 * * * UTC` (6:30 AM ET, daily)
+
+**Freddie Mac Intraday Schedulers** (based on Fannie Mae schedule - verify with Freddie):
+| Scheduler | Schedule (UTC) | ET Time | Description |
+|-----------|----------------|---------|-------------|
+| `freddie-ingestor-run1` | `45 11 * * 1-5` | 6:45 AM | After ~6:30 release |
+| `freddie-ingestor-run2` | `45 15 * * 1-5` | 10:45 AM | After ~10:30 release |
+| `freddie-ingestor-run3` | `45 18 * * 1-5` | 1:45 PM | After ~13:30 release |
+| `freddie-ingestor-run4` | `45 20 * * 1-5` | 3:45 PM | After ~15:30 release |
+
+⚠️ **Note**: The intraday release times are based on Fannie Mae's known schedule. Verify actual Freddie Mac release times with CSS support if different.
+
+**Email Alerts Configured:**
+- `Freddie Mac Ingestor - Job Failure Alert` → anais@oasive.ai
 
 ### 3. Parse Downloaded Files
 

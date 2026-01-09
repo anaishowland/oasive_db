@@ -7,11 +7,18 @@
 
 **File names & time of data release:**
 
+**Fannie Mae (FNM):**
 * **Intraday loan-level issuance**: FNM\_ILLD\_YYYYMMDD\_{1..4} at \~6:30, 10:30, 13:30, 15:30 ET.  
 * **Intraday security issuance**: FNM\_IS\_YYYYMMDD\_{1..4} at the same cadence.  
 * **Month-end issuance**: FNM\_ILLD\_YYYYMM and FNM\_IS\_YYYYMM on BD1 6:30am ET.  
 * **Monthly**: FNM\_MLLD\_YYYYMM and FNM\_MF\_YYYYMM on BD4 4:30pm ET.  
 * **Corrections**: FNM\_RIS\_YYYYMM and FNM\_RISS\_YYYYMM on BD1–BD4 6:30am ET when present.
+
+**Freddie Mac (FRE):**
+* **Intraday security issuance**: FRE\_FISS\_YYYYMMDD.zip (assumed similar cadence to Fannie ~6:30, 10:30, 13:30, 15:30 ET - **VERIFY with CSS support**)
+* **Monthly security issuance**: FRE\_IS\_YYYYMM.zip (on BD1)
+
+⚠️ **TODO**: Contact CSS support (Investor_Inquiry@freddiemac.com) to confirm exact Freddie Mac intraday release times.
 
 **GCP-first, minimal devops**
 
