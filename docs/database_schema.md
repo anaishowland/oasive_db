@@ -8,6 +8,12 @@
 | Database Name | `oasive` | |
 | Connection | `gen-lang-client-0343560978:us-central1:oasive-postgres` |
 
+### Architecture (3 DB Layer per Business Plan)
+
+1. **Postgres (structured DB)** - Core pool/loan data + AI-generated static tags ← *This document*
+2. **Vector index (semantic DB)** - Behavioral embeddings for pattern matching ← *Future*
+3. **Knowledge graph** - Entity relationships (servicers, originators, etc.) ← *Future*
+
 ---
 
 ## FRED Data Tables
@@ -29,17 +35,13 @@ Maps indicators to FRED API series. One row per data series.
 | `source` | TEXT | YES | Original data source (BLS, Treasury, etc.) |
 | `fred_url` | TEXT | YES | Link to FRED page |
 | `is_active` | BOOLEAN | YES | Whether to fetch this series (default: true) |
-| `data_starts` | DATE | YES | First observation date (static, set after initial ingest) |
+| `data_starts` | DATE | YES | First observation date |
 | `created_at` | TIMESTAMPTZ | YES | Row creation time |
 | `updated_at` | TIMESTAMPTZ | YES | Last update time |
 
-**Indexes**: Primary key on `id`, unique on `series_id`, unique on `indicator_id`
-
----
-
 ### `fred_observation` — Time Series Data
 
-Stores actual values. One row per observation date per series. **Largest table.**
+Stores actual values. One row per observation date per series.
 
 | Column | Type | Nullable | Description |
 |--------|------|----------|-------------|
@@ -52,180 +54,237 @@ Stores actual values. One row per observation date per series. **Largest table.*
 
 **Primary Key**: `(series_id, obs_date, vintage_date)`
 
-**Current Stats**: ~106,000 observations, dating back to 1919
-
----
-
 ### `fred_ingest_log` — Ingestion Audit Log
 
-Tracks each ingestion run for monitoring and debugging.
-
-| Column | Type | Nullable | Description |
-|--------|------|----------|-------------|
-| `id` | SERIAL | NO | Auto-increment PK |
-| `series_id` | TEXT | YES | Which series was processed |
-| `run_started_at` | TIMESTAMPTZ | NO | Job start time |
-| `run_completed_at` | TIMESTAMPTZ | YES | Job end time |
-| `status` | TEXT | NO | running, success, error |
-| `rows_inserted` | INTEGER | YES | Count of new rows added |
-| `error_message` | TEXT | YES | Error details if failed |
-| `created_at` | TIMESTAMPTZ | YES | Row creation time |
-
----
-
-## FRED Views
-
-### `fred_latest` — Most Recent Values
-
-Returns the latest observation for each series. Useful for dashboards.
-
-```sql
-SELECT DISTINCT ON (series_id)
-    series_id,
-    obs_date,
-    value,
-    created_at
-FROM fred_observation
-ORDER BY series_id, obs_date DESC;
-```
-
-### `fred_series_status` — Series Health Check
-
-Shows each series with its latest date and value.
-
-### `fred_series_catalog` — Full Catalog (matches FRED_data.csv)
-
-Complete series metadata with coverage statistics. **This view matches the `FRED_data.csv` format exactly.**
-
-| Column | Description |
-|--------|-------------|
-| `fred_id` | FRED series ID |
-| `indicator_id` | Internal indicator name |
-| `name` | Human-readable name |
-| `description` | Full description |
-| `domain` | Category |
-| `subcategory` | Sub-category |
-| `frequency` | Update frequency |
-| `source` | Data source |
-| `url` | FRED page URL |
-| `is_active` | Whether actively fetched |
-| `data_starts` | First observation date |
-| `data_ends` | Latest observation date |
-| `observation_count` | Total rows |
-
-```sql
-SELECT * FROM fred_series_catalog;
-```
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | SERIAL | Auto-increment PK |
+| `series_id` | TEXT | Which series was processed |
+| `run_started_at` | TIMESTAMPTZ | Job start time |
+| `run_completed_at` | TIMESTAMPTZ | Job end time |
+| `status` | TEXT | running, success, error |
+| `rows_inserted` | INTEGER | Count of new rows added |
+| `error_message` | TEXT | Error details if failed |
 
 ---
 
 ## Freddie Mac Tables
 
-### `freddie_file_catalog` — SFTP File Inventory
+### File Ingestion Layer
+
+#### `freddie_file_catalog` — SFTP File Inventory
 
 Tracks files discovered and downloaded from CSS SFTP server.
 
-| Column | Type | Nullable | Description |
-|--------|------|----------|-------------|
-| `id` | SERIAL | NO | Auto-increment PK |
-| `remote_path` | TEXT | NO | Full path on SFTP server |
-| `filename` | TEXT | NO | File name |
-| `file_type` | TEXT | YES | loan_level, pool, factor, disclosure |
-| `file_date` | DATE | YES | Date from filename |
-| `remote_size` | BIGINT | YES | File size in bytes |
-| `remote_modified_at` | TIMESTAMPTZ | YES | Last modified on server |
-| `local_gcs_path` | TEXT | YES | GCS location after download |
-| `download_status` | TEXT | YES | pending, downloaded, processed, error |
-| `downloaded_at` | TIMESTAMPTZ | YES | When downloaded |
-| `processed_at` | TIMESTAMPTZ | YES | When parsed/loaded |
-| `error_message` | TEXT | YES | Error details if failed |
-| `created_at` | TIMESTAMPTZ | YES | Row creation time |
-| `updated_at` | TIMESTAMPTZ | YES | Last update time |
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | SERIAL | Auto-increment PK |
+| `remote_path` | TEXT | Full path on SFTP server (**UNIQUE**) |
+| `filename` | TEXT | File name |
+| `file_type` | TEXT | intraday_issuance, monthly_issuance, deal_files, etc. |
+| `file_date` | DATE | Date from filename |
+| `remote_size` | BIGINT | File size in bytes |
+| `download_status` | TEXT | pending, downloaded, processed, error |
+| `local_gcs_path` | TEXT | GCS location after download |
+| `downloaded_at` | TIMESTAMPTZ | When downloaded |
+| `error_message` | TEXT | Error details if failed |
+
+**Current Stats**: 45,353 files cataloged (76.73 GB)
+
+#### `freddie_ingest_log` — SFTP Run Log
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | SERIAL | Auto-increment PK |
+| `run_started_at` | TIMESTAMPTZ | Job start time |
+| `status` | TEXT | running, success, error |
+| `files_discovered` | INTEGER | Files found on server |
+| `files_downloaded` | INTEGER | Files successfully downloaded |
+| `bytes_downloaded` | BIGINT | Total bytes transferred |
 
 ---
 
-### `freddie_ingest_log` — SFTP Run Log
+### Dimension Tables (Slowly Changing)
 
-Tracks each SFTP sync run.
+#### `dim_pool` — Pool Dimension
 
-| Column | Type | Nullable | Description |
-|--------|------|----------|-------------|
-| `id` | SERIAL | NO | Auto-increment PK |
-| `run_started_at` | TIMESTAMPTZ | NO | Job start time |
-| `run_completed_at` | TIMESTAMPTZ | YES | Job end time |
-| `status` | TEXT | NO | running, success, error |
-| `files_discovered` | INTEGER | YES | Files found on server |
-| `files_downloaded` | INTEGER | YES | Files successfully downloaded |
-| `bytes_downloaded` | BIGINT | YES | Total bytes transferred |
-| `error_message` | TEXT | YES | Error details if failed |
-| `created_at` | TIMESTAMPTZ | YES | Row creation time |
+One row per pool. Contains static and slowly-changing pool attributes plus AI-generated tags.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `pool_id` | TEXT | Freddie Mac pool ID (**PK**) |
+| `cusip` | TEXT | Pool CUSIP (**UNIQUE**) |
+| `prefix` | TEXT | Product prefix (FG, FR) |
+| `product_type` | TEXT | 30YR, 15YR, ARM, etc. |
+| `coupon` | NUMERIC(5,3) | Pool coupon rate |
+| `issue_date` | DATE | Pool issue date |
+| `maturity_date` | DATE | Pool maturity date |
+| `orig_upb` | NUMERIC(15,2) | Original UPB at issuance |
+| `orig_loan_count` | INTEGER | Original loan count |
+| `wac` | NUMERIC(5,3) | Weighted avg coupon |
+| `wam` | INTEGER | Weighted avg maturity (months) |
+| `wala` | INTEGER | Weighted avg loan age (months) |
+| `avg_fico` | INTEGER | Weighted avg FICO |
+| `avg_ltv` | NUMERIC(5,2) | Weighted avg LTV |
+| `servicer_name` | TEXT | Current servicer |
+| `servicer_id` | TEXT | Servicer ID |
+| **AI Tags** | | |
+| `risk_profile` | TEXT | AI-generated: conservative, moderate, aggressive |
+| `burnout_score` | NUMERIC(5,2) | Burnout likelihood score |
+| `geo_concentration_tag` | TEXT | CA_heavy, diversified, etc. |
+| `servicer_quality_tag` | TEXT | strong, moderate, weak |
+| `behavior_tags` | JSONB | Additional AI tags (burnout_candidate, bear_market_stable) |
+
+#### `dim_loan` — Loan Dimension
+
+One row per loan. Contains static loan-level attributes.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `loan_id` | TEXT | Freddie Mac loan ID (**PK**) |
+| `pool_id` | TEXT | FK → dim_pool |
+| `orig_upb` | NUMERIC(12,2) | Original UPB |
+| `orig_rate` | NUMERIC(5,3) | Original note rate |
+| `orig_term` | INTEGER | Original term (months) |
+| `orig_date` | DATE | Origination date |
+| `fico` | INTEGER | FICO score |
+| `ltv` | NUMERIC(5,2) | LTV ratio |
+| `dti` | NUMERIC(5,2) | DTI ratio |
+| `property_type` | TEXT | SF, Condo, PUD, etc. |
+| `occupancy` | TEXT | Owner, Investor, Second |
+| `state` | TEXT | Property state |
+| `msa` | TEXT | MSA code |
+| `purpose` | TEXT | Purchase, Refi, CashOut |
+| `channel` | TEXT | Retail, Broker, Correspondent |
+
+#### `dim_calendar` — Calendar Dimension
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `date_key` | DATE | Calendar date (**PK**) |
+| `year` | INTEGER | Year |
+| `month` | INTEGER | Month |
+| `is_month_end` | BOOLEAN | Month-end flag |
+| `is_business_day` | BOOLEAN | Business day flag |
+| `bd_of_month` | INTEGER | Business day of month (BD1, BD4) |
+| `is_factor_date` | BOOLEAN | Monthly factor release date |
+
+---
+
+### Fact Tables (Time Series)
+
+#### `fact_pool_month` — Monthly Pool Performance
+
+One row per pool per month. Contains factor, prepayment, and delinquency metrics.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `pool_id` | TEXT | FK → dim_pool (**PK part**) |
+| `as_of_date` | DATE | Factor date (**PK part**) |
+| `factor` | NUMERIC(10,8) | Current factor |
+| `curr_upb` | NUMERIC(15,2) | Current UPB |
+| `loan_count` | INTEGER | Current loan count |
+| `wac` | NUMERIC(5,3) | Current WAC |
+| `wala` | INTEGER | Current WALA |
+| `smm` | NUMERIC(8,6) | Single Monthly Mortality |
+| `cpr` | NUMERIC(5,2) | Conditional Prepayment Rate |
+| `dlq_30_count` | INTEGER | Loans 30 DPD |
+| `dlq_60_count` | INTEGER | Loans 60 DPD |
+| `dlq_90_count` | INTEGER | Loans 90+ DPD |
+| `serious_dlq_rate` | NUMERIC(5,4) | 90+ DPD rate |
+
+#### `fact_loan_month` — Monthly Loan Performance
+
+One row per loan per month. Contains payment status and delinquency.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `loan_id` | TEXT | FK → dim_loan (**PK part**) |
+| `as_of_date` | DATE | As-of date (**PK part**) |
+| `curr_upb` | NUMERIC(12,2) | Current UPB |
+| `status` | TEXT | Current, 30DPD, 60DPD, etc. |
+| `dlq_status` | INTEGER | Months delinquent (0, 1, 2, 3+) |
+| `mod_flag` | BOOLEAN | Loan modified |
+| `forbear_flag` | BOOLEAN | In forbearance |
+
+#### `freddie_security_issuance` — Daily Issuance
+
+From FRE_FISS (intraday) and FRE_IS (monthly) files.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `issuance_date` | DATE | Issuance date |
+| `pool_id` | TEXT | Pool ID |
+| `cusip` | TEXT | CUSIP |
+| `product_type` | TEXT | Product type |
+| `coupon` | NUMERIC(5,3) | Coupon |
+| `orig_face` | NUMERIC(15,2) | Original face |
+| `file_sequence` | INTEGER | 1-4 for intraday files |
 
 ---
 
 ## Entity Relationship Diagram
 
 ```
+                           FRED DATA
 ┌─────────────────┐       ┌─────────────────────┐
 │   fred_series   │       │  fred_observation   │
 ├─────────────────┤       ├─────────────────────┤
 │ series_id (PK)  │◄──────│ series_id (FK)      │
 │ indicator_id    │       │ obs_date            │
-│ name            │       │ value               │
-│ domain          │       │ vintage_date        │
-│ frequency       │       │ raw_payload         │
-│ is_active       │       └─────────────────────┘
-└─────────────────┘
-        │
-        │ (logged by)
-        ▼
-┌─────────────────┐
-│ fred_ingest_log │
-├─────────────────┤
-│ series_id       │
-│ status          │
-│ rows_inserted   │
-└─────────────────┘
+│ domain          │       │ value               │
+│ frequency       │       │ vintage_date        │
+└─────────────────┘       └─────────────────────┘
 
-┌─────────────────────┐       ┌─────────────────────┐
-│freddie_file_catalog │       │  freddie_ingest_log │
-├─────────────────────┤       ├─────────────────────┤
-│ remote_path         │       │ files_discovered    │
-│ download_status     │       │ files_downloaded    │
-│ local_gcs_path      │       │ status              │
-└─────────────────────┘       └─────────────────────┘
+                        FREDDIE MAC DATA
+┌─────────────────────┐        ┌──────────────────────┐
+│ freddie_file_catalog│        │  freddie_ingest_log  │
+├─────────────────────┤        ├──────────────────────┤
+│ remote_path (PK)    │        │ files_discovered     │
+│ download_status     │        │ files_downloaded     │
+│ local_gcs_path      │        │ status               │
+└─────────────────────┘        └──────────────────────┘
+
+┌─────────────────┐       ┌─────────────────────┐
+│    dim_pool     │       │   fact_pool_month   │
+├─────────────────┤       ├─────────────────────┤
+│ pool_id (PK)    │◄──────│ pool_id (FK)        │
+│ cusip           │       │ as_of_date          │
+│ product_type    │       │ factor              │
+│ coupon          │       │ curr_upb            │
+│ **AI TAGS**     │       │ cpr                 │
+│ risk_profile    │       │ serious_dlq_rate    │
+│ behavior_tags   │       └─────────────────────┘
+└────────┬────────┘
+         │
+         │ 1:N
+         ▼
+┌─────────────────┐       ┌─────────────────────┐
+│    dim_loan     │       │   fact_loan_month   │
+├─────────────────┤       ├─────────────────────┤
+│ loan_id (PK)    │◄──────│ loan_id (FK)        │
+│ pool_id (FK)    │       │ as_of_date          │
+│ fico            │       │ status              │
+│ ltv             │       │ dlq_status          │
+│ state           │       └─────────────────────┘
+└─────────────────┘
 ```
 
 ---
 
-## Quick Reference Queries
+## Views
 
-```sql
--- Latest value for each series
-SELECT * FROM fred_latest;
+### `pool_latest_factor`
+Most recent factor for each pool.
 
--- Series health check
-SELECT * FROM fred_series_status;
+### `pool_summary`
+Pool dimension with latest metrics and AI tags joined.
 
--- Get all 10Y Treasury yields
-SELECT obs_date, value 
-FROM fred_observation 
-WHERE series_id = 'DGS10' 
-ORDER BY obs_date DESC 
-LIMIT 30;
+### `fred_latest`
+Most recent value for each FRED series.
 
--- Count observations by domain
-SELECT s.domain, COUNT(o.*) 
-FROM fred_series s 
-JOIN fred_observation o ON s.series_id = o.series_id 
-GROUP BY s.domain;
-
--- Find gaps in daily series
-SELECT series_id, obs_date, 
-       obs_date - LAG(obs_date) OVER (ORDER BY obs_date) as gap
-FROM fred_observation 
-WHERE series_id = 'DGS10' AND obs_date >= '2025-01-01'
-ORDER BY obs_date;
-```
+### `fred_series_catalog`
+Complete series metadata with coverage statistics.
 
 ---
 
@@ -233,13 +292,51 @@ ORDER BY obs_date;
 
 | File | Description |
 |------|-------------|
-| `001_fred_schema.sql` | Creates fred_series, fred_observation, fred_ingest_log, views |
-| `002_seed_fred_series.sql` | Inserts initial 38 series definitions |
-| `003_freddie_schema.sql` | Creates freddie_file_catalog, freddie_ingest_log |
+| `001_fred_schema.sql` | FRED series, observations, ingest log, views |
+| `002_seed_fred_series.sql` | Initial 38 series definitions |
+| `003_freddie_schema.sql` | Freddie file catalog and ingest log |
+| `004_freddie_data_schema.sql` | dim_pool, dim_loan, fact tables, calendar |
 
 Run migrations:
 ```bash
 cd /Users/anaishowland/oasive_db
 source venv/bin/activate
 PYTHONPATH=/Users/anaishowland/oasive_db python scripts/run_migrations.py
+```
+
+---
+
+## Sample Queries
+
+```sql
+-- Get all 30YR 4.0 pools with factor > 0.5
+SELECT pool_id, cusip, factor, curr_upb, cpr
+FROM pool_summary
+WHERE product_type = '30YR' AND coupon = 4.0 AND factor > 0.5;
+
+-- Pools with high burnout potential (AI tag)
+SELECT pool_id, cusip, burnout_score, behavior_tags
+FROM dim_pool
+WHERE burnout_score > 0.7
+ORDER BY burnout_score DESC;
+
+-- Monthly CPR trend for a pool
+SELECT as_of_date, factor, cpr, serious_dlq_rate
+FROM fact_pool_month
+WHERE pool_id = 'XXXXX'
+ORDER BY as_of_date;
+
+-- State concentration analysis
+SELECT state, COUNT(*) as loan_count, SUM(orig_upb) as total_upb
+FROM dim_loan
+WHERE pool_id = 'XXXXX'
+GROUP BY state
+ORDER BY total_upb DESC;
+
+-- Combine FRED rates with pool data
+SELECT p.pool_id, p.coupon, f.value as current_10y_rate,
+       (p.coupon - f.value) as spread_to_10y
+FROM dim_pool p
+CROSS JOIN fred_latest f
+WHERE f.series_id = 'DGS10';
 ```
