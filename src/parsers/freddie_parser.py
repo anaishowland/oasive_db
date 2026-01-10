@@ -24,7 +24,10 @@ import sys
 import zipfile
 from dataclasses import dataclass
 from datetime import datetime, date
-from typing import Dict, List, Optional, Generator, Any
+from typing import Dict, List, Optional, Generator, Any, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from sqlalchemy.engine import Engine as EngineType
 from decimal import Decimal, InvalidOperation
 
 from google.cloud import storage
@@ -35,9 +38,20 @@ from sqlalchemy.engine import Engine
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../..'))
 
 from src.db.connection import get_engine
+from src.tagging.pool_tagger import PoolTagger
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
+
+
+# =============================================================================
+# Tagging Integration
+# =============================================================================
+
+def tag_new_pools(engine, limit: Optional[int] = None) -> int:
+    """Tag any pools that don't have tags yet."""
+    tagger = PoolTagger(engine, current_mortgage_rate=6.5)
+    return tagger.tag_all_pools(batch_size=1000, limit=limit)
 
 
 # =============================================================================
@@ -815,8 +829,20 @@ class FactorParser(FreddieFileParser):
 # Main Entry Point
 # =============================================================================
 
-def process_files(file_type: str, limit: Optional[int] = None, engine: Optional[Engine] = None):
-    """Process files of a specific type."""
+def process_files(file_type: str, limit: Optional[int] = None, engine: Optional[Engine] = None, 
+                  auto_tag: bool = True) -> int:
+    """
+    Process files of a specific type and optionally tag new pools.
+    
+    Args:
+        file_type: Type of file to process (issuance, illd, factor, fiss)
+        limit: Maximum number of files to process
+        engine: SQLAlchemy engine (created if not provided)
+        auto_tag: Whether to automatically tag new pools after processing
+        
+    Returns:
+        Number of records processed
+    """
     if engine is None:
         engine = get_engine()
     
@@ -830,7 +856,7 @@ def process_files(file_type: str, limit: Optional[int] = None, engine: Optional[
     if file_type not in parsers:
         logger.error(f"Unknown file type: {file_type}")
         logger.info(f"Available types: {list(parsers.keys())}")
-        return
+        return 0
     
     parser_class, pattern = parsers[file_type]
     parser = parser_class(engine)
@@ -844,6 +870,14 @@ def process_files(file_type: str, limit: Optional[int] = None, engine: Optional[
         total_processed += count
     
     logger.info(f"Total records processed: {total_processed}")
+    
+    # Auto-tag new pools after parsing (if enabled and pools were created)
+    if auto_tag and total_processed > 0 and file_type in ('issuance', 'fiss'):
+        logger.info("Running AI tagger on new pools...")
+        tagged = tag_new_pools(engine)
+        logger.info(f"Tagged {tagged} new pools")
+    
+    return total_processed
 
 
 def main():
@@ -854,14 +888,30 @@ def main():
     parser.add_argument('--limit', type=int, help='Limit number of files to process')
     parser.add_argument('--process-all', action='store_true', 
                        help='Process all pending files of all types')
+    parser.add_argument('--no-tag', action='store_true',
+                       help='Skip automatic AI tagging after parsing')
+    parser.add_argument('--tag-only', action='store_true',
+                       help='Only run AI tagging (no file parsing)')
     args = parser.parse_args()
     
-    if args.process_all:
-        for file_type in ['issuance', 'illd', 'factor']:
+    engine = get_engine()
+    auto_tag = not args.no_tag
+    
+    if args.tag_only:
+        logger.info("Running AI tagger on untagged pools...")
+        tagged = tag_new_pools(engine)
+        logger.info(f"Tagged {tagged} pools")
+    elif args.process_all:
+        for file_type in ['issuance', 'fiss', 'illd', 'factor']:
             logger.info(f"\n=== Processing {file_type} files ===")
-            process_files(file_type, args.limit)
+            process_files(file_type, args.limit, engine, auto_tag=False)
+        # Tag once at the end if auto_tag enabled
+        if auto_tag:
+            logger.info("\n=== Running AI Tagging ===")
+            tagged = tag_new_pools(engine)
+            logger.info(f"Tagged {tagged} new pools")
     elif args.file_type:
-        process_files(args.file_type, args.limit)
+        process_files(args.file_type, args.limit, engine, auto_tag=auto_tag)
     else:
         parser.print_help()
 
