@@ -56,6 +56,8 @@ oasive_db/
 │   │   └── freddie_ingestor.py   # Freddie SFTP
 │   └── parsers/
 │       └── freddie_parser.py     # Parse disclosure files
+├── research/                      # Empirical research
+│   └── prepay_empirical_analysis.ipynb  # Prepay factor validation
 ├── migrations/                    # SQL migrations (001-007)
 ├── scripts/                       # Utility scripts
 ├── docs/                          # Topic documentation
@@ -110,6 +112,7 @@ gcloud logging read "resource.type=cloud_run_job AND resource.labels.job_name=fr
 | Doc | Purpose |
 |-----|---------|
 | [HANDOFF.md](HANDOFF.md) | Agent handoff with full context |
+| [research/prepay_empirical_analysis.ipynb](research/prepay_empirical_analysis.ipynb) | Prepay factor research notebook |
 | [docs/database_schema.md](docs/database_schema.md) | Database tables & relationships |
 | [docs/ai_tagging_design.md](docs/ai_tagging_design.md) | AI tag rules & composite score |
 | [docs/prepay_research_framework.md](docs/prepay_research_framework.md) | Empirical validation plan |

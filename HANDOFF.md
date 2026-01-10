@@ -15,6 +15,7 @@ This document provides context for AI agents continuing development on Oasive.
 | Freddie Parse | 🔄 In Progress | 2,333 pools loaded |
 | AI Tagging | 📋 Designed | `docs/ai_tagging_design.md` |
 | Research Framework | 📋 Designed | `docs/prepay_research_framework.md` |
+| Empirical Research | 🔬 In Progress | `research/prepay_empirical_analysis.ipynb` |
 
 ---
 
@@ -61,6 +62,19 @@ Full design in `docs/prepay_research_framework.md`:
 - 10 interaction hypotheses (I001-I010)
 - Empirical validation protocol
 - Database tables in `migrations/006`
+
+### 6. Empirical Research Notebook (🔬 In Progress)
+
+Research notebook in `research/prepay_empirical_analysis.ipynb`:
+
+- Literature review with academic citations (NBER papers, etc.)
+- Market consensus on spec pool prepayment factors
+- CPR calculation methodology
+- Preliminary servicer analysis (bank vs. digital servicers)
+- Visualization charts for prepay factors
+- Interaction effect analysis framework
+
+**Status:** Framework complete, awaiting loan-level data (FRE_ILLD) for full validation
 
 ---
 
