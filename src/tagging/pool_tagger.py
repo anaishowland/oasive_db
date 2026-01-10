@@ -732,40 +732,81 @@ class PoolTagger:
         return processed
     
     def _batch_update_tags(self, updates: List[Dict[str, Any]]) -> None:
-        """Batch update pool tags."""
+        """Batch update pool tags using efficient bulk update."""
         import json
         
-        update_sql = """
+        if not updates:
+            return
+        
+        # Build bulk update using VALUES clause (much faster than individual updates)
+        # This creates: UPDATE dim_pool SET ... FROM (VALUES ...) AS data WHERE ...
+        values_list = []
+        for tags in updates:
+            behavior_json = json.dumps(tags.get('behavior_tags', {})).replace("'", "''")
+            values_list.append(f"""(
+                '{tags['pool_id']}',
+                '{tags.get('loan_balance_tier', 'STD')}',
+                '{tags.get('fico_bucket', 'FICO_GOOD')}',
+                '{tags.get('ltv_bucket', 'LTV_STANDARD')}',
+                '{tags.get('seasoning_stage', 'FULLY_SEASONED')}',
+                '{tags.get('state_prepay_friction', 'MODERATE_FRICTION')}',
+                '{tags.get('servicer_prepay_risk', 'NEUTRAL')}',
+                '{tags.get('geo_concentration_tag', 'DIVERSIFIED')}',
+                {tags.get('refi_incentive_bps', 0)},
+                {tags.get('burnout_score', 50)},
+                {tags.get('premium_cpr_mult', 1.0)},
+                {tags.get('discount_cpr_mult', 1.0)},
+                {tags.get('convexity_score', 1.0)},
+                '{tags.get('s_curve_position', 'INFLECTION')}',
+                {tags.get('contraction_risk_score', 50)},
+                {tags.get('extension_risk_score', 50)},
+                {tags.get('composite_prepay_score', 50)},
+                {tags.get('bull_scenario_score', 50)},
+                {tags.get('bear_scenario_score', 50)},
+                {tags.get('neutral_scenario_score', 50)},
+                '{behavior_json}'::jsonb
+            )""")
+        
+        values_sql = ',\n'.join(values_list)
+        
+        bulk_update_sql = f"""
             UPDATE dim_pool SET
-                loan_balance_tier = :loan_balance_tier,
-                fico_bucket = :fico_bucket,
-                ltv_bucket = :ltv_bucket,
-                seasoning_stage = :seasoning_stage,
-                state_prepay_friction = :state_prepay_friction,
-                servicer_prepay_risk = :servicer_prepay_risk,
-                geo_concentration_tag = :geo_concentration_tag,
-                refi_incentive_bps = :refi_incentive_bps,
-                burnout_score = :burnout_score,
-                premium_cpr_mult = :premium_cpr_mult,
-                discount_cpr_mult = :discount_cpr_mult,
-                convexity_score = :convexity_score,
-                s_curve_position = :s_curve_position,
-                contraction_risk_score = :contraction_risk_score,
-                extension_risk_score = :extension_risk_score,
-                composite_prepay_score = :composite_prepay_score,
-                bull_scenario_score = :bull_scenario_score,
-                bear_scenario_score = :bear_scenario_score,
-                neutral_scenario_score = :neutral_scenario_score,
-                behavior_tags = :behavior_tags,
+                loan_balance_tier = data.loan_balance_tier,
+                fico_bucket = data.fico_bucket,
+                ltv_bucket = data.ltv_bucket,
+                seasoning_stage = data.seasoning_stage,
+                state_prepay_friction = data.state_prepay_friction,
+                servicer_prepay_risk = data.servicer_prepay_risk,
+                geo_concentration_tag = data.geo_concentration_tag,
+                refi_incentive_bps = data.refi_incentive_bps,
+                burnout_score = data.burnout_score,
+                premium_cpr_mult = data.premium_cpr_mult,
+                discount_cpr_mult = data.discount_cpr_mult,
+                convexity_score = data.convexity_score,
+                s_curve_position = data.s_curve_position,
+                contraction_risk_score = data.contraction_risk_score,
+                extension_risk_score = data.extension_risk_score,
+                composite_prepay_score = data.composite_prepay_score,
+                bull_scenario_score = data.bull_scenario_score,
+                bear_scenario_score = data.bear_scenario_score,
+                neutral_scenario_score = data.neutral_scenario_score,
+                behavior_tags = data.behavior_tags,
                 tags_updated_at = NOW()
-            WHERE pool_id = :pool_id
+            FROM (VALUES
+                {values_sql}
+            ) AS data(
+                pool_id, loan_balance_tier, fico_bucket, ltv_bucket, seasoning_stage,
+                state_prepay_friction, servicer_prepay_risk, geo_concentration_tag,
+                refi_incentive_bps, burnout_score, premium_cpr_mult, discount_cpr_mult,
+                convexity_score, s_curve_position, contraction_risk_score, extension_risk_score,
+                composite_prepay_score, bull_scenario_score, bear_scenario_score,
+                neutral_scenario_score, behavior_tags
+            )
+            WHERE dim_pool.pool_id = data.pool_id
         """
         
         with self.engine.connect() as conn:
-            for tags in updates:
-                # Convert behavior_tags dict to JSON string
-                tags['behavior_tags'] = json.dumps(tags.get('behavior_tags', {}))
-                conn.execute(text(update_sql), tags)
+            conn.execute(text(bulk_update_sql))
             conn.commit()
 
 
