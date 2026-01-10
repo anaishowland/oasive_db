@@ -53,8 +53,8 @@ CREATE INDEX IF NOT EXISTS idx_dim_loan_purpose ON dim_loan(purpose);
 CREATE INDEX IF NOT EXISTS idx_dim_loan_occupancy ON dim_loan(occupancy);
 
 -- Fact table lookups
-CREATE INDEX IF NOT EXISTS idx_fact_pool_month_date ON fact_pool_month(as_of_month);
-CREATE INDEX IF NOT EXISTS idx_fact_loan_month_date ON fact_loan_month(as_of_month);
+CREATE INDEX IF NOT EXISTS idx_fact_pool_month_date ON fact_pool_month(as_of_date);
+CREATE INDEX IF NOT EXISTS idx_fact_loan_month_date ON fact_loan_month(as_of_date);
 
 -- =============================================================================
 -- Comments

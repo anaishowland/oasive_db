@@ -1,6 +1,6 @@
 # Agent Handoff Document
 
-**Last updated:** January 10, 2026
+**Last updated:** January 10, 2026 (evening)
 
 This document provides context for AI agents continuing development on Oasive.
 
@@ -18,15 +18,16 @@ Build an AI-powered MBS analytics platform that:
 
 ## 📋 Phased Implementation Plan
 
-### Phase 1: Download Freddie Files ✅ 55% Complete
+### Phase 1: Download Freddie Files 🔄 71% Complete
 **Goal:** Download all 45,356 disclosure files from Freddie SFTP to GCS
 
 | Task | Status | Details |
 |------|--------|---------|
 | Set up SFTP connection | ✅ Done | IP whitelisted: 34.121.116.34 |
 | Create file catalog | ✅ Done | 45,356 files tracked in `freddie_file_catalog` |
-| Download files | 🔄 55% | 10 parallel jobs running, ~20K remaining |
+| Download files | 🔄 71% | 10 parallel jobs running, ~12,700 remaining |
 | Critical files | ✅ Done | FRE_ILLD (100%), FRE_IS (93%), FRE_FISS (87%) |
+| Skip tiny metadata | ✅ Done | 323 files skipped (status/ack files) |
 
 **Commands:**
 ```bash
@@ -83,21 +84,23 @@ gcloud run jobs execute freddie-parser --region=us-central1 \
 | Update fact_pool_month | ⏳ Pending | Monthly prepay metrics |
 | Calculate servicer metrics | ⏳ Pending | For dynamic servicer scoring |
 
-### Phase 5: AI Tagging & Validation ⏳ Pending
+### Phase 5: AI Tagging & Validation 🔄 Schema Ready
 **Goal:** Apply full AI tagging system to all pools
 
 | Task | Status | Details |
 |------|--------|---------|
-| Review tagging design | ⏳ Pending | User reviewing `ai_tagging_design.md` |
+| Schema migration | ✅ Done | Migration 008 applied - 24 new columns |
+| Factor multipliers table | ✅ Done | 26 entries seeded for all factors |
+| Review tagging design | ✅ Done | User updated `ai_tagging_design.md` v2.0 |
 | Implement PoolTagger class | ⏳ Pending | Apply all tag rules |
 | Apply FK constraints | ⏳ Pending | Migration 007 |
 | Validate assumptions | ⏳ Pending | Use research framework |
 
-**Tags to implement:**
-- `risk_profile` (conservative/moderate/aggressive)
-- `burnout_score` (0-100)
-- `geo_concentration_tag` (CA_heavy, diversified, etc.)
-- `state_prepay_friction` (high/moderate/low)
+**New columns added to `dim_pool`:**
+- **Static:** `loan_balance_tier`, `loan_program`, `fico_bucket`, `ltv_bucket`, `occupancy_type`, `loan_purpose`, `state_prepay_friction`, `seasoning_stage`, `property_type`, `origination_channel`, `has_rate_buydown`
+- **Derived:** `refi_incentive_bps`, `premium_cpr_mult`, `discount_cpr_mult`, `convexity_score`, `contraction_risk_score`, `extension_risk_score`, `s_curve_position`
+- **Composite:** `composite_prepay_score`, `bull_scenario_score`, `bear_scenario_score`, `neutral_scenario_score`, `payup_efficiency_score`
+- **Renamed:** `servicer_quality_tag` → `servicer_prepay_risk`
 - `servicer_prepay_risk` (prepay_protected/neutral/exposed)
 - `behavior_tags` (JSONB: burnout_candidate, bear_market_stable, etc.)
 - `loan_program` (VA/FHA/USDA/CONV)
