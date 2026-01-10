@@ -1,6 +1,6 @@
 # Agent Handoff Document
 
-**Last updated:** January 10, 2026 (evening)
+**Last updated:** January 10, 2026 (late morning)
 
 This document provides context for AI agents continuing development on Oasive.
 
@@ -84,7 +84,7 @@ gcloud run jobs execute freddie-parser --region=us-central1 \
 | Update fact_pool_month | ⏳ Pending | Monthly prepay metrics |
 | Calculate servicer metrics | ⏳ Pending | For dynamic servicer scoring |
 
-### Phase 5: AI Tagging & Validation 🔄 Schema Ready
+### Phase 5: AI Tagging & Validation ✅ Complete
 **Goal:** Apply full AI tagging system to all pools
 
 | Task | Status | Details |
@@ -92,7 +92,8 @@ gcloud run jobs execute freddie-parser --region=us-central1 \
 | Schema migration | ✅ Done | Migration 008 applied - 24 new columns |
 | Factor multipliers table | ✅ Done | 26 entries seeded for all factors |
 | Review tagging design | ✅ Done | User updated `ai_tagging_design.md` v2.0 |
-| Implement PoolTagger class | ⏳ Pending | Apply all tag rules |
+| Implement PoolTagger class | ✅ Done | `src/tagging/pool_tagger.py` |
+| **Tag all pools** | ✅ Done | **157,953 pools tagged** (~2 min, 1192/sec) |
 | Apply FK constraints | ⏳ Pending | Migration 007 |
 | Validate assumptions | ⏳ Pending | Use research framework |
 
@@ -112,12 +113,17 @@ gcloud run jobs execute freddie-parser --region=us-central1 \
 
 | Table | Records | Status |
 |-------|---------|--------|
-| `dim_pool` | ~10,000+ | Loading |
+| `dim_pool` | **157,953** | ✅ All tagged |
 | `freddie_security_issuance` | ~6,000+ | Loading |
 | `fact_pool_month` | ~6,700+ | Loading |
 | `dim_loan` | 0 | Phase 3 |
-| `freddie_file_catalog` | 45,356 | Complete |
+| `freddie_file_catalog` | 45,356 | 72% downloaded |
 | `fred_observation` | 106,000+ | Complete |
+
+**AI Tag Distribution:**
+- Loan Balance: STD (54K), MLB (27K), LLB1-7 (77K), JUMBO (339)
+- Servicer Risk: Neutral (114K), Exposed (28K), Protected (15K)
+- Avg Composite Score: 47.8
 
 ---
 
@@ -141,10 +147,12 @@ gcloud run jobs execute freddie-parser --region=us-central1 \
 |------|---------|
 | `src/ingestors/freddie_ingestor.py` | SFTP download with retry logic |
 | `src/parsers/freddie_parser.py` | Parse ZIPs → database |
+| `src/tagging/pool_tagger.py` | **AI tagging engine** (1192 pools/sec) |
 | `src/db/connection.py` | Cloud SQL connector |
 | `docs/ai_tagging_design.md` | **Full AI tagging specification** |
 | `docs/prepay_research_framework.md` | Empirical validation plan |
 | `migrations/004_freddie_data_schema.sql` | Core data schema |
+| `migrations/008_ai_tagging_schema.sql` | AI tag columns + factor_multipliers |
 | `migrations/007_add_foreign_keys.sql` | FK constraints (pending) |
 
 ---
@@ -187,6 +195,9 @@ with engine.connect() as conn:
     pools = conn.execute(text('SELECT COUNT(*) FROM dim_pool')).fetchone()[0]
     print(f'Pools: {pools:,}')
 "
+
+# Tag new pools (only processes untagged)
+python3 -m src.tagging.pool_tagger --batch-size 1000
 ```
 
 ---
