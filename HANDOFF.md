@@ -92,8 +92,9 @@ gcloud run jobs execute freddie-parser --region=us-central1 \
 | Schema migration | ✅ Done | Migration 008 applied - 24 new columns |
 | Factor multipliers table | ✅ Done | 26 entries seeded for all factors |
 | Review tagging design | ✅ Done | User updated `ai_tagging_design.md` v2.0 |
-| Implement PoolTagger class | ✅ Done | `src/tagging/pool_tagger.py` |
-| **Tag all pools** | ✅ Done | **157,953 pools tagged** (~2 min, 1192/sec) |
+| Implement PoolTagger class | ✅ Done | `src/tagging/pool_tagger.py` (1192/sec) |
+| **Tag all pools** | ✅ Done | **157,953 pools tagged** |
+| **Auto-tag integration** | ✅ Done | Parser auto-tags after file processing |
 | Apply FK constraints | ⏳ Pending | Migration 007 |
 | Validate assumptions | ⏳ Pending | Use research framework |
 
@@ -198,6 +199,15 @@ with engine.connect() as conn:
 
 # Tag new pools (only processes untagged)
 python3 -m src.tagging.pool_tagger --batch-size 1000
+
+# Parse + auto-tag in one command
+python3 -m src.parsers.freddie_parser --file-type issuance
+
+# Parse without tagging
+python3 -m src.parsers.freddie_parser --file-type issuance --no-tag
+
+# Only run tagging (no parsing)
+python3 -m src.parsers.freddie_parser --tag-only
 ```
 
 ---
@@ -208,6 +218,8 @@ python3 -m src.tagging.pool_tagger --batch-size 1000
 - Alert policy sends both firing + recovery emails (need to disable recovery in Cloud Console)
 - FRE_FISS files are headerless (9 columns, no header row)
 - Servicer classification already being applied during parsing
+- **AI tagging is auto-integrated into parser** - runs after each file is processed
+- Use `--no-tag` flag to disable auto-tagging if needed
 
 ---
 
