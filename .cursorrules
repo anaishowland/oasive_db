@@ -1,0 +1,59 @@
+# Oasive MBS Data Platform - Cursor Rules
+
+## 🚨 IMPORTANT: Read These First
+
+Before making changes, always read:
+1. **HANDOFF.md** - Current project status, phased plan, and what's been built
+2. **README.md** - Quick start and architecture overview
+
+## 📚 Key Documentation (in /docs/)
+
+| Document | Purpose | When to Reference |
+|----------|---------|-------------------|
+| `ai_tagging_design.md` | AI tag definitions, rules, formulas | Implementing pool tagging |
+| `prepay_research_framework.md` | Empirical research plan, assumptions | Validating prepay models |
+| `fannie_freddie_data_ingestion.md` | File formats, release times | Parsing disclosure files |
+| `database_schema.md` | Table definitions | Schema changes |
+| `oasive_company_business_plan.md` | Product vision | Understanding context |
+| `freddie_sftp_inventory.json` | 45K+ files on SFTP | Download planning |
+
+## 🔑 Critical Constraints
+
+1. **Freddie SFTP cannot be tested locally** - requires whitelisted IP via Cloud Run
+2. **FRED API can be tested locally** - public API, no restrictions
+3. **Database**: Cloud SQL PostgreSQL (`oasive-postgres`)
+4. **Raw files**: GCS bucket `oasive-raw-data`
+
+## 📁 Code Structure
+
+```
+src/
+├── ingestors/          # Data download (FRED, Freddie SFTP)
+│   ├── fred_ingestor.py
+│   └── freddie_ingestor.py
+├── parsers/            # File parsing → database
+│   └── freddie_parser.py
+├── db/                 # Database connection
+│   └── connection.py
+└── config.py           # Environment config
+
+migrations/             # SQL schema migrations (001-007)
+research/               # Jupyter notebooks for analysis
+scripts/                # Utility scripts
+```
+
+## 🎯 Current Phase
+
+Check HANDOFF.md for the current phase and status. The project follows a phased approach:
+- Phase 1: Download Freddie files
+- Phase 2: Parse pool-level data
+- Phase 3: Parse loan-level data
+- Phase 4: Factor/CPR data
+- Phase 5: AI tagging + validation
+
+## 💡 Development Tips
+
+- Use Cloud Run jobs for Freddie operations (freddie-ingestor, freddie-parser)
+- Check `gcloud run jobs executions list` for job status
+- Logs: `gcloud logging read 'resource.type="cloud_run_job"'`
+- Always test parser changes locally before deploying

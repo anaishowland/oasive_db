@@ -45,32 +45,78 @@ logger = logging.getLogger(__name__)
 # =============================================================================
 
 # FRE_IS (Pool/Security Issuance) -> dim_pool + freddie_security_issuance
+# Maps 91 columns from FRE_IS files to our schema
 ISSUANCE_COLUMNS = {
+    # Core identifiers
     'Prefix': 'prefix',
     'Security Identifier': 'security_id',
     'CUSIP': 'cusip',
     'Security Factor Date': 'factor_date',
     'Security Factor': 'factor',
+    
+    # Dates
     'Issue Date': 'issue_date',
     'Maturity Date': 'maturity_date',
+    'Updated Longest Maturity Date': 'updated_maturity_date',
+    
+    # UPB/Size
     'Issuance Investor Security UPB': 'issuance_upb',
     'Current Investor Security UPB': 'current_upb',
+    
+    # Rates (critical for WAC/refi incentive)
     'WA Net Interest Rate': 'wa_net_rate',
     'WA Issuance Interest Rate': 'wa_issuance_rate',
     'WA Current Interest Rate': 'wa_current_rate',
+    
+    # Term/Age (critical for WALA/burnout)
     'WA Loan Term': 'wa_loan_term',
     'WA Current Remaining Months to Maturity': 'wa_rem_months',
-    'WA Loan Age': 'wa_loan_age',
+    'WA Loan Age': 'wa_loan_age',  # WALA - key for burnout scoring
+    
+    # Loan size (critical for spec pool classification)
     'WA Mortgage Loan Amount': 'wa_loan_amount',
     'Average Mortgage Loan Amount': 'avg_loan_amount',
+    'WA Origination Mortgage Loan Amount': 'wa_orig_loan_amount',
+    'Average Origination Mortgage Loan Amount': 'avg_orig_loan_amount',
+    
+    # Credit characteristics (critical for AI tagging)
     'WA Loan-To-Value (LTV)': 'wa_ltv',
     'WA Combined Loan-To-Value (CLTV)': 'wa_cltv',
     'WA Debt-To-Income (DTI)': 'wa_dti',
-    'WA Borrower Credit Score': 'wa_fico',
+    'WA Borrower Credit Score': 'wa_fico',  # Key for risk_profile
+    'WA Updated Credit Score': 'wa_updated_fico',
+    'WA Estimated Loan-To-Value (ELTV)': 'wa_eltv',
+    
+    # Origination credit (for historical comparison)
+    'WA Origination Loan-To-Value (LTV)': 'wa_orig_ltv',
+    'WA Origination Combined Loan-To-Value (CLTV)': 'wa_orig_cltv',
+    'WA Origination Debt-To-Income (DTI)': 'wa_orig_dti',
+    'WA Origination Credit Score': 'wa_orig_fico',
+    
+    # Loan count
     'Loan Count': 'loan_count',
+    
+    # Parties (critical for servicer_prepay_risk)
     'Servicer Name': 'servicer_name',
+    'Servicer City': 'servicer_city',
     'Servicer State': 'servicer_state',
     'Seller Name': 'seller_name',
+    'Seller City': 'seller_city',
+    'Seller State': 'seller_state',
+    
+    # Product features
+    'Interest Only Security Indicator': 'io_indicator',
+    'Prepayment Penalty Indicator': 'prepay_penalty',
+    'Subtype': 'subtype',
+    
+    # Delinquency
+    'Delinquent Loans Purchased (Prior Month UPB)': 'dlq_purchased_upb',
+    'Delinquent Loans Purchased (Loan Count)': 'dlq_purchased_count',
+    
+    # ARM fields (for is_arm flag)
+    'Index': 'arm_index',
+    'WA Mortgage Margin': 'wa_margin',
+    'Initial Fixed Rate Period': 'init_fixed_period',
 }
 
 # FRE_ILLD (Loan-Level Disclosure) -> dim_loan
@@ -294,10 +340,10 @@ class FreddieFileParser:
 # =============================================================================
 
 class IssuanceParser(FreddieFileParser):
-    """Parses FRE_IS (Monthly Issuance Summary) files."""
+    """Parses FRE_IS (Monthly Issuance Summary) files into dim_pool with AI tagging fields."""
     
     def process_file(self, file_info: Dict) -> int:
-        """Process a single FRE_IS file."""
+        """Process a single FRE_IS file with comprehensive field mapping."""
         logger.info(f"Processing {file_info['filename']}")
         
         try:
@@ -323,23 +369,50 @@ class IssuanceParser(FreddieFileParser):
                     if not pool_id or pool_id == '-':
                         continue
                     
+                    # Classify servicer prepay risk
+                    servicer_name = row.get('servicer_name') or ''
+                    servicer_risk = self._classify_servicer_prepay_risk(servicer_name)
+                    
+                    # Determine product flags
+                    avg_loan = safe_decimal(row.get('avg_loan_amount'))
+                    is_arm = row.get('arm_index') is not None and row.get('arm_index') != ''
+                    is_io = row.get('io_indicator') == 'Y'
+                    is_low_balance = avg_loan and avg_loan < 85000
+                    is_high_balance = avg_loan and avg_loan >= 726200  # 2024 conforming limit
+                    is_jumbo = avg_loan and avg_loan >= 1000000
+                    
                     with self.engine.connect() as conn:
-                        # Upsert into dim_pool
+                        # Upsert into dim_pool with all fields for AI tagging
                         conn.execute(text("""
                             INSERT INTO dim_pool (
                                 pool_id, cusip, prefix, product_type, coupon, issue_date,
-                                maturity_date, orig_upb, servicer_name, orig_loan_count,
-                                avg_fico, avg_ltv, avg_dti, avg_loan_size, wac
+                                maturity_date, orig_upb, servicer_name, servicer_id, orig_loan_count,
+                                avg_fico, avg_ltv, avg_dti, avg_loan_size, wac, wam, wala,
+                                is_arm, is_low_balance, is_high_balance, is_jumbo,
+                                servicer_quality_tag, source_file
                             ) VALUES (
                                 :pool_id, :cusip, :prefix, :product_type, :coupon, :issue_date,
-                                :maturity_date, :orig_upb, :servicer_name, :orig_loan_count,
-                                :avg_fico, :avg_ltv, :avg_dti, :avg_loan_size, :wac
+                                :maturity_date, :orig_upb, :servicer_name, :servicer_id, :orig_loan_count,
+                                :avg_fico, :avg_ltv, :avg_dti, :avg_loan_size, :wac, :wam, :wala,
+                                :is_arm, :is_low_balance, :is_high_balance, :is_jumbo,
+                                :servicer_prepay_risk, :source_file
                             )
                             ON CONFLICT (pool_id) DO UPDATE SET
-                                cusip = EXCLUDED.cusip,
-                                servicer_name = EXCLUDED.servicer_name,
-                                avg_fico = EXCLUDED.avg_fico,
-                                avg_ltv = EXCLUDED.avg_ltv,
+                                cusip = COALESCE(EXCLUDED.cusip, dim_pool.cusip),
+                                servicer_name = COALESCE(EXCLUDED.servicer_name, dim_pool.servicer_name),
+                                servicer_quality_tag = COALESCE(EXCLUDED.servicer_quality_tag, dim_pool.servicer_quality_tag),
+                                avg_fico = COALESCE(EXCLUDED.avg_fico, dim_pool.avg_fico),
+                                avg_ltv = COALESCE(EXCLUDED.avg_ltv, dim_pool.avg_ltv),
+                                avg_dti = COALESCE(EXCLUDED.avg_dti, dim_pool.avg_dti),
+                                avg_loan_size = COALESCE(EXCLUDED.avg_loan_size, dim_pool.avg_loan_size),
+                                wac = COALESCE(EXCLUDED.wac, dim_pool.wac),
+                                wam = COALESCE(EXCLUDED.wam, dim_pool.wam),
+                                wala = COALESCE(EXCLUDED.wala, dim_pool.wala),
+                                is_arm = COALESCE(EXCLUDED.is_arm, dim_pool.is_arm),
+                                is_low_balance = COALESCE(EXCLUDED.is_low_balance, dim_pool.is_low_balance),
+                                is_high_balance = COALESCE(EXCLUDED.is_high_balance, dim_pool.is_high_balance),
+                                is_jumbo = COALESCE(EXCLUDED.is_jumbo, dim_pool.is_jumbo),
+                                source_file = EXCLUDED.source_file,
                                 updated_at = NOW()
                         """), {
                             'pool_id': pool_id,
@@ -350,33 +423,52 @@ class IssuanceParser(FreddieFileParser):
                             'issue_date': parse_date(row.get('issue_date')),
                             'maturity_date': parse_date(row.get('maturity_date')),
                             'orig_upb': safe_decimal(row.get('issuance_upb')),
-                            'servicer_name': row.get('servicer_name') or None,
+                            'servicer_name': servicer_name or None,
+                            'servicer_id': self._extract_servicer_id(servicer_name),
                             'avg_fico': safe_int(row.get('wa_fico')),
                             'avg_ltv': safe_decimal(row.get('wa_ltv')),
                             'avg_dti': safe_decimal(row.get('wa_dti')),
-                            'avg_loan_size': safe_decimal(row.get('avg_loan_amount')),
+                            'avg_loan_size': avg_loan,
                             'wac': safe_decimal(row.get('wa_current_rate')),
+                            'wam': safe_int(row.get('wa_rem_months')),
+                            'wala': safe_int(row.get('wa_loan_age')),
                             'orig_loan_count': safe_int(row.get('loan_count')),
+                            'is_arm': is_arm,
+                            'is_low_balance': is_low_balance,
+                            'is_high_balance': is_high_balance,
+                            'is_jumbo': is_jumbo,
+                            'servicer_prepay_risk': servicer_risk,
+                            'source_file': file_info['filename'],
                         })
                         
-                        # Insert into fact_pool_month
+                        # Insert into fact_pool_month with factor/prepay data
                         factor_date = parse_date(row.get('factor_date')) or file_date
                         if factor_date:
                             conn.execute(text("""
                                 INSERT INTO fact_pool_month (
-                                    pool_id, as_of_date, loan_count, factor, curr_upb
+                                    pool_id, as_of_date, loan_count, factor, curr_upb, wala, wac, wam,
+                                    avg_loan_size, source_file
                                 ) VALUES (
-                                    :pool_id, :as_of_date, :loan_count, :factor, :curr_upb
+                                    :pool_id, :as_of_date, :loan_count, :factor, :curr_upb, :wala, :wac, :wam,
+                                    :avg_loan_size, :source_file
                                 )
                                 ON CONFLICT (pool_id, as_of_date) DO UPDATE SET
-                                    factor = EXCLUDED.factor,
-                                    curr_upb = EXCLUDED.curr_upb
+                                    factor = COALESCE(EXCLUDED.factor, fact_pool_month.factor),
+                                    curr_upb = COALESCE(EXCLUDED.curr_upb, fact_pool_month.curr_upb),
+                                    wala = COALESCE(EXCLUDED.wala, fact_pool_month.wala),
+                                    wac = COALESCE(EXCLUDED.wac, fact_pool_month.wac),
+                                    source_file = EXCLUDED.source_file
                             """), {
                                 'pool_id': pool_id,
                                 'as_of_date': factor_date.replace(day=1),
                                 'loan_count': safe_int(row.get('loan_count')),
                                 'factor': safe_decimal(row.get('factor')),
                                 'curr_upb': safe_decimal(row.get('current_upb')),
+                                'wala': safe_int(row.get('wa_loan_age')),
+                                'wac': safe_decimal(row.get('wa_current_rate')),
+                                'wam': safe_int(row.get('wa_rem_months')),
+                                'avg_loan_size': avg_loan,
+                                'source_file': file_info['filename'],
                             })
                         
                         conn.commit()
@@ -413,6 +505,43 @@ class IssuanceParser(FreddieFileParser):
             elif term >= 110:
                 return '10yr'
         return 'Other'
+    
+    def _classify_servicer_prepay_risk(self, servicer_name: str) -> str:
+        """
+        Classify servicer by prepayment speed (investor perspective).
+        Fast servicers = prepay_exposed (bad for investors)
+        Slow servicers = prepay_protected (good for investors)
+        """
+        if not servicer_name:
+            return 'neutral'
+        
+        name_lower = servicer_name.lower()
+        
+        # Fast servicers = BAD for investors (easy refi, automated)
+        FAST_SERVICERS = [
+            'rocket', 'quicken', 'better', 'loandepot', 'loan depot',
+            'uwm', 'united wholesale', 'freedom mortgage', 'pennymac'
+        ]
+        if any(s in name_lower for s in FAST_SERVICERS):
+            return 'prepay_exposed'
+        
+        # Slow servicers = GOOD for investors (bureaucratic, manual)
+        SLOW_SERVICERS = [
+            'wells fargo', 'chase', 'jpmorgan', 'bank of america', 'bofa',
+            'ocwen', 'carrington', 'specialized loan', 'cenlar', 'nationstar',
+            'mr. cooper', 'mr cooper', 'phh'
+        ]
+        if any(s in name_lower for s in SLOW_SERVICERS):
+            return 'prepay_protected'
+        
+        return 'neutral'
+    
+    def _extract_servicer_id(self, servicer_name: str) -> Optional[str]:
+        """Extract/generate servicer ID from name."""
+        if not servicer_name:
+            return None
+        # Simple ID: first word, lowercased, no spaces
+        return servicer_name.split()[0].lower()[:20] if servicer_name else None
 
 
 # =============================================================================
@@ -541,6 +670,115 @@ class LoanParser(FreddieFileParser):
 # Factor Parser (FRE_DPR_Fctr -> cohort prepay data)
 # =============================================================================
 
+# =============================================================================
+# FISS Parser (FRE_FISS -> freddie_security_issuance)
+# =============================================================================
+
+class FissParser(FreddieFileParser):
+    """
+    Parses FRE_FISS (Intraday Security Issuance) files.
+    These are headerless pipe-delimited files with 9 columns:
+    0: Product type code
+    1: Pool prefix (CL, etc.)
+    2: Security identifier
+    3: CUSIP
+    4: Coupon (or code)
+    5: UPB
+    6: Price (usually 100)
+    7: Loan count
+    8: Additional field
+    """
+    
+    def process_file(self, file_info: Dict) -> int:
+        """Process a single FRE_FISS file (headerless format)."""
+        logger.info(f"Processing {file_info['filename']}")
+        
+        try:
+            content = self.download_and_extract(file_info['local_gcs_path'])
+            
+            # Extract date from filename (FRE_FISS_YYYYMMDD.zip)
+            date_str = file_info['filename'].replace('FRE_FISS_', '').replace('.zip', '')
+            try:
+                issuance_date = datetime.strptime(date_str, '%Y%m%d').date()
+            except ValueError:
+                issuance_date = None
+            
+            lines = content.strip().split('\n')
+            inserted = 0
+            
+            with self.engine.connect() as conn:
+                for line in lines:
+                    if not line.strip():
+                        continue
+                    
+                    cols = line.split('|')
+                    if len(cols) < 8:
+                        continue
+                    
+                    try:
+                        # Parse headerless format
+                        prefix = cols[1].strip() if len(cols) > 1 else None
+                        security_id = cols[2].strip() if len(cols) > 2 else None
+                        cusip = cols[3].strip() if len(cols) > 3 else None
+                        
+                        if not security_id:
+                            continue
+                        
+                        pool_id = f"{prefix}-{security_id}" if prefix else security_id
+                        
+                        # Insert into freddie_security_issuance
+                        conn.execute(text("""
+                            INSERT INTO freddie_security_issuance (
+                                issuance_date, pool_id, cusip, prefix, 
+                                orig_face, source_file
+                            ) VALUES (
+                                :issuance_date, :pool_id, :cusip, :prefix,
+                                :orig_face, :source_file
+                            )
+                        """), {
+                            'issuance_date': issuance_date,
+                            'pool_id': pool_id,
+                            'cusip': cusip,
+                            'prefix': prefix,
+                            'orig_face': safe_decimal(cols[5]) if len(cols) > 5 else None,
+                            'source_file': file_info['filename'],
+                        })
+                        
+                        # Also create stub in dim_pool if needed
+                        conn.execute(text("""
+                            INSERT INTO dim_pool (pool_id, cusip, prefix, source_file)
+                            VALUES (:pool_id, :cusip, :prefix, :source_file)
+                            ON CONFLICT (pool_id) DO UPDATE SET
+                                cusip = COALESCE(EXCLUDED.cusip, dim_pool.cusip)
+                        """), {
+                            'pool_id': pool_id,
+                            'cusip': cusip,
+                            'prefix': prefix,
+                            'source_file': file_info['filename'],
+                        })
+                        
+                        inserted += 1
+                        
+                    except Exception as e:
+                        logger.warning(f"Error parsing FISS line: {e}")
+                        continue
+                
+                conn.commit()
+            
+            self.mark_processed(file_info['id'], True)
+            logger.info(f"Inserted {inserted} securities from {file_info['filename']}")
+            return inserted
+            
+        except Exception as e:
+            logger.error(f"Error processing {file_info['filename']}: {e}")
+            self.mark_processed(file_info['id'], False, str(e))
+            return 0
+
+
+# =============================================================================
+# Factor Parser (FRE_DPR_Fctr -> cohort prepay data)
+# =============================================================================
+
 class FactorParser(FreddieFileParser):
     """Parses FRE_DPR_Fctr (Factor/Prepay) files."""
     
@@ -586,7 +824,7 @@ def process_files(file_type: str, limit: Optional[int] = None, engine: Optional[
         'issuance': (IssuanceParser, 'FRE_IS_%'),
         'illd': (LoanParser, 'FRE_ILLD_%'),
         'factor': (FactorParser, 'FRE_DPR_Fctr%'),
-        'fiss': (IssuanceParser, 'FRE_FISS_%'),  # Same format as FRE_IS
+        'fiss': (FissParser, 'FRE_FISS_%'),  # Headerless format
     }
     
     if file_type not in parsers:
