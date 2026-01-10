@@ -74,6 +74,19 @@ class PoolData:
     product_type: Optional[str] = None
     factor: Optional[float] = None
     current_rate: Optional[float] = None  # From FRED
+    
+    def __post_init__(self):
+        """Convert Decimal types to float."""
+        if self.avg_loan_size is not None:
+            self.avg_loan_size = float(self.avg_loan_size)
+        if self.avg_ltv is not None:
+            self.avg_ltv = float(self.avg_ltv)
+        if self.wac is not None:
+            self.wac = float(self.wac)
+        if self.top_state_pct is not None:
+            self.top_state_pct = float(self.top_state_pct)
+        if self.factor is not None:
+            self.factor = float(self.factor)
 
 
 class PoolTagger:
@@ -258,7 +271,7 @@ class PoolTagger:
         """Calculate refi incentive in basis points."""
         if wac is None:
             return 0.0
-        return (wac - self.current_rate) * 100
+        return (float(wac) - self.current_rate) * 100
     
     def calc_burnout_score(self, wala: int, factor: float, refi_incentive_bps: float) -> float:
         """
