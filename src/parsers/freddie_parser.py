@@ -464,6 +464,7 @@ class LoanParser(FreddieFileParser):
                     batch.append(loan_data)
                     
                     if len(batch) >= batch_size:
+                        logger.info(f"Processing batch of {len(batch)} loans (total: {inserted + len(batch)})")
                         inserted += self._insert_loan_batch(batch)
                         batch = []
                         
@@ -485,13 +486,31 @@ class LoanParser(FreddieFileParser):
             return 0
     
     def _insert_loan_batch(self, batch: List[Dict]) -> int:
-        """Insert a batch of loans."""
+        """Insert a batch of loans, creating stub pools as needed."""
         if not batch:
             return 0
             
         inserted = 0
         with self.engine.connect() as conn:
-            for loan in batch:
+            # First, collect unique pool_ids and create stubs
+            pool_ids = set(loan['pool_id'] for loan in batch if loan.get('pool_id'))
+            
+            # Batch create stub pools
+            pool_data = [
+                {'pool_id': pid, 'prefix': pid.split('-')[0] if '-' in pid else None}
+                for pid in pool_ids
+            ]
+            if pool_data:
+                conn.execute(text("""
+                    INSERT INTO dim_pool (pool_id, prefix, source_file)
+                    VALUES (:pool_id, :prefix, 'stub_from_illd')
+                    ON CONFLICT (pool_id) DO NOTHING
+                """), pool_data)
+            
+            # Insert loans - use smaller micro-batches for progress
+            micro_batch_size = 100
+            for i in range(0, len(batch), micro_batch_size):
+                micro_batch = batch[i:i + micro_batch_size]
                 try:
                     conn.execute(text("""
                         INSERT INTO dim_loan (
@@ -508,12 +527,11 @@ class LoanParser(FreddieFileParser):
                         ON CONFLICT (loan_id) DO UPDATE SET
                             pool_id = EXCLUDED.pool_id,
                             updated_at = NOW()
-                    """), loan)
-                    inserted += 1
+                    """), micro_batch)
+                    inserted += len(micro_batch)
                 except Exception as e:
-                    # Log but continue - might be FK constraint if pool doesn't exist yet
-                    pass
-                    
+                    logger.warning(f"Micro-batch insert failed: {e}")
+            
             conn.commit()
             
         return inserted
