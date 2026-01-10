@@ -1,217 +1,66 @@
 # Agent Handoff Document
 
-Last updated: January 9, 2026
+**Last updated:** January 9, 2026
 
-## Context for New Agent
-
-This document provides everything needed to continue development on the Oasive data ingestion platform.
+This document provides context for AI agents continuing development on Oasive.
 
 ---
 
-## What Was Built
+## Current Status
 
-### 1. FRED Data Ingestion (✅ Complete & Live)
-
-**Purpose**: Ingest 38 economic indicators from FRED API daily
-
-**Components**:
-- `src/ingestors/fred_ingestor.py` - Main ingestion logic
-- `migrations/001_fred_schema.sql` - Database schema
-- `migrations/002_seed_fred_series.sql` - Series definitions
-
-**Status**:
-- ✅ 34 active series (NAPM & MORTGAGE5US marked inactive - discontinued)
-- ✅ 106,000+ observations in database
-- ✅ Cloud Run job deployed
-- ✅ Daily scheduler LIVE (6:30 AM ET / 11:30 UTC)
-- ✅ Email alerts configured (failure only)
-
-### 2. Freddie Mac SFTP Ingestion (✅ Working, Downloading in Progress)
-
-**Purpose**: Download MBS disclosure files from CSS SFTP server
-
-**Components**:
-- `src/ingestors/freddie_ingestor.py` - SFTP download with batching/retry logic
-- `migrations/003_freddie_schema.sql` - File catalog schema
-- `migrations/004_freddie_data_schema.sql` - Freddie Mac data schema (pools, loans, facts)
-- `scripts/analyze_sftp.py` - SFTP inventory analysis tool
-
-**Status**:
-- ✅ Authentication WORKING (username: `svcfre-oasive`)
-- ✅ Cloud Run job deployed with VPC connector
-- ✅ Network routing through whitelisted IP `34.121.116.34`
-- ✅ Improved ingestor with batching, reconnection, and retry logic
-- ✅ Migration 004 applied - Freddie data tables created
-- ⏳ Historical backfill in progress (~45,000 files remaining)
-
-**Database Tables Created** (Migration 004):
-- `dim_pool` - Pool-level attributes with AI-generated tags
-- `dim_loan` - Loan-level attributes
-- `dim_calendar` - Date dimension for efficient joins
-- `fact_pool_month` - Monthly pool performance metrics
-- `fact_loan_month` - Monthly loan-level performance
-- `freddie_security_issuance` - Security issuance data
-
-**SFTP Inventory** (as of Jan 9, 2026):
-- 45,353 files totaling 76.73 GB
-- File types: `.zip` (71 GB), `.pdf` (5.4 GB), `.fac`, `.typ`
-- Key patterns: `FRE_FISS_` (intraday), `FRE_IS_` (monthly)
-- Full inventory in `docs/freddie_sftp_inventory.json`
-
-**Credentials**:
-- Username: `svcfre-oasive` (stored in `freddie-username` secret)
-- Password: 15 chars (stored in `freddie-password` secret, version 5)
-- Whitelisted IPs: `34.121.116.34` (Cloud NAT), `108.201.185.230` (local dev)
-
-### 3. Infrastructure
-
-**Cloud SQL**:
-- Instance: `oasive-postgres` (us-central1)
-- Database: `oasive`
-- User: `postgres`
-
-**Cloud Run Jobs**:
-- `fred-ingestor` - Daily FRED sync (LIVE)
-- `freddie-ingestor` - Freddie Mac SFTP sync (running parallel jobs for backfill)
-
-**Networking for Freddie**:
-- VPC Connector: `data-feeds-vpc-1`
-- Cloud NAT: `data-feeds-nat-1` (router: `data-feeds-router-1`)
-- Static IP: `34.121.116.34`
-
-**Secrets** (in Secret Manager):
-- `fred-api-key`
-- `postgres-password`
-- `freddie-username` (value: `svcfre-oasive`)
-- `freddie-password` (version 5)
-
-**GCS Bucket**:
-- `oasive-raw-data` - Raw Freddie files stored at `freddie/raw/YYYY/MM/`
+| Task | Status | Progress |
+|------|--------|----------|
+| FRED Ingestion | ✅ Complete | 34 series, 106K+ observations |
+| Freddie Download | 🔄 In Progress | 12,959 / 45,356 (28.6%) |
+| Freddie Parse | 🔄 In Progress | 2,333 pools loaded |
+| AI Tagging | 📋 Designed | `docs/ai_tagging_design.md` |
+| Research Framework | 📋 Designed | `docs/prepay_research_framework.md` |
 
 ---
 
-## ⚠️ CRITICAL: Testing Requirements
+## What's Built
 
-**FRED API**: Can be tested locally (public API, no IP restrictions)
+### 1. FRED Data Ingestion (✅ Live)
 
-**Freddie Mac SFTP**: CANNOT be tested locally - requires IP whitelisting [[memory:12860076]]
-- Must test via Cloud Run which routes through VPC Connector → Cloud NAT → whitelisted static IP
-- The whitelisted IP is stored in .env as `GCP_PUBLIC_IP=34.121.116.34`
+- **Purpose:** Daily ingest of 38 economic indicators
+- **Status:** Running daily at 6:30 AM ET
+- **Data:** 106,000+ observations in `fred_observation`
+- **Files:** `src/ingestors/fred_ingestor.py`, `migrations/001-002`
 
----
+### 2. Freddie Mac SFTP Ingestion (🔄 Downloading)
 
-## Freddie Mac Ingestor Usage
+- **Purpose:** Download 45,353 MBS disclosure files (76.73 GB)
+- **Auth:** Working (username: `svcfre-oasive`, IP: `34.121.116.34`)
+- **Files:** `src/ingestors/freddie_ingestor.py`, `migrations/003-004`
 
-The improved ingestor supports multiple run modes:
+**⚠️ CRITICAL:** Freddie SFTP cannot be tested locally - requires whitelisted IP via Cloud Run.
 
-```bash
-# Catalog files without downloading
-python -m src.ingestors.freddie_ingestor --mode catalog
+### 3. Freddie File Parser (🔄 Running)
 
-# Download new files incrementally
-python -m src.ingestors.freddie_ingestor --mode incremental
+- **Purpose:** Parse downloaded ZIP files → PostgreSQL tables
+- **Files:** `src/parsers/freddie_parser.py`
+- **Outputs:** `dim_pool`, `dim_loan`, `fact_pool_month`
 
-# Backfill all pending/error files
-python -m src.ingestors.freddie_ingestor --mode backfill
+### 4. AI Tagging System (📋 Designed)
 
-# Filter by file type
-python -m src.ingestors.freddie_ingestor --mode incremental --file-types intraday_issuance monthly_issuance
+Full design in `docs/ai_tagging_design.md`:
 
-# Filter by pattern (e.g., only 2024 files)
-python -m src.ingestors.freddie_ingestor --mode backfill --file-pattern "2024"
+| Tag | Purpose |
+|-----|---------|
+| `loan_program` | VA/FHA/USDA/CONV classification |
+| `state_prepay_friction` | high/moderate/low based on state |
+| `servicer_prepay_risk` | prepay_protected/neutral/exposed |
+| `burnout_score` | 0-100 burnout likelihood |
+| `composite_score` | 0-100 overall spec pool score |
 
-# Limit number of files (for testing)
-python -m src.ingestors.freddie_ingestor --mode backfill --max-files 100
-```
+### 5. Prepay Research Framework (📋 Designed)
 
-**File Types**:
-- `intraday_issuance` - FRE_FISS_YYYYMMDD.zip (daily issuance)
-- `monthly_issuance` - FRE_IS_YYYYMM.zip (monthly summary)
-- `deal_files` - Individual deal documents
-- `factor` - .fac files
-- `archive` - Other .zip files
-- `document` - .pdf files
+Full design in `docs/prepay_research_framework.md`:
 
----
-
-## Outstanding Tasks
-
-### 1. Historical Backfill (IN PROGRESS)
-
-Download all 45,353 files (76 GB) from SFTP. Currently running parallel jobs:
-
-```bash
-# Run via Cloud Run for large batches
-gcloud run jobs execute freddie-ingestor --region=us-central1 \
-  --project=gen-lang-client-0343560978 \
-  --args="-m,src.ingestors.freddie_ingestor,--mode,backfill,--max-files,1000" \
-  --async
-```
-
-### 2. Recurring Schedulers (✅ DONE)
-
-**FRED Scheduler:**
-- `fred-ingestor-daily`: `30 11 * * * UTC` (6:30 AM ET, daily)
-
-**Freddie Mac Schedulers** (✅ VERIFIED from SFTP timestamps):
-| Scheduler | Schedule (UTC) | ET Time | Description |
-|-----------|----------------|---------|-------------|
-| `freddie-ingestor-daily` | `45 16 * * 1-5` | 11:45 AM | After daily FRE_FISS release (~10:30-11:30 AM) |
-| `freddie-ingestor-monthly` | `45 11 1-3 * 1-5` | 6:45 AM | BD1 catch-up for FRE_IS monthly files |
-
-**Verified Release Times** (from file timestamps):
-- **FRE_FISS (daily)**: ONCE per day at ~10:30 AM ET (EDT) or ~11:30 AM ET (EST)
-- **FRE_IS (monthly)**: BD1 at ~5:30 AM ET (EDT) or ~6:30 AM ET (EST)
-
-**Email Alerts Configured:**
-- `Freddie Mac Ingestor - Job Failure Alert` → anais@oasive.ai
-
-### 3. Parse Downloaded Files
-
-After downloading, need to:
-1. Parse ZIP files to extract loan/pool data
-2. Transform data to match schema (dim_pool, dim_loan, fact tables)
-3. Load structured data to Postgres
-
-### 4. AI Tag Generation (✅ DESIGNED)
-
-**Documentation**: `docs/ai_tagging_design.md`
-
-Comprehensive tagging system for spec pool analysis:
-
-| Tag Category | Values | Purpose |
-|--------------|--------|---------|
-| `loan_program` | VA, FHA, USDA, CONV | VA/USDA prepay much slower |
-| `balance_tier` | LLB_85, LLB_110, LLB_150, HLB, JUMBO | Low balance = slower |
-| `state_friction` | high/moderate/low | NY/NJ slow, CA/TX fast |
-| `servicer_risk` | prepay_protected/neutral/exposed | Bank vs digital |
-| `credit_profile` | HIGH_LTV, LOW_FICO, etc. | Refi friction |
-| `occupancy` | INVESTOR, SECOND_HOME, OWNER_OCC | Investor = slower |
-
-**Composite Score**: 0-100 combining all factors (higher = more prepay protected)
-
-**Status**: Placeholder weights defined; empirical calibration pending data load.
-
-### 5. Prepay Research Framework (✅ DESIGNED)
-
-**Documentation**: `docs/prepay_research_framework.md`
-
-Every prepay assumption is:
-1. **Registered** - 20+ assumptions documented (A001-A020)
-2. **Validated** - Protocol for empirical testing
-3. **Queryable** - Users can ask "why do VA pools prepay slower?"
-4. **Discoverable** - Anomaly detection for unexpected patterns
-
-**Key Components**:
-- `migrations/006_research_framework.sql` - Research database tables
-- `scripts/analyze_prepay_factors.py` - Factor analysis tool
-- Interaction hypotheses (I001-I010) for multi-factor effects
-
-**Research Tables** (Migration 006):
-- `research_validation_results` - Assumption validation outcomes
-- `research_discoveries` - Unexpected patterns found
-- `research_weight_history` - Audit trail of weight changes
-- `factor_effect_timeseries` - Monthly factor effects for regime detection
+- 20 prepay assumptions registered (A001-A020)
+- 10 interaction hypotheses (I001-I010)
+- Empirical validation protocol
+- Database tables in `migrations/006`
 
 ---
 
@@ -219,75 +68,76 @@ Every prepay assumption is:
 
 | File | Purpose |
 |------|---------|
-| `src/config.py` | Configuration from env vars |
-| `src/db/connection.py` | Cloud SQL connector |
 | `src/ingestors/fred_ingestor.py` | FRED API client |
-| `src/ingestors/freddie_ingestor.py` | SFTP client with batching |
-| `scripts/analyze_sftp.py` | SFTP inventory analysis |
-| `scripts/run_migrations.py` | Database migrations |
-| `migrations/004_freddie_data_schema.sql` | Freddie data tables |
-| `docs/freddie_sftp_inventory.json` | Full SFTP file inventory |
-| `docs/database_schema.md` | Full database documentation |
+| `src/ingestors/freddie_ingestor.py` | SFTP download with retry |
+| `src/parsers/freddie_parser.py` | Parse disclosure files |
+| `src/db/connection.py` | Cloud SQL connector |
+| `migrations/004_freddie_data_schema.sql` | Pool/loan schema |
+| `migrations/007_add_foreign_keys.sql` | FK constraints (pending) |
 
 ---
 
-## Deploy Changes
+## Cloud Run Commands
 
 ```bash
-cd /Users/anaishowland/oasive_db
+# Execute Freddie download (backfill mode)
+gcloud run jobs execute freddie-ingestor --region=us-central1 \
+  --project=gen-lang-client-0343560978 \
+  --args="-m,src.ingestors.freddie_ingestor,--mode,backfill,--max-files,2000" \
+  --async
 
-# 1. Build new image
-gcloud builds submit --tag us-central1-docker.pkg.dev/gen-lang-client-0343560978/oasive-images/oasive-ingestor:latest --project=gen-lang-client-0343560978
+# Check job status
+gcloud run jobs executions list --job=freddie-ingestor --region=us-central1 \
+  --project=gen-lang-client-0343560978 --limit=5
 
-# 2. Update job
-gcloud run jobs update freddie-ingestor --region=us-central1 --project=gen-lang-client-0343560978 --image=us-central1-docker.pkg.dev/gen-lang-client-0343560978/oasive-images/oasive-ingestor:latest
-
-# 3. Execute with args
-gcloud run jobs execute freddie-ingestor --region=us-central1 --args="-m,src.ingestors.freddie_ingestor,--mode,incremental"
+# View logs
+gcloud logging read "resource.type=cloud_run_job AND resource.labels.job_name=freddie-ingestor" \
+  --project=gen-lang-client-0343560978 --limit=30
 ```
 
 ---
 
-## Check Logs
+## Database Tables
 
-```bash
-# Freddie logs
-gcloud logging read "resource.type=cloud_run_job AND resource.labels.job_name=freddie-ingestor" --project=gen-lang-client-0343560978 --limit=30 --format="value(textPayload)"
+**FRED:**
+- `fred_series` - 38 indicators
+- `fred_observation` - 106K+ time series values
 
-# FRED logs
-gcloud logging read "resource.type=cloud_run_job AND resource.labels.job_name=fred-ingestor" --project=gen-lang-client-0343560978 --limit=20 --format="value(textPayload)"
-```
+**Freddie Files:**
+- `freddie_file_catalog` - 45,356 files tracked
 
----
-
-## Database Schema
-
-Full schema documentation in `docs/database_schema.md`.
-
-### Key Tables
-
-**FRED Tables**:
-- `fred_series` - Series metadata (38 indicators)
-- `fred_observation` - Time series data (106K+ rows)
-
-**Freddie File Management**:
-- `freddie_file_catalog` - Tracks all SFTP files and download status
-
-**Freddie Data Tables** (Migration 004):
-- `dim_pool` - Pool attributes + AI tags
-- `dim_loan` - Loan-level data
+**Freddie Data:**
+- `dim_pool` - Pool attributes + AI tags (2,333+ rows)
+- `dim_loan` - Loan-level data (pending ILLD parsing)
+- `fact_pool_month` - Monthly metrics (2,333+ rows)
 - `dim_calendar` - Date dimension
-- `fact_pool_month` - Monthly pool metrics
-- `fact_loan_month` - Monthly loan metrics
-- `freddie_security_issuance` - Issuance data
 
 ---
 
-## Contact Info
+## Remaining Tasks
 
-**CSS Support** (Freddie Mac SFTP):
-- Email: `Investor_Inquiry@freddiemac.com`
-- Phone: (800) 336-3672
+### Immediate
+1. Continue historical downloads (32,000+ files remaining)
+2. Parse FRE_ILLD files → `dim_loan`
+3. Apply migration 007 (FK constraints)
+
+### Next Phase
+1. Implement `PoolTagger` class with tag rules
+2. Build semantic translation agent
+3. Create pool screener API
+
+---
+
+## Credentials
+
+| Secret | Location |
+|--------|----------|
+| `freddie-username` | GCP Secret Manager (value: `svcfre-oasive`) |
+| `freddie-password` | GCP Secret Manager (version 5) |
+| `fred-api-key` | GCP Secret Manager |
+| `postgres-password` | GCP Secret Manager |
+
+**CSS Support:** `Investor_Inquiry@freddiemac.com` / (800) 336-3672
 
 ---
 
@@ -295,4 +145,4 @@ Full schema documentation in `docs/database_schema.md`.
 
 Repository: https://github.com/anaishowland/oasive_db
 
-All code committed and pushed. `.env` and credentials are gitignored.
+All code committed. `.env` and credentials are gitignored.
