@@ -695,84 +695,52 @@ class LoanParser(FreddieFileParser):
             return 0
     
     def _insert_loan_batch(self, batch: List[Dict]) -> int:
-        """Insert a batch of loans using fast bulk insert."""
+        """Insert a batch of loans using SQLAlchemy executemany (pg8000 compatible)."""
         if not batch:
             return 0
         
-        # Get raw psycopg2 connection for execute_values
-        from psycopg2.extras import execute_values
-        
-        raw_conn = self.engine.raw_connection()
-        try:
-            cursor = raw_conn.cursor()
-            
-            # First, collect unique pool_ids and create stubs
-            pool_ids = set(loan['pool_id'] for loan in batch if loan.get('pool_id'))
-            
-            # Batch create stub pools using execute_values
-            if pool_ids:
-                pool_tuples = [
-                    (pid, pid.split('-')[0] if '-' in pid else None, 'stub_from_illd')
-                    for pid in pool_ids
-                ]
-                execute_values(
-                    cursor,
-                    """INSERT INTO dim_pool (pool_id, prefix, source_file)
-                       VALUES %s ON CONFLICT (pool_id) DO NOTHING""",
-                    pool_tuples,
-                    page_size=1000
-                )
-            
-            # Prepare loan tuples for bulk insert
-            loan_tuples = [
-                (
-                    loan.get('loan_id'),
-                    loan.get('pool_id'),
-                    loan.get('first_pay_date'),
-                    loan.get('orig_rate'),
-                    loan.get('orig_upb'),
-                    loan.get('orig_term'),
-                    loan.get('fico'),
-                    loan.get('ltv'),
-                    loan.get('cltv'),
-                    loan.get('dti'),
-                    loan.get('occupancy'),
-                    loan.get('property_type'),
-                    loan.get('purpose'),
-                    loan.get('state'),
-                    loan.get('channel'),
-                    loan.get('first_time_buyer'),
-                    loan.get('num_units'),
-                    loan.get('num_borrowers')
-                )
-                for loan in batch
-            ]
-            
-            # Bulk insert loans using execute_values (10-50x faster)
-            execute_values(
-                cursor,
-                """INSERT INTO dim_loan (
-                    loan_id, pool_id, first_pay_date, orig_rate, orig_upb,
-                    orig_term, fico, ltv, cltv, dti, occupancy,
-                    property_type, purpose, state, channel,
-                    first_time_buyer, num_units, num_borrowers
-                ) VALUES %s
-                ON CONFLICT (loan_id) DO UPDATE SET
-                    pool_id = EXCLUDED.pool_id,
-                    updated_at = NOW()""",
-                loan_tuples,
-                page_size=5000
-            )
-            
-            raw_conn.commit()
-            return len(batch)
-            
-        except Exception as e:
-            raw_conn.rollback()
-            logger.error(f"Bulk insert failed: {e}")
-            return 0
-        finally:
-            raw_conn.close()
+        with self.engine.connect() as conn:
+            try:
+                # First, collect unique pool_ids and create stubs
+                pool_ids = set(loan['pool_id'] for loan in batch if loan.get('pool_id'))
+                
+                # Batch create stub pools
+                if pool_ids:
+                    pool_data = [
+                        {'pool_id': pid, 'prefix': pid.split('-')[0] if '-' in pid else None}
+                        for pid in pool_ids
+                    ]
+                    conn.execute(text("""
+                        INSERT INTO dim_pool (pool_id, prefix, source_file)
+                        VALUES (:pool_id, :prefix, 'stub_from_illd')
+                        ON CONFLICT (pool_id) DO NOTHING
+                    """), pool_data)
+                
+                # Use executemany for batch insert (pg8000 compatible)
+                conn.execute(text("""
+                    INSERT INTO dim_loan (
+                        loan_id, pool_id, first_pay_date, orig_rate, orig_upb,
+                        orig_term, fico, ltv, cltv, dti, occupancy,
+                        property_type, purpose, state, channel,
+                        first_time_buyer, num_units, num_borrowers
+                    ) VALUES (
+                        :loan_id, :pool_id, :first_pay_date, :orig_rate, :orig_upb,
+                        :orig_term, :fico, :ltv, :cltv, :dti, :occupancy,
+                        :property_type, :purpose, :state, :channel,
+                        :first_time_buyer, :num_units, :num_borrowers
+                    )
+                    ON CONFLICT (loan_id) DO UPDATE SET
+                        pool_id = EXCLUDED.pool_id,
+                        updated_at = NOW()
+                """), batch)
+                
+                conn.commit()
+                return len(batch)
+                
+            except Exception as e:
+                conn.rollback()
+                logger.error(f"Bulk insert failed: {e}")
+                return 0
 
 
 # =============================================================================
