@@ -70,6 +70,30 @@ Stores actual values. One row per observation date per series.
 
 ## Freddie Mac Tables
 
+### File Types on SFTP Server
+
+| File Type | Count | Description | Status |
+|-----------|-------|-------------|--------|
+| **FRE_IS** | 200 | Monthly Issuance Summary (pool-level) | ✅ 100% parsed |
+| **FRE_FISS** | 227 | Intraday Security Issuance | ✅ 100% parsed |
+| **FRE_ILLD** | 81 | Loan-Level Disclosure Data (~14M loans) | 🔄 64% parsed |
+| **FRE_DPR** | 34 | Monthly Factor/Prepay Data | ✅ 100% parsed |
+| **Economic (ec)** | 1,788 | Economic indicator files | Downloaded |
+| **Geographic (ge)** | 85 | Geographic distribution files | Downloaded |
+| **CUSIP Deal Files** | 21,972 | Historical deal documents | Partial |
+| **PDF Reports** | 8,589 | Prospectuses, supplements | Not needed |
+| **Other** | ~13,000 | Misc data files | Partial |
+
+**Total**: 45,356 files (82 GB)
+
+### Data Date Ranges
+
+| Data Type | Earliest | Latest | Coverage |
+|-----------|----------|--------|----------|
+| Pools (issue_date) | 2019-06-01 | 2025-12-01 | ~6.5 years |
+| Loans (first_pay_date) | 1993-04-01 | 2026-01-01 | ~32 years |
+| Factor Data | 2019-06-01 | 2025-12-01 | 70 months |
+
 ### File Ingestion Layer
 
 #### `freddie_file_catalog` — SFTP File Inventory
@@ -87,9 +111,10 @@ Tracks files discovered and downloaded from CSS SFTP server.
 | `download_status` | TEXT | pending, downloaded, processed, error |
 | `local_gcs_path` | TEXT | GCS location after download |
 | `downloaded_at` | TIMESTAMPTZ | When downloaded |
+| `processed_at` | TIMESTAMPTZ | When parsed into DB |
 | `error_message` | TEXT | Error details if failed |
 
-**Current Stats**: 45,353 files cataloged (76.73 GB)
+**Current Stats**: 45,356 files cataloged (82 GB), 76% downloaded
 
 #### `freddie_ingest_log` — SFTP Run Log
 
@@ -129,11 +154,18 @@ One row per pool. Contains static and slowly-changing pool attributes plus AI-ge
 | `servicer_name` | TEXT | Current servicer |
 | `servicer_id` | TEXT | Servicer ID |
 | **AI Tags** | | |
-| `risk_profile` | TEXT | AI-generated: conservative, moderate, aggressive |
-| `burnout_score` | NUMERIC(5,2) | Burnout likelihood score |
-| `geo_concentration_tag` | TEXT | CA_heavy, diversified, etc. |
-| `servicer_quality_tag` | TEXT | strong, moderate, weak |
-| `behavior_tags` | JSONB | Additional AI tags (burnout_candidate, bear_market_stable) |
+| `loan_balance_tier` | TEXT | LLB1-7, MLB, STD, JUMBO |
+| `loan_program` | TEXT | VA, FHA, USDA, CONV |
+| `fico_bucket` | TEXT | FICO_SUB620 to FICO_780PLUS |
+| `ltv_bucket` | TEXT | LTV_60 to LTV_95PLUS |
+| `seasoning_stage` | TEXT | NEW, EARLY, MATURING, SEASONED, etc. |
+| `servicer_prepay_risk` | TEXT | PREPAY_PROTECTED, NEUTRAL, PREPAY_EXPOSED |
+| `state_prepay_friction` | TEXT | HIGH_FRICTION, MODERATE_FRICTION, LOW_FRICTION |
+| `refi_incentive_bps` | NUMERIC | Basis points in/out of money |
+| `composite_prepay_score` | NUMERIC | 0-100 overall prepay risk score |
+| `convexity_score` | NUMERIC | Contraction vs extension risk |
+| `behavior_tags` | JSONB | AI tags (burnout_candidate, bear_market_stable, etc.) |
+| `tags_updated_at` | TIMESTAMPTZ | When AI tags were last calculated |
 
 #### `dim_loan` — Loan Dimension
 

@@ -160,8 +160,6 @@ done
 | **VPC Connector** | `data-feeds-vpc-1` (for SFTP egress) |
 | **Service Account** | `cloud-run-jobs-sa@gen-lang-client-0343560978.iam.gserviceaccount.com` |
 
-**⚠️ CRITICAL:** Freddie SFTP cannot be tested locally - requires whitelisted IP via Cloud Run.
-
 ---
 
 ## 📁 Key Files
