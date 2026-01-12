@@ -292,12 +292,12 @@ class FreddieFileParser:
         
         # Extract from ZIP
         with zipfile.ZipFile(io.BytesIO(content)) as zf:
-            # Get the first .txt file
-            txt_files = [f for f in zf.namelist() if f.endswith('.txt')]
-            if not txt_files:
-                raise ValueError(f"No .txt file found in {gcs_path}")
+            # Get the first .txt or .csv file (2019 files use .csv)
+            data_files = [f for f in zf.namelist() if f.endswith('.txt') or f.endswith('.csv')]
+            if not data_files:
+                raise ValueError(f"No .txt or .csv file found in {gcs_path}")
             
-            with zf.open(txt_files[0]) as f:
+            with zf.open(data_files[0]) as f:
                 return f.read().decode('utf-8', errors='replace')
     
     def parse_pipe_delimited(self, content: str, column_map: Dict[str, str]) -> Generator[Dict, None, None]:
@@ -331,6 +331,72 @@ class FreddieFileParser:
             
             yield row
     
+    def parse_csv_2019_format(self, content: str, column_map: Dict[str, str]) -> Generator[Dict, None, None]:
+        """Parse 2019 CSV format with comma delimiter and 2-row header."""
+        lines = content.strip().split('\n')
+        if len(lines) < 3:  # Need at least 2 header rows + 1 data row
+            return
+        
+        # 2019 format: Row 0 is category headers, Row 1 is actual column names
+        # Use Row 1 as header
+        header = [col.strip() for col in lines[1].split(',')]
+        
+        # Build column mapping for 2019 format (different column names)
+        MAPPING_2019 = {
+            'PREFIX': 'prefix',
+            'POOL NUNBER': 'security_id',  # Note: typo in original files
+            'POOL NUMBER': 'security_id',
+            'CUSIP': 'cusip',
+            'ISSUE DATE': 'issue_date',
+            'MATURITY DATE': 'maturity_date',
+            'ISSUANCE INVESTOR SECURITY UPB': 'issuance_upb',
+            'WA NET INTEREST RATE': 'wa_net_rate',
+            'WA ISSUANCE INTEREST RATE': 'wa_issuance_rate',
+            'WA LOAN TERM': 'wa_loan_term',
+            'WA LOAN AGE': 'wa_loan_age',
+            'WA MORTGAGE LOAN AMOUNT': 'wa_loan_amount',
+            'AVG MORTGAGE LOAN AMOUNT': 'avg_loan_amount',
+            'WA LOAN-TO-VALUE (LTV)': 'wa_ltv',
+            'WA COMBINED-LOAN-TO-VALUE (CLTV)': 'wa_cltv',
+            'WA DEBT-TO-INCOME (DTI)': 'wa_dti',
+            'BORROWER CREDIT SCORE': 'wa_fico',
+            'LOAN COUNT': 'loan_count',
+        }
+        
+        # Map header to our column names
+        col_indices = {}
+        for i, col in enumerate(header):
+            col_clean = col.strip().upper()
+            if col_clean in MAPPING_2019:
+                col_indices[MAPPING_2019[col_clean]] = i
+        
+        # Parse data rows (skip first 2 header rows)
+        for line in lines[2:]:
+            if not line.strip():
+                continue
+            
+            values = line.split(',')
+            row = {}
+            
+            for our_col, idx in col_indices.items():
+                if idx < len(values):
+                    row[our_col] = values[idx].strip()
+                else:
+                    row[our_col] = None
+            
+            yield row
+    
+    def detect_and_parse(self, content: str, column_map: Dict[str, str]) -> Generator[Dict, None, None]:
+        """Detect format and parse accordingly."""
+        first_line = content.split('\n')[0] if content else ''
+        
+        # Check if it's comma-delimited (2019 format) or pipe-delimited
+        if '|' in first_line:
+            yield from self.parse_pipe_delimited(content, column_map)
+        else:
+            # 2019 CSV format
+            yield from self.parse_csv_2019_format(content, column_map)
+    
     def mark_processed(self, file_id: int, success: bool, error_msg: Optional[str] = None):
         """Mark file as processed in catalog."""
         with self.engine.connect() as conn:
@@ -362,7 +428,7 @@ class IssuanceParser(FreddieFileParser):
         
         try:
             content = self.download_and_extract(file_info['local_gcs_path'])
-            rows = list(self.parse_pipe_delimited(content, ISSUANCE_COLUMNS))
+            rows = list(self.detect_and_parse(content, ISSUANCE_COLUMNS))
             
             if not rows:
                 logger.warning(f"No data rows in {file_info['filename']}")
@@ -565,7 +631,7 @@ class IssuanceParser(FreddieFileParser):
 class LoanParser(FreddieFileParser):
     """Parses FRE_ILLD (Loan-Level Disclosure) files."""
     
-    def process_file(self, file_info: Dict, batch_size: int = 5000) -> int:
+    def process_file(self, file_info: Dict, batch_size: int = 10000) -> int:
         """Process a single FRE_ILLD file."""
         logger.info(f"Processing {file_info['filename']} (may contain many loans)")
         
@@ -629,55 +695,84 @@ class LoanParser(FreddieFileParser):
             return 0
     
     def _insert_loan_batch(self, batch: List[Dict]) -> int:
-        """Insert a batch of loans, creating stub pools as needed."""
+        """Insert a batch of loans using fast bulk insert."""
         if not batch:
             return 0
+        
+        # Get raw psycopg2 connection for execute_values
+        from psycopg2.extras import execute_values
+        
+        raw_conn = self.engine.raw_connection()
+        try:
+            cursor = raw_conn.cursor()
             
-        inserted = 0
-        with self.engine.connect() as conn:
             # First, collect unique pool_ids and create stubs
             pool_ids = set(loan['pool_id'] for loan in batch if loan.get('pool_id'))
             
-            # Batch create stub pools
-            pool_data = [
-                {'pool_id': pid, 'prefix': pid.split('-')[0] if '-' in pid else None}
-                for pid in pool_ids
+            # Batch create stub pools using execute_values
+            if pool_ids:
+                pool_tuples = [
+                    (pid, pid.split('-')[0] if '-' in pid else None, 'stub_from_illd')
+                    for pid in pool_ids
+                ]
+                execute_values(
+                    cursor,
+                    """INSERT INTO dim_pool (pool_id, prefix, source_file)
+                       VALUES %s ON CONFLICT (pool_id) DO NOTHING""",
+                    pool_tuples,
+                    page_size=1000
+                )
+            
+            # Prepare loan tuples for bulk insert
+            loan_tuples = [
+                (
+                    loan.get('loan_id'),
+                    loan.get('pool_id'),
+                    loan.get('first_pay_date'),
+                    loan.get('orig_rate'),
+                    loan.get('orig_upb'),
+                    loan.get('orig_term'),
+                    loan.get('fico'),
+                    loan.get('ltv'),
+                    loan.get('cltv'),
+                    loan.get('dti'),
+                    loan.get('occupancy'),
+                    loan.get('property_type'),
+                    loan.get('purpose'),
+                    loan.get('state'),
+                    loan.get('channel'),
+                    loan.get('first_time_buyer'),
+                    loan.get('num_units'),
+                    loan.get('num_borrowers')
+                )
+                for loan in batch
             ]
-            if pool_data:
-                conn.execute(text("""
-                    INSERT INTO dim_pool (pool_id, prefix, source_file)
-                    VALUES (:pool_id, :prefix, 'stub_from_illd')
-                    ON CONFLICT (pool_id) DO NOTHING
-                """), pool_data)
             
-            # Insert loans - use smaller micro-batches for progress
-            micro_batch_size = 100
-            for i in range(0, len(batch), micro_batch_size):
-                micro_batch = batch[i:i + micro_batch_size]
-                try:
-                    conn.execute(text("""
-                        INSERT INTO dim_loan (
-                            loan_id, pool_id, first_pay_date, orig_rate, orig_upb,
-                            orig_term, fico, ltv, cltv, dti, occupancy,
-                            property_type, purpose, state, channel,
-                            first_time_buyer, num_units, num_borrowers
-                        ) VALUES (
-                            :loan_id, :pool_id, :first_pay_date, :orig_rate, :orig_upb,
-                            :orig_term, :fico, :ltv, :cltv, :dti, :occupancy,
-                            :property_type, :purpose, :state, :channel,
-                            :first_time_buyer, :num_units, :num_borrowers
-                        )
-                        ON CONFLICT (loan_id) DO UPDATE SET
-                            pool_id = EXCLUDED.pool_id,
-                            updated_at = NOW()
-                    """), micro_batch)
-                    inserted += len(micro_batch)
-                except Exception as e:
-                    logger.warning(f"Micro-batch insert failed: {e}")
+            # Bulk insert loans using execute_values (10-50x faster)
+            execute_values(
+                cursor,
+                """INSERT INTO dim_loan (
+                    loan_id, pool_id, first_pay_date, orig_rate, orig_upb,
+                    orig_term, fico, ltv, cltv, dti, occupancy,
+                    property_type, purpose, state, channel,
+                    first_time_buyer, num_units, num_borrowers
+                ) VALUES %s
+                ON CONFLICT (loan_id) DO UPDATE SET
+                    pool_id = EXCLUDED.pool_id,
+                    updated_at = NOW()""",
+                loan_tuples,
+                page_size=5000
+            )
             
-            conn.commit()
+            raw_conn.commit()
+            return len(batch)
             
-        return inserted
+        except Exception as e:
+            raw_conn.rollback()
+            logger.error(f"Bulk insert failed: {e}")
+            return 0
+        finally:
+            raw_conn.close()
 
 
 # =============================================================================
