@@ -72,19 +72,38 @@ Stores actual values. One row per observation date per series.
 
 ### File Types on SFTP Server
 
-| File Type | Count | Description | Status |
-|-----------|-------|-------------|--------|
-| **FRE_IS** | 200 | Monthly Issuance Summary (pool-level) | ✅ 100% parsed |
-| **FRE_FISS** | 227 | Intraday Security Issuance | ✅ 100% parsed |
-| **FRE_ILLD** | 81 | Loan-Level Disclosure Data (~14M loans) | 🔄 64% parsed |
-| **FRE_DPR** | 34 | Monthly Factor/Prepay Data | ✅ 100% parsed |
-| **Economic (ec)** | 1,788 | Economic indicator files | Downloaded |
-| **Geographic (ge)** | 85 | Geographic distribution files | Downloaded |
-| **CUSIP Deal Files** | 21,972 | Historical deal documents | Partial |
-| **PDF Reports** | 8,589 | Prospectuses, supplements | Not needed |
-| **Other** | ~13,000 | Misc data files | Partial |
+| File Type | Count | Description | Status | Priority |
+|-----------|-------|-------------|--------|----------|
+| **FRE_IS** | 200 | Monthly Issuance Summary (pool-level) | ✅ 100% parsed | Critical |
+| **FRE_FISS** | 227 | Intraday Security Issuance | ✅ 100% parsed | Critical |
+| **FRE_ILLD** | 81 | Loan-Level Disclosure Data (~14M loans) | 🔄 64% parsed | Critical |
+| **FRE_DPR** | 34 | Monthly Factor/Prepay Data | ✅ 100% parsed | Critical |
+| **Geographic (ge)** | 85 | Pool distribution stats (MAX/MED/MIN) | Downloaded | Low |
+| **Economic (ec)** | 1,788 | 45-day/55-day security mapping | Downloaded | Skip |
+| **CUSIP Deal Files** | 21,972 | Historical deal documents | Partial | Skip |
+| **PDF Reports** | 8,589 | Prospectuses, supplements | Not needed | Skip |
+| **Other** | ~13,000 | Misc data files | Partial | Skip |
 
 **Total**: 45,356 files (82 GB)
+
+### Geographic Files (ge) Analysis
+
+The geographic files contain **distribution statistics per pool**, NOT state-level geographic data.
+Each pool has 5 rows with percentile values (MAX/75th/MED/25th/MIN) for:
+
+| Column | Description |
+|--------|-------------|
+| loan_amt | Loan amount distribution |
+| gross_rate | Gross interest rate |
+| net_rate | Net interest rate |
+| orig_term | Original term |
+| rem_term | Remaining term |
+| loan_age | Loan age |
+| dti | Debt-to-income |
+| fico | Credit score |
+| ltv | Loan-to-value |
+
+**Status:** Low priority - most median values already captured in `dim_pool` from IS files.
 
 ### Data Date Ranges
 
@@ -93,6 +112,24 @@ Stores actual values. One row per observation date per series.
 | Pools (issue_date) | 2019-06-01 | 2025-12-01 | ~6.5 years |
 | Loans (first_pay_date) | 1993-04-01 | 2026-01-01 | ~32 years |
 | Factor Data | 2019-06-01 | 2025-12-01 | 70 months |
+
+**Why only 2019+?** The CSS SFTP server (current source) was established with the UMBS reform in 2019.
+
+### Historical Data (1999-2024) via Clarity
+
+For long-term prepay research across economic cycles, use the **Single-Family Loan-Level Dataset (SFLLD)**:
+
+| Source | Coverage | Data |
+|--------|----------|------|
+| **Clarity Platform** | 1999-2024 | 54.8M loans |
+
+**Access:** `freddiemac.com/research/datasets/sf-loanlevel-dataset` → "Access Historical Data"
+
+Contains:
+- Standard Dataset: Fixed-rate amortizing mortgages
+- Non-Standard Dataset: ARMs, IOs, credit-enhanced loans
+- Monthly performance data (prepay history)
+- ~25 years across multiple rate cycles
 
 ### File Ingestion Layer
 

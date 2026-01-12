@@ -1,6 +1,6 @@
 # Agent Handoff Document
 
-**Last updated:** January 11, 2026
+**Last updated:** January 12, 2026
 
 This document provides context for AI agents continuing development on Oasive.
 
@@ -16,6 +16,25 @@ Build an AI-powered MBS analytics platform that:
 
 ---
 
+## 📊 Historical Data Access
+
+**IMPORTANT:** The CSS SFTP server only has data from 2019 onwards. For historical prepay research across economic cycles (1999-2024), use:
+
+| Source | Coverage | Access |
+|--------|----------|--------|
+| **CSS SFTP** | 2019-present | IP-whitelisted SFTP |
+| **Clarity Platform** | 1999-2024 | `freddiemac.com/research/datasets/sf-loanlevel-dataset` |
+
+The **Single-Family Loan-Level Dataset (SFLLD)** on Clarity contains:
+- ~54.8 million mortgages (1999-2025)
+- Origination data + monthly performance data
+- Standard + Non-Standard datasets (ARMs, IOs, etc.)
+- 25+ years of prepay history across rate cycles
+
+**Access:** Register at `capitalmarkets.freddiemac.com/clarity` → "CRT & Historical Data"
+
+---
+
 ## 📋 Phased Implementation Plan
 
 ### Phase 1: Download Freddie Files 🔄 76% Complete
@@ -27,7 +46,7 @@ Build an AI-powered MBS analytics platform that:
 | Create file catalog | ✅ Done | 45,356 files tracked in `freddie_file_catalog` |
 | Download files | 🔄 76% | 4 parallel jobs running, ~10,941 remaining |
 | Critical files | ✅ Done | FRE_ILLD (100%), FRE_IS (100%), FRE_FISS (100%), FRE_DPR (100%) |
-| Skip tiny metadata | ✅ Done | 323 files skipped (status/ack files) |
+| Skip low-value | ✅ Done | CUSIP deal files, PDFs, economic files (not needed for prepay research) |
 
 **Commands:**
 ```bash
@@ -67,9 +86,10 @@ gcloud run jobs execute freddie-parser --region=us-central1 \
 
 | Task | Status | Details |
 |------|--------|---------|
-| Design bulk load strategy | ✅ Done | Using batch inserts (5K per batch) |
-| Process ILLD files | 🔄 16% | 13/81 files, 2.2M loans loaded |
+| Design bulk load strategy | ✅ Done | Using batch inserts (10K per batch) |
+| Process ILLD files | 🔄 64% | 52/81 files, 4.6M loans loaded |
 | Cloud Run jobs | 🔄 Running | 6 parallel jobs processing |
+| Parse geographic files | 🔄 Pending | 72/85 downloaded, distribution stats per pool |
 | Calculate pool aggregates | ⏳ Pending | State concentration, avg metrics |
 
 **Commands:**
@@ -118,35 +138,37 @@ done
 
 ---
 
-## 📊 Current Database Status (Updated Jan 11, 2026)
+## 📊 Current Database Status (Updated Jan 12, 2026)
 
 | Table | Records | Status |
 |-------|---------|--------|
-| `dim_pool` | **161,136** | ✅ 100% tagged |
-| `dim_loan` | **2,245,435** | 🔄 Phase 3 (16%) |
+| `dim_pool` | **167,272** | ✅ 163K tagged |
+| `dim_loan` | **4,566,457** | 🔄 Phase 3 (64%) |
 | `fact_pool_month` | 157,600 | ✅ |
 | `freddie_file_catalog` | 45,356 | 76% downloaded |
 
 **Parsing Progress:**
-- IS: 155/200 (78%) - remaining are 2019 daily format
+- IS: 200/200 ✅ (2019 CSV format fixed)
 - FISS: 227/227 ✅
 - DPR: 34/34 ✅
-- ILLD: 13/81 (16%) - **6 Cloud Run jobs running**
+- ILLD: 52/81 (64%) - ~4.6M loans loaded
+- Geographic: 0/72 ⏳ pending
 
 **AI Tag Distribution:**
 - Loan Balance: STD (54K), MLB (27K), LLB1-7 (77K), JUMBO (339)
 - Servicer Risk: Neutral (114K), Exposed (28K), Protected (15K)
 - Avg Composite Score: 47.8
 
-**Active Jobs:**
-- 8 ILLD parser jobs (68 remaining files, ~11.7M loans)
-- 4 download jobs (10,941 remaining files)
+**Data Date Ranges:**
+- Pools: 2019-06 to 2025-12 (~6.5 years)
+- Loans: 1993-04 to 2026-01 (~32 years)
+- Factor Data: 70 months (2019-2025)
 
 **Next Steps:**
-1. Complete ILLD loan loading (68 files remaining)
-2. Calculate CPR from factor time series (need more factor data)
-3. Update state_prepay_friction from loan-level state distribution
-4. Calculate servicer prepay metrics from CPR data
+1. Complete ILLD loan loading (29 files remaining)
+2. Parse geographic files (72 files)
+3. Calculate CPR from factor time series
+4. Update state_prepay_friction from loan-level state distribution
 
 ---
 
