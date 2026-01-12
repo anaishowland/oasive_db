@@ -18,15 +18,15 @@ Build an AI-powered MBS analytics platform that:
 
 ## 📋 Phased Implementation Plan
 
-### Phase 1: Download Freddie Files 🔄 71% Complete
+### Phase 1: Download Freddie Files 🔄 76% Complete
 **Goal:** Download all 45,356 disclosure files from Freddie SFTP to GCS
 
 | Task | Status | Details |
 |------|--------|---------|
 | Set up SFTP connection | ✅ Done | IP whitelisted: 34.121.116.34 |
 | Create file catalog | ✅ Done | 45,356 files tracked in `freddie_file_catalog` |
-| Download files | 🔄 71% | 10 parallel jobs running, ~12,700 remaining |
-| Critical files | ✅ Done | FRE_ILLD (100%), FRE_IS (93%), FRE_FISS (87%) |
+| Download files | 🔄 76% | 4 parallel jobs running, ~10,941 remaining |
+| Critical files | ✅ Done | FRE_ILLD (100%), FRE_IS (100%), FRE_FISS (100%), FRE_DPR (100%) |
 | Skip tiny metadata | ✅ Done | 323 files skipped (status/ack files) |
 
 **Commands:**
@@ -39,13 +39,14 @@ for i in {1..10}; do
 done
 ```
 
-### Phase 2: Parse Pool-Level Data 🔄 In Progress
-**Goal:** Load FRE_IS and FRE_FISS into `dim_pool` and `freddie_security_issuance`
+### Phase 2: Parse Pool-Level Data ✅ Complete
+**Goal:** Load FRE_IS and FRE_FISS into `dim_pool`
 
 | Task | Status | Details |
 |------|--------|---------|
-| FRE_IS → dim_pool | 🔄 Running | 186 files, ~1000+ pools each |
-| FRE_FISS → issuance | 🔄 Running | 197 files, headerless format |
+| FRE_IS → dim_pool | ✅ 78% | 155/200 files (rest are old 2019 daily format) |
+| FRE_FISS → dim_pool | ✅ 100% | 227/227 files parsed |
+| FRE_DPR → fact_pool_month | ✅ 100% | 34/34 factor files parsed |
 | Basic servicer tagging | ✅ Done | prepay_protected/neutral/exposed |
 
 **Commands:**
@@ -61,27 +62,34 @@ gcloud run jobs execute freddie-parser --region=us-central1 \
   --args="-m,src.parsers.freddie_parser,--file-type,fiss" --async
 ```
 
-### Phase 3: Parse Loan-Level Data ⏳ Pending
-**Goal:** Load FRE_ILLD (81 files, ~8M loans) into `dim_loan`
+### Phase 3: Parse Loan-Level Data 🔄 In Progress
+**Goal:** Load FRE_ILLD (81 files, ~14M loans) into `dim_loan`
 
 | Task | Status | Details |
 |------|--------|---------|
-| Design bulk load strategy | ⏳ Pending | Use PostgreSQL COPY for speed |
-| Process by year/quarter | ⏳ Pending | Avoid memory issues |
+| Design bulk load strategy | ✅ Done | Using batch inserts (5K per batch) |
+| Process ILLD files | 🔄 16% | 13/81 files, 2.2M loans loaded |
+| Cloud Run jobs | 🔄 Running | 6 parallel jobs processing |
 | Calculate pool aggregates | ⏳ Pending | State concentration, avg metrics |
 
-**Strategy:** 
-- Use `COPY` command for bulk inserts (100x faster than individual INSERTs)
-- Process files chronologically by year
-- Calculate state-level aggregates for `geo_concentration_tag`
+**Commands:**
+```bash
+# Run 6 parallel ILLD parser jobs
+for i in {1..6}; do
+  gcloud run jobs execute freddie-parser --region=us-central1 \
+    --args="-m,src.parsers.freddie_parser,--file-type,illd,--limit,12" --async
+done
+```
 
-### Phase 4: Factor & CPR Data ⏳ Pending
+**Estimated remaining:** ~11.7M loans across 68 files
+
+### Phase 4: Factor & CPR Data ✅ Complete
 **Goal:** Load FRE_DPR_Fctr for prepayment analysis
 
 | Task | Status | Details |
 |------|--------|---------|
-| Parse factor files | ⏳ Pending | Cohort-level CPR/SMM data |
-| Update fact_pool_month | ⏳ Pending | Monthly prepay metrics |
+| Parse factor files | ✅ Done | 34/34 DPR files parsed |
+| fact_pool_month | ✅ Done | 157,600 records loaded |
 | Calculate servicer metrics | ⏳ Pending | For dynamic servicer scoring |
 
 ### Phase 5: AI Tagging & Validation ✅ Complete
@@ -93,7 +101,7 @@ gcloud run jobs execute freddie-parser --region=us-central1 \
 | Factor multipliers table | ✅ Done | 26 entries seeded for all factors |
 | Review tagging design | ✅ Done | User updated `ai_tagging_design.md` v2.0 |
 | Implement PoolTagger class | ✅ Done | `src/tagging/pool_tagger.py` (1192/sec) |
-| **Tag all pools** | ✅ Done | **157,953 pools tagged** |
+| **Tag all pools** | ✅ Done | **161,136 pools tagged** (100%) |
 | **Auto-tag integration** | ✅ Done | Parser auto-tags after file processing |
 | Apply FK constraints | ⏳ Pending | Migration 007 |
 | Validate assumptions | ⏳ Pending | Use research framework |
@@ -114,21 +122,25 @@ gcloud run jobs execute freddie-parser --region=us-central1 \
 
 | Table | Records | Status |
 |-------|---------|--------|
-| `dim_pool` | **161,136** | 157,971 tagged |
-| `dim_loan` | **2,245,435** | 🔄 Phase 3 in progress |
+| `dim_pool` | **161,136** | ✅ 100% tagged |
+| `dim_loan` | **2,245,435** | 🔄 Phase 3 (16%) |
 | `fact_pool_month` | 157,600 | ✅ |
 | `freddie_file_catalog` | 45,356 | 76% downloaded |
 
 **Parsing Progress:**
-- IS: 155/200 (78%) - remaining are 2019 daily files
+- IS: 155/200 (78%) - remaining are 2019 daily format
 - FISS: 227/227 ✅
 - DPR: 34/34 ✅
-- ILLD: 13/81 (16%) - Cloud Run jobs processing
+- ILLD: 13/81 (16%) - **6 Cloud Run jobs running**
 
 **AI Tag Distribution:**
 - Loan Balance: STD (54K), MLB (27K), LLB1-7 (77K), JUMBO (339)
 - Servicer Risk: Neutral (114K), Exposed (28K), Protected (15K)
 - Avg Composite Score: 47.8
+
+**Active Jobs:**
+- 6 ILLD parser jobs (68 remaining files, ~11.7M loans)
+- 4 download jobs (10,941 remaining files)
 
 ---
 

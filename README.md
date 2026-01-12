@@ -39,8 +39,8 @@ python -m src.ingestors.fred_ingestor
               │   (PostgreSQL)      │
               │                     │
               │ FRED: 106K+ rows    │
-              │ Freddie: 45K files  │
-              │ Pools: 2,333+       │
+              │ Pools: 161K tagged  │
+              │ Loans: 2.2M+        │
               └─────────────────────┘
 ```
 
@@ -69,14 +69,15 @@ oasive_db/
 └── requirements.txt
 ```
 
-## Current Status
+## Current Status (Jan 11, 2026)
 
 | Component | Status | Details |
 |-----------|--------|---------|
 | FRED Ingestion | ✅ Live | 34 series, 106K+ observations, daily scheduler |
-| Freddie Download | 🔄 28.6% | 12,959 / 45,356 files downloaded |
-| Freddie Parse | 🔄 Running | 2,333 pools loaded |
-| AI Tagging | 📋 Designed | Composite score, servicer/state friction |
+| Freddie Download | 🔄 76% | 34,415 / 45,356 files downloaded |
+| Pool Parsing | ✅ Done | 161,136 pools (IS, FISS, DPR complete) |
+| Loan Parsing | 🔄 16% | 2.2M loans (13/81 ILLD files) |
+| AI Tagging | ✅ Live | 161,136 pools tagged (100%), auto-tags on parse |
 | Research Framework | 📋 Designed | 20 assumptions to validate |
 
 ## Key Commands
