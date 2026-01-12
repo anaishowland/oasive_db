@@ -139,8 +139,14 @@ done
 - Avg Composite Score: 47.8
 
 **Active Jobs:**
-- 6 ILLD parser jobs (68 remaining files, ~11.7M loans)
+- 8 ILLD parser jobs (68 remaining files, ~11.7M loans)
 - 4 download jobs (10,941 remaining files)
+
+**Next Steps:**
+1. Complete ILLD loan loading (68 files remaining)
+2. Calculate CPR from factor time series (need more factor data)
+3. Update state_prepay_friction from loan-level state distribution
+4. Calculate servicer prepay metrics from CPR data
 
 ---
 
