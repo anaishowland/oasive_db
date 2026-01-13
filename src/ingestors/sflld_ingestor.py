@@ -481,14 +481,143 @@ class SFLLDParser:
 
 
 # =============================================================================
+# GCS Processing Support
+# =============================================================================
+
+class GCSSFLLDProcessor:
+    """Process SFLLD files directly from Google Cloud Storage."""
+    
+    def __init__(self, engine: Engine, gcs_path: str):
+        self.engine = engine
+        self.gcs_path = gcs_path
+        self.storage_client = storage.Client()
+        self.parser = SFLLDParser(engine)
+        
+        # Parse bucket and prefix from gs:// path
+        path_parts = gcs_path.replace("gs://", "").split("/", 1)
+        self.bucket_name = path_parts[0]
+        self.prefix = path_parts[1] if len(path_parts) > 1 else ""
+        self.bucket = self.storage_client.bucket(self.bucket_name)
+    
+    def process_all(self):
+        """Process all SFLLD files from GCS."""
+        import tempfile
+        
+        # First, process already-extracted TXT files
+        logger.info("Step 1: Processing pre-extracted TXT files from GCS...")
+        self._process_extracted_txt_files()
+        
+        # Then, extract and process remaining quarterly ZIPs
+        logger.info("Step 2: Processing quarterly ZIPs from GCS...")
+        self._process_quarterly_zips()
+        
+        # Finally, process any yearly ZIPs that weren't extracted
+        logger.info("Step 3: Processing yearly ZIPs from GCS...")
+        self._process_yearly_zips()
+    
+    def _process_extracted_txt_files(self):
+        """Process TXT files that are already extracted in GCS."""
+        prefix = f"{self.prefix}/extracted/"
+        blobs = list(self.bucket.list_blobs(prefix=prefix))
+        
+        # Find origination files (not time/performance files)
+        orig_files = [b for b in blobs if b.name.endswith('.txt') and 'time' not in b.name.lower()]
+        perf_files = [b for b in blobs if b.name.endswith('.txt') and 'time' in b.name.lower()]
+        
+        logger.info(f"  Found {len(orig_files)} origination files, {len(perf_files)} performance files")
+        
+        for blob in sorted(orig_files, key=lambda b: b.name):
+            try:
+                logger.info(f"  Processing: {blob.name}")
+                content = blob.download_as_bytes()
+                
+                # Process line by line
+                total = self._load_origination_from_bytes(content)
+                logger.info(f"    Loaded {total:,} loans")
+            except Exception as e:
+                logger.error(f"    Error: {e}")
+    
+    def _load_origination_from_bytes(self, content: bytes) -> int:
+        """Load origination data from bytes content."""
+        batch = []
+        batch_size = 10000
+        total = 0
+        
+        for line in content.decode('utf-8', errors='ignore').split('\n'):
+            if not line.strip():
+                continue
+            record = self.parser.parse_origination_line(line)
+            if record and record.get('loan_sequence'):
+                batch.append(record)
+                
+                if len(batch) >= batch_size:
+                    self.parser._insert_loan_batch(batch)
+                    total += len(batch)
+                    if total % 100000 == 0:
+                        logger.info(f"      Loaded {total:,} loans...")
+                    batch = []
+        
+        if batch:
+            self.parser._insert_loan_batch(batch)
+            total += len(batch)
+        
+        return total
+    
+    def _process_quarterly_zips(self):
+        """Process quarterly ZIP files from GCS extracted folder."""
+        prefix = f"{self.prefix}/extracted/"
+        blobs = list(self.bucket.list_blobs(prefix=prefix))
+        
+        # Find quarterly ZIPs
+        quarterly_zips = [b for b in blobs if b.name.endswith('.zip')]
+        logger.info(f"  Found {len(quarterly_zips)} quarterly ZIPs")
+        
+        for blob in sorted(quarterly_zips, key=lambda b: b.name):
+            try:
+                logger.info(f"  Processing: {blob.name}")
+                
+                # Download to temp file
+                import tempfile
+                with tempfile.NamedTemporaryFile(suffix='.zip', delete=False) as tmp:
+                    blob.download_to_filename(tmp.name)
+                    
+                    # Process the ZIP
+                    with zipfile.ZipFile(tmp.name, 'r') as zf:
+                        for inner_file in zf.namelist():
+                            if inner_file.endswith('.txt') and 'time' not in inner_file.lower():
+                                logger.info(f"    Extracting: {inner_file}")
+                                with zf.open(inner_file) as f:
+                                    content = f.read()
+                                    total = self._load_origination_from_bytes(content)
+                                    logger.info(f"    Loaded {total:,} loans")
+                    
+                    # Clean up temp file
+                    os.unlink(tmp.name)
+            except Exception as e:
+                logger.error(f"    Error: {e}")
+    
+    def _process_yearly_zips(self):
+        """Process yearly ZIP files that contain quarterly ZIPs."""
+        prefix = f"{self.prefix}/yearly/"
+        blobs = list(self.bucket.list_blobs(prefix=prefix))
+        
+        yearly_zips = [b for b in blobs if b.name.endswith('.zip')]
+        logger.info(f"  Found {len(yearly_zips)} yearly ZIPs")
+        
+        # For now, skip this - we already have the quarterly ZIPs extracted
+        logger.info("  Skipping yearly ZIPs (quarterly ZIPs already available)")
+
+
+# =============================================================================
 # Main
 # =============================================================================
 
 def main():
     parser = argparse.ArgumentParser(description='SFLLD Historical Data Ingestor')
     parser.add_argument('--status', action='store_true', help='Show download status')
-    parser.add_argument('--process', type=str, help='Process downloaded files from directory')
+    parser.add_argument('--process', type=str, help='Process downloaded files from local directory')
     parser.add_argument('--process-file', type=str, help='Process a single ZIP file')
+    parser.add_argument('--process-gcs', type=str, help='Process files from GCS path (gs://bucket/path)')
     parser.add_argument('--download-dir', type=str, default='~/Downloads/sflld',
                         help='Directory for downloaded files')
     args = parser.parse_args()
@@ -499,24 +628,46 @@ def main():
     if args.status:
         tracker = SFLLDDownloadTracker(engine, download_dir)
         tracker.print_status()
+    
+    elif args.process_gcs:
+        # Process from GCS
+        logger.info(f"Processing SFLLD from GCS: {args.process_gcs}")
+        processor = GCSSFLLDProcessor(engine, args.process_gcs)
+        processor.process_all()
         
     elif args.process:
-        # Process all ZIP files in directory
+        # Process all ZIP files in local directory
         process_dir = Path(args.process)
         if not process_dir.exists():
             logger.error(f"Directory not found: {process_dir}")
             return
         
         parser_instance = SFLLDParser(engine)
-        zip_files = list(process_dir.glob("*.zip"))
         
-        logger.info(f"Found {len(zip_files)} ZIP files to process")
-        for zip_file in sorted(zip_files):
-            try:
-                counts = parser_instance.process_zip_file(zip_file)
-                logger.info(f"Completed {zip_file.name}: {counts}")
-            except Exception as e:
-                logger.error(f"Error processing {zip_file.name}: {e}")
+        # First process any .txt files directly
+        txt_files = list(process_dir.glob("*.txt"))
+        orig_files = [f for f in txt_files if 'time' not in f.name.lower()]
+        if orig_files:
+            logger.info(f"Found {len(orig_files)} TXT files to process")
+            for txt_file in sorted(orig_files):
+                try:
+                    logger.info(f"Processing {txt_file.name}")
+                    with open(txt_file, 'r') as f:
+                        total = parser_instance._load_origination_data(f)
+                        logger.info(f"  Loaded {total:,} loans")
+                except Exception as e:
+                    logger.error(f"Error processing {txt_file.name}: {e}")
+        
+        # Then process ZIP files
+        zip_files = list(process_dir.glob("*.zip"))
+        if zip_files:
+            logger.info(f"Found {len(zip_files)} ZIP files to process")
+            for zip_file in sorted(zip_files):
+                try:
+                    counts = parser_instance.process_zip_file(zip_file)
+                    logger.info(f"Completed {zip_file.name}: {counts}")
+                except Exception as e:
+                    logger.error(f"Error processing {zip_file.name}: {e}")
     
     elif args.process_file:
         # Process single file
