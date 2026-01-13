@@ -190,6 +190,32 @@ FACTOR_COLUMNS = {
     'Cumulative CPR': 'cum_cpr',
 }
 
+# Geographic (ge) files - 21 columns, headerless, pipe-delimited
+# Contains distribution statistics (MAX/75th/MED/25th/MIN) per pool
+GEO_COLUMNS = [
+    'record_type',     # 0: always "1"
+    'prefix',          # 1: pool prefix (HA, etc.)
+    'pool_id',         # 2: pool identifier
+    'cusip',           # 3: CUSIP
+    'stat_type',       # 4: MAX/75/MED/25/MIN
+    'loan_amount',     # 5: loan amount
+    'gross_rate',      # 6: gross interest rate
+    'net_rate',        # 7: net interest rate
+    'orig_term',       # 8: original term
+    'rem_term',        # 9: remaining term
+    'loan_age',        # 10: loan age
+    'col_11',          # 11: unknown
+    'col_12',          # 12: unknown
+    'dti',             # 13: debt-to-income
+    'col_14',          # 14: unknown
+    'col_15',          # 15: unknown
+    'col_16',          # 16: unknown
+    'fico',            # 17: credit score
+    'ltv',             # 18: loan-to-value
+    'col_19',          # 19: unknown
+    'state_code',      # 20: state code (7777 = masked)
+]
+
 
 # =============================================================================
 # Helper Functions
@@ -889,6 +915,110 @@ class FactorParser(FreddieFileParser):
 
 
 # =============================================================================
+# Geographic Parser (ge files -> pool distribution stats)
+# =============================================================================
+
+class GeoParser(FreddieFileParser):
+    """
+    Parses Geographic (ge) files.
+    
+    These contain distribution statistics (MAX/75th/MED/25th/MIN) per pool for:
+    - Loan amount, rates, FICO, LTV, DTI, term, age
+    
+    We extract MEDIAN values to update dim_pool with more accurate stats,
+    and store distribution ranges (max-min) for heterogeneity scoring.
+    """
+    
+    def process_file(self, file_info: Dict) -> int:
+        """Process a single geographic file."""
+        logger.info(f"Processing {file_info['filename']}")
+        
+        try:
+            content = self.download_and_extract(file_info['local_gcs_path'])
+            lines = content.strip().split('\n')
+            
+            # Extract date from filename (ge260107.zip -> Jan 07, 2026)
+            
+            # Collect pool distribution data
+            pool_stats = {}  # pool_id -> {stat_type: {field: value}}
+            
+            for line in lines:
+                if not line.strip():
+                    continue
+                
+                fields = line.split('|')
+                if len(fields) < 19:
+                    continue
+                
+                pool_id = fields[2].strip() if len(fields) > 2 else None
+                stat_type = fields[4].strip() if len(fields) > 4 else None
+                
+                if not pool_id or not stat_type:
+                    continue
+                
+                if pool_id not in pool_stats:
+                    pool_stats[pool_id] = {}
+                
+                pool_stats[pool_id][stat_type] = {
+                    'loan_amount': safe_decimal(fields[5]) if len(fields) > 5 else None,
+                    'gross_rate': safe_decimal(fields[6]) if len(fields) > 6 else None,
+                    'fico': safe_int(fields[17]) if len(fields) > 17 else None,
+                    'ltv': safe_int(fields[18]) if len(fields) > 18 else None,
+                    'dti': safe_int(fields[13]) if len(fields) > 13 else None,
+                }
+            
+            # Update dim_pool with distribution data
+            # We store: median values + range (max - min) for heterogeneity
+            updated = 0
+            with self.engine.connect() as conn:
+                for pool_id, stats in pool_stats.items():
+                    med = stats.get('MED', {})
+                    max_vals = stats.get('MAX', {})
+                    min_vals = stats.get('MIN', {})
+                    
+                    # Calculate ranges (heterogeneity indicators)
+                    fico_range = None
+                    if max_vals.get('fico') and min_vals.get('fico'):
+                        fico_range = max_vals['fico'] - min_vals['fico']
+                    
+                    ltv_range = None
+                    if max_vals.get('ltv') and min_vals.get('ltv'):
+                        ltv_range = max_vals['ltv'] - min_vals['ltv']
+                    
+                    # Only update pools that exist
+                    result = conn.execute(text("""
+                        UPDATE dim_pool SET
+                            avg_fico = COALESCE(avg_fico, :med_fico),
+                            avg_ltv = COALESCE(avg_ltv, :med_ltv),
+                            avg_dti = COALESCE(avg_dti, :med_dti),
+                            avg_loan_size = COALESCE(avg_loan_size, :med_loan_amt),
+                            updated_at = NOW()
+                        WHERE pool_id = :pool_id
+                          AND (avg_fico IS NULL OR avg_ltv IS NULL OR avg_dti IS NULL)
+                    """), {
+                        'pool_id': pool_id,
+                        'med_fico': med.get('fico'),
+                        'med_ltv': med.get('ltv'),
+                        'med_dti': med.get('dti'),
+                        'med_loan_amt': med.get('loan_amount'),
+                    })
+                    
+                    if result.rowcount > 0:
+                        updated += 1
+                
+                conn.commit()
+            
+            self.mark_processed(file_info['id'], True)
+            logger.info(f"Processed {len(pool_stats)} pools, updated {updated} from {file_info['filename']}")
+            return len(pool_stats)
+            
+        except Exception as e:
+            logger.error(f"Error processing {file_info['filename']}: {e}")
+            self.mark_processed(file_info['id'], False, str(e))
+            return 0
+
+
+# =============================================================================
 # Main Entry Point
 # =============================================================================
 
@@ -914,6 +1044,7 @@ def process_files(file_type: str, limit: Optional[int] = None, engine: Optional[
         'illd': (LoanParser, 'FRE_ILLD_%'),
         'factor': (FactorParser, 'FRE_DPR_Fctr%'),
         'fiss': (FissParser, 'FRE_FISS_%'),  # Headerless format
+        'geo': (GeoParser, 'ge%.zip'),  # Geographic distribution stats
     }
     
     if file_type not in parsers:
