@@ -325,33 +325,64 @@ class SFLLDParser:
         }
     
     def process_zip_file(self, zip_path: Path) -> Dict[str, int]:
-        """Process a single SFLLD ZIP file."""
+        """Process a single SFLLD ZIP file.
+        
+        Structure: historical_data_YYYY.zip contains quarterly ZIPs:
+          - historical_data_YYYYQ1.zip
+          - historical_data_YYYYQ2.zip
+          - ...
+        Each quarterly ZIP contains:
+          - historical_data_YYYYQX.txt (origination)
+          - historical_data_time_YYYYQX.txt (performance)
+        """
         logger.info(f"Processing {zip_path.name}")
         
         counts = {'origination': 0, 'performance': 0, 'errors': 0}
         
-        with zipfile.ZipFile(zip_path, 'r') as zf:
-            file_list = zf.namelist()
+        with zipfile.ZipFile(zip_path, 'r') as outer_zf:
+            file_list = outer_zf.namelist()
             
-            # Find origination file (historical_data_YYYY.txt or similar)
-            orig_file = None
-            perf_file = None
-            for f in file_list:
-                if 'historical_data' in f.lower() or 'orig' in f.lower():
-                    orig_file = f
-                elif 'time' in f.lower() or 'perf' in f.lower():
-                    perf_file = f
+            # Check if this contains nested ZIPs (quarterly files)
+            nested_zips = [f for f in file_list if f.endswith('.zip')]
             
-            # Process origination data
-            if orig_file:
-                logger.info(f"  Processing origination: {orig_file}")
-                with zf.open(orig_file) as f:
-                    counts['origination'] = self._load_origination_data(f)
-            
-            # Process performance data (if needed - this is HUGE)
-            # Skip for now - performance data can be loaded separately
-            if perf_file:
-                logger.info(f"  Performance file found: {perf_file} (skipping for now)")
+            if nested_zips:
+                # Process each quarterly ZIP
+                for nested_zip_name in sorted(nested_zips):
+                    logger.info(f"  Processing quarterly: {nested_zip_name}")
+                    try:
+                        # Read the nested ZIP into memory
+                        with outer_zf.open(nested_zip_name) as nz_data:
+                            import io
+                            nested_bytes = io.BytesIO(nz_data.read())
+                            
+                            with zipfile.ZipFile(nested_bytes, 'r') as inner_zf:
+                                inner_files = inner_zf.namelist()
+                                
+                                # Find origination and performance files
+                                for inner_file in inner_files:
+                                    if inner_file.endswith('.txt'):
+                                        if 'time' in inner_file.lower():
+                                            # Performance file - skip for now (very large)
+                                            logger.info(f"    Skipping performance: {inner_file}")
+                                        else:
+                                            # Origination file
+                                            logger.info(f"    Loading origination: {inner_file}")
+                                            with inner_zf.open(inner_file) as f:
+                                                loaded = self._load_origination_data(f)
+                                                counts['origination'] += loaded
+                    except Exception as e:
+                        logger.error(f"    Error processing {nested_zip_name}: {e}")
+                        counts['errors'] += 1
+            else:
+                # Direct TXT files (old format or already extracted)
+                for f in file_list:
+                    if f.endswith('.txt'):
+                        if 'time' in f.lower():
+                            logger.info(f"  Skipping performance: {f}")
+                        else:
+                            logger.info(f"  Loading origination: {f}")
+                            with outer_zf.open(f) as txt_file:
+                                counts['origination'] += self._load_origination_data(txt_file)
         
         return counts
     
@@ -382,14 +413,46 @@ class SFLLDParser:
         return total
     
     def _insert_loan_batch(self, batch: List[Dict]):
-        """Insert a batch of loan records."""
+        """Insert a batch of loan records using bulk insert."""
         if not batch:
             return
         
-        with self.engine.connect() as conn:
-            # Use INSERT ... ON CONFLICT DO NOTHING to handle duplicates
-            for record in batch:
-                try:
+        try:
+            with self.engine.connect() as conn:
+                # Use executemany for bulk insert
+                stmt = text("""
+                    INSERT INTO dim_loan_historical (
+                        loan_sequence, credit_score, first_payment_date, 
+                        first_time_buyer, maturity_date, msa, mi_pct,
+                        num_units, occupancy, cltv, dti, orig_upb, ltv,
+                        orig_rate, channel, prepay_penalty, amort_type,
+                        state, property_type, zipcode, loan_purpose,
+                        loan_term, num_borrowers, seller_name, servicer_name,
+                        source
+                    ) VALUES (
+                        :loan_sequence, :credit_score, :first_payment_date,
+                        :first_time_buyer, :maturity_date, :msa, :mi_pct,
+                        :num_units, :occupancy, :cltv, :dti, :orig_upb, :ltv,
+                        :orig_rate, :channel, :prepay_penalty, :amort_type,
+                        :state, :property_type, :zipcode, :loan_purpose,
+                        :loan_term, :num_borrowers, :seller_name, :servicer_name,
+                        :source
+                    )
+                    ON CONFLICT (loan_sequence) DO NOTHING
+                """)
+                conn.execute(stmt, batch)
+                conn.commit()
+        except Exception as e:
+            logger.error(f"Batch insert failed: {e}")
+            # Try individual inserts as fallback
+            self._insert_loan_batch_individual(batch)
+    
+    def _insert_loan_batch_individual(self, batch: List[Dict]):
+        """Fallback: insert records one at a time."""
+        inserted = 0
+        for record in batch:
+            try:
+                with self.engine.connect() as conn:
                     conn.execute(text("""
                         INSERT INTO dim_loan_historical (
                             loan_sequence, credit_score, first_payment_date, 
@@ -410,10 +473,11 @@ class SFLLDParser:
                         )
                         ON CONFLICT (loan_sequence) DO NOTHING
                     """), record)
-                except Exception as e:
-                    logger.debug(f"Insert error: {e}")
-            
-            conn.commit()
+                    conn.commit()
+                    inserted += 1
+            except Exception as e:
+                pass  # Skip problematic records
+        logger.info(f"  Individual fallback inserted {inserted}/{len(batch)} records")
 
 
 # =============================================================================
