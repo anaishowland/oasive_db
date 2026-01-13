@@ -1077,7 +1077,7 @@ def process_files(file_type: str, limit: Optional[int] = None, engine: Optional[
 def main():
     parser = argparse.ArgumentParser(description='Parse Freddie Mac disclosure files')
     parser.add_argument('--file-type', type=str, 
-                       choices=['issuance', 'illd', 'factor', 'fiss'],
+                       choices=['issuance', 'illd', 'factor', 'fiss', 'geo'],
                        help='Type of file to process')
     parser.add_argument('--limit', type=int, help='Limit number of files to process')
     parser.add_argument('--process-all', action='store_true', 
