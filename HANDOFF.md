@@ -1,6 +1,6 @@
 # Agent Handoff Document
 
-**Last updated:** January 12, 2026
+**Last updated:** January 14, 2026
 
 This document provides context for AI agents continuing development on Oasive.
 
@@ -103,31 +103,28 @@ gcloud run jobs execute freddie-parser --region=us-central1 \
   --args="-m,src.parsers.freddie_parser,--file-type,fiss" --async
 ```
 
-### Phase 3: Parse Loan-Level Data 🔄 70% Complete
+### Phase 3: Parse Loan-Level Data 🔄 99% Complete
 **Goal:** Load FRE_ILLD (81 files, ~14M loans) into `dim_loan`
 
 | Task | Status | Details |
 |------|--------|---------|
 | Design bulk load strategy | ✅ Done | Using batch inserts (10K per batch) |
-| Process ILLD files | 🔄 70% | **57/81 files, 5.0M loans loaded** |
-| Cloud Run jobs | 🔄 Running | Jobs continue processing |
-| Parse geographic files | ⏳ Pending | 72/85 downloaded, parser ready |
+| Process ILLD files | 🔄 99% | **80/81 files, 6.9M loans loaded** |
+| Parse geographic files | 🔄 86% | **59/69 files processed** |
 | Calculate pool aggregates | ⏳ Pending | State concentration, avg metrics |
 
 **Commands:**
 ```bash
-# Run 6 parallel ILLD parser jobs
-for i in {1..6}; do
-  gcloud run jobs execute freddie-parser --region=us-central1 \
-    --args="-m,src.parsers.freddie_parser,--file-type,illd,--limit,12" --async
-done
-
-# Run geographic parser (distribution stats)
+# Run remaining ILLD parser jobs
 gcloud run jobs execute freddie-parser --region=us-central1 \
-  --args="-m,src.parsers.freddie_parser,--file-type,geo" --async
+  --args="-m,src.parsers.freddie_parser,--file-type,illd,--limit,2" --async
+
+# Run geographic parser
+gcloud run jobs execute freddie-parser --region=us-central1 \
+  --args="-m,src.parsers.freddie_parser,--file-type,geo,--limit,15" --async
 ```
 
-**Estimated remaining:** ~9M loans across 24 files
+**Estimated remaining:** 1 ILLD file, 10 geographic files
 
 ### Phase 4: Factor & CPR Data ✅ Complete
 **Goal:** Load FRE_DPR_Fctr for prepayment analysis
@@ -152,29 +149,39 @@ gcloud run jobs execute freddie-parser --region=us-central1 \
 | Apply FK constraints | ⏳ Pending | Migration 007 |
 | Validate assumptions | ⏳ Pending | Use research framework |
 
-### Phase 6: Historical Data (SFLLD 1999-2025) 🔄 Downloading
+### Phase 6: Historical Data (SFLLD 1999-2025) 🔄 Uploading to GCS
 **Goal:** Load 54.8M historical loans for cross-cycle prepay research
 
 | Task | Status | Details |
 |------|--------|---------|
 | Create schema | ✅ Done | Migration 009: `dim_loan_historical`, `fact_loan_month_historical` |
-| Create ingestor | ✅ Done | `src/ingestors/sflld_ingestor.py` |
-| Download full dataset | 🔄 **Downloading** | 36.8 GB (~6 hours ETA) |
+| Create ingestor | ✅ Done | `src/ingestors/sflld_ingestor.py` with GCS support |
+| Download full dataset | ✅ Done | 36.8 GB downloaded from Clarity |
+| Extract locally | ✅ Partial | 1999-2008 extracted (41 origination + 41 performance files) |
+| Upload to GCS | 🔄 **In Progress** | 128 GB → `gs://oasive-raw-data/sflld/` (~1 hour ETA) |
+| Cloud Run processor | ✅ Ready | `sflld-processor` job created |
 | Parse origination data | ⏳ Pending | 54.8M loans → `dim_loan_historical` |
-| Parse performance data | ⏳ Pending | Monthly snapshots (optional, very large) |
+| Parse performance data | ⏳ Pending | Monthly snapshots (large but important) |
 | Cross-cycle analysis | ⏳ Pending | 2000s boom, 2008 crisis, COVID refi, 2022 rates |
 
-**Commands (after download completes):**
+**GCS Processing (runs in cloud, not local):**
 ```bash
-# Move downloaded file
-mkdir -p ~/Downloads/sflld
-mv ~/Downloads/full_set_standard_historical*.zip ~/Downloads/sflld/
+# Start cloud processing
+gcloud run jobs execute sflld-processor \
+  --region=us-central1 \
+  --project=gen-lang-client-0343560978 \
+  --args="-m,src.ingestors.sflld_ingestor,--process-gcs,gs://oasive-raw-data/sflld"
 
-# Process all files
-python3 -m src.ingestors.sflld_ingestor --process ~/Downloads/sflld
+# Monitor progress
+gcloud logging read 'resource.type="cloud_run_job" AND resource.labels.job_name="sflld-processor"' \
+  --project=gen-lang-client-0343560978 --limit=50
 ```
 
-**Note:** Download initiated Jan 13, 2026. File: `full_set_standard_historical.zip` (36.8 GB)
+**Files in GCS (after upload):**
+- `gs://oasive-raw-data/sflld/extracted/` - Pre-extracted TXT files (1999-2008)
+- `gs://oasive-raw-data/sflld/yearly/` - Original yearly ZIPs (for remaining extraction)
+
+**Note:** Local disk space was insufficient (128GB extracted). Migrated to GCS for cloud processing.
 
 **New columns added to `dim_pool`:**
 - **Static:** `loan_balance_tier`, `loan_program`, `fico_bucket`, `ltv_bucket`, `occupancy_type`, `loan_purpose`, `state_prepay_friction`, `seasoning_stage`, `property_type`, `origination_channel`, `has_rate_buydown`
@@ -188,26 +195,27 @@ python3 -m src.ingestors.sflld_ingestor --process ~/Downloads/sflld
 
 ---
 
-## 📊 Current Database Status (Updated Jan 13, 2026)
+## 📊 Current Database Status (Updated Jan 14, 2026)
 
 | Table | Records | Status |
 |-------|---------|--------|
-| `dim_pool` | **167,272** | ✅ 163K tagged (97.7%) |
-| `dim_loan` | **5,002,801** | 🔄 Phase 3 (70%) |
+| `dim_pool` | **177,278** | ✅ 97.7% tagged |
+| `dim_loan` | **6,943,046** | 🔄 Phase 3 (99%) |
 | `fact_pool_month` | 157,600 | ✅ |
 | `freddie_file_catalog` | 45,356 | 76% downloaded |
-| `dim_loan_historical` | 0 | 🔄 Awaiting download |
+| `dim_loan_historical` | 100 | 🔄 Awaiting GCS processing |
 
 **Parsing Progress (SFTP 2019+):**
 - IS: 200/200 ✅ 
 - FISS: 227/227 ✅
 - DPR: 34/34 ✅
-- ILLD: **57/81 (70%)** - 5.0M loans loaded
-- Geographic: 0/72 ⏳ pending (parser ready)
+- ILLD: **80/81 (99%)** - 6.9M loans loaded
+- Geographic: **59/69 (86%)** - 10 remaining
 
 **Historical Data (Clarity 1999-2025):**
-- SFLLD Download: 🔄 **In Progress** (36.8 GB, ~6 hours)
-- Tables: Ready (`dim_loan_historical`, `fact_loan_month_historical`)
+- SFLLD Download: ✅ Done (36.8 GB)
+- Upload to GCS: 🔄 **In Progress** (128 GB, ~1 hour ETA)
+- Cloud Run job: ✅ `sflld-processor` ready
 - Expected: ~54.8M loans for cross-cycle research
 
 **AI Tag Distribution:**
@@ -221,10 +229,11 @@ python3 -m src.ingestors.sflld_ingestor --process ~/Downloads/sflld
 - Historical (pending): 1999-01 to 2025-06 (~26 years)
 
 **Next Steps:**
-1. Complete ILLD loan loading (24 files remaining)
-2. Process SFLLD historical data (when download completes)
-3. Parse geographic files (72 downloaded)
-4. Calculate CPR from factor time series
+1. ⏳ Wait for GCS upload to complete (~1 hour)
+2. 🚀 Run `sflld-processor` Cloud Run job
+3. ✅ Delete local SFLLD files to free disk space
+4. Finish last ILLD + geographic files
+5. Calculate CPR from factor time series
 
 ---
 
@@ -234,9 +243,14 @@ python3 -m src.ingestors.sflld_ingestor --process ~/Downloads/sflld
 |-----------|---------|
 | **Cloud SQL** | `oasive-postgres` (PostgreSQL) |
 | **GCS Bucket** | `oasive-raw-data` |
-| **Cloud Run Jobs** | `freddie-ingestor`, `freddie-parser` |
+| **Cloud Run Jobs** | `freddie-ingestor`, `freddie-parser`, `sflld-processor` |
 | **VPC Connector** | `data-feeds-vpc-1` (for SFTP egress) |
 | **Service Account** | `cloud-run-jobs-sa@gen-lang-client-0343560978.iam.gserviceaccount.com` |
+
+**GCS Paths:**
+- `gs://oasive-raw-data/freddie/raw/` - SFTP downloaded files
+- `gs://oasive-raw-data/sflld/extracted/` - SFLLD pre-extracted TXT files
+- `gs://oasive-raw-data/sflld/yearly/` - SFLLD yearly ZIP archives
 
 ---
 
@@ -245,6 +259,7 @@ python3 -m src.ingestors.sflld_ingestor --process ~/Downloads/sflld
 | File | Purpose |
 |------|---------|
 | `src/ingestors/freddie_ingestor.py` | SFTP download with retry logic |
+| `src/ingestors/sflld_ingestor.py` | **SFLLD historical data processor** (GCS support) |
 | `src/parsers/freddie_parser.py` | Parse ZIPs → database |
 | `src/tagging/pool_tagger.py` | **AI tagging engine** (1192 pools/sec) |
 | `src/db/connection.py` | Cloud SQL connector |
@@ -252,7 +267,9 @@ python3 -m src.ingestors.sflld_ingestor --process ~/Downloads/sflld
 | `docs/prepay_research_framework.md` | Empirical validation plan |
 | `migrations/004_freddie_data_schema.sql` | Core data schema |
 | `migrations/008_ai_tagging_schema.sql` | AI tag columns + factor_multipliers |
-| `migrations/007_add_foreign_keys.sql` | FK constraints (pending) |
+| `migrations/009_sflld_historical_schema.sql` | Historical loan tables |
+| `migrations/010_unified_research_views.sql` | Cross-era research views |
+| `scripts/run_sflld_cloud_migration.sh` | GCS upload + Cloud Run setup |
 
 ---
 

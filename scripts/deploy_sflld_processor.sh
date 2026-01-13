@@ -23,7 +23,7 @@ gcloud run jobs create $JOB_NAME \
     --project=$PROJECT_ID \
     --memory=4Gi \
     --cpu=2 \
-    --timeout=4h \
+    --task-timeout=4h \
     --max-retries=1 \
     --set-env-vars="CLOUDSQL_CONNECTION_NAME=$PROJECT_ID:$REGION:oasive-postgres,GCP_PROJECT_ID=$PROJECT_ID,GCS_RAW_BUCKET=oasive-raw-data,POSTGRES_DB=oasive,POSTGRES_USER=postgres" \
     --set-secrets="POSTGRES_PASSWORD=postgres-password:latest" \
@@ -39,7 +39,7 @@ gcloud run jobs update $JOB_NAME \
     --project=$PROJECT_ID \
     --memory=4Gi \
     --cpu=2 \
-    --timeout=4h \
+    --task-timeout=4h \
     --args="-m,src.ingestors.sflld_ingestor,--process-gcs,gs://oasive-raw-data/sflld"
 
 echo ""
