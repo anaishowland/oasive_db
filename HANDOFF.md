@@ -31,7 +31,29 @@ The **Single-Family Loan-Level Dataset (SFLLD)** on Clarity contains:
 - Standard + Non-Standard datasets (ARMs, IOs, etc.)
 - 25+ years of prepay history across rate cycles
 
-**Access:** Register at `capitalmarkets.freddiemac.com/clarity` → "CRT & Historical Data"
+**Access:** Register at `capitalmarkets.freddiemac.com/clarity` → "CRT & Historical Data" → "SFLLD Data"
+
+### SFLLD Ingestion Tools
+
+The project includes tools for managing SFLLD historical data:
+
+```bash
+# Check which years need downloading
+python3 -m src.ingestors.sflld_ingestor --status
+
+# Process downloaded files from a directory
+python3 -m src.ingestors.sflld_ingestor --process ~/Downloads/sflld
+
+# Process a single ZIP file
+python3 -m src.ingestors.sflld_ingestor --process-file ~/Downloads/historical_data_2008.zip
+```
+
+**Compliance Note:** Freddie Mac's Terms of Use prohibit automated web scraping. Files must be downloaded manually from Clarity, then processed using our ingestion tools.
+
+**Tables:**
+- `dim_loan_historical` - Origination data (1999-2025)
+- `fact_loan_month_historical` - Monthly performance snapshots
+- `sflld_file_catalog` - Download tracking (27 years)
 
 ---
 
