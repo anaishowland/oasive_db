@@ -154,7 +154,7 @@ COMMENT ON TABLE dim_loan_historical IS 'Freddie Mac SFLLD historical loan-level
 COMMENT ON TABLE fact_loan_month_historical IS 'Monthly performance snapshots for historical loans.';
 COMMENT ON TABLE sflld_file_catalog IS 'Tracks SFLLD file downloads and processing status.';
 
-COMMENT ON COLUMN dim_loan_historical.zero_balance_code IS 
+COMMENT ON COLUMN fact_loan_month_historical.zero_balance_code IS 
     '01=Prepaid/Matured, 02=Third Party Sale, 03=Short Sale, 06=Repurchased, 09=REO, 15=Note Sale';
 COMMENT ON COLUMN dim_loan_historical.loan_purpose IS 
     'P=Purchase, C=Cash-Out Refi, N=No Cash-Out Refi, R=Rehab';
