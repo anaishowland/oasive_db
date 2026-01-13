@@ -31,7 +31,7 @@ gcloud run jobs create $JOB_NAME \
     --vpc-egress=all-traffic \
     --set-cloudsql-instances=$PROJECT_ID:$REGION:oasive-postgres \
     --service-account=cloud-run-jobs-sa@$PROJECT_ID.iam.gserviceaccount.com \
-    --args="-m,src.ingestors.sflld_ingestor,--process-gcs,gs://oasive-raw-data/sflld" \
+    --args="python,-m,src.ingestors.sflld_ingestor,--process-gcs,gs://oasive-raw-data/sflld" \
     2>/dev/null || \
 gcloud run jobs update $JOB_NAME \
     --image=$IMAGE \

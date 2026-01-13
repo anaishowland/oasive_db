@@ -85,7 +85,7 @@ echo "🚀 Step 6: Starting SFLLD processor job..."
 gcloud run jobs execute sflld-processor \
     --region=us-central1 \
     --project=gen-lang-client-0343560978 \
-    --args="-m,src.ingestors.sflld_ingestor,--process-gcs,gs://oasive-raw-data/sflld"
+    --args="python,-m,src.ingestors.sflld_ingestor,--process-gcs,gs://oasive-raw-data/sflld"
 
 echo ""
 echo "=============================================="
