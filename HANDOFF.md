@@ -103,15 +103,15 @@ gcloud run jobs execute freddie-parser --region=us-central1 \
   --args="-m,src.parsers.freddie_parser,--file-type,fiss" --async
 ```
 
-### Phase 3: Parse Loan-Level Data 🔄 In Progress
+### Phase 3: Parse Loan-Level Data 🔄 70% Complete
 **Goal:** Load FRE_ILLD (81 files, ~14M loans) into `dim_loan`
 
 | Task | Status | Details |
 |------|--------|---------|
 | Design bulk load strategy | ✅ Done | Using batch inserts (10K per batch) |
-| Process ILLD files | 🔄 64% | 52/81 files, 4.6M loans loaded |
-| Cloud Run jobs | 🔄 Running | 6 parallel jobs processing |
-| Parse geographic files | 🔄 Pending | 72/85 downloaded, distribution stats per pool |
+| Process ILLD files | 🔄 70% | **57/81 files, 5.0M loans loaded** |
+| Cloud Run jobs | 🔄 Running | Jobs continue processing |
+| Parse geographic files | ⏳ Pending | 72/85 downloaded, parser ready |
 | Calculate pool aggregates | ⏳ Pending | State concentration, avg metrics |
 
 **Commands:**
@@ -121,9 +121,13 @@ for i in {1..6}; do
   gcloud run jobs execute freddie-parser --region=us-central1 \
     --args="-m,src.parsers.freddie_parser,--file-type,illd,--limit,12" --async
 done
+
+# Run geographic parser (distribution stats)
+gcloud run jobs execute freddie-parser --region=us-central1 \
+  --args="-m,src.parsers.freddie_parser,--file-type,geo" --async
 ```
 
-**Estimated remaining:** ~11.7M loans across 68 files
+**Estimated remaining:** ~9M loans across 24 files
 
 ### Phase 4: Factor & CPR Data ✅ Complete
 **Goal:** Load FRE_DPR_Fctr for prepayment analysis
@@ -143,10 +147,34 @@ done
 | Factor multipliers table | ✅ Done | 26 entries seeded for all factors |
 | Review tagging design | ✅ Done | User updated `ai_tagging_design.md` v2.0 |
 | Implement PoolTagger class | ✅ Done | `src/tagging/pool_tagger.py` (1192/sec) |
-| **Tag all pools** | ✅ Done | **161,136 pools tagged** (100%) |
+| **Tag all pools** | ✅ Done | **163,347 pools tagged** (97.7%) |
 | **Auto-tag integration** | ✅ Done | Parser auto-tags after file processing |
 | Apply FK constraints | ⏳ Pending | Migration 007 |
 | Validate assumptions | ⏳ Pending | Use research framework |
+
+### Phase 6: Historical Data (SFLLD 1999-2025) 🔄 Downloading
+**Goal:** Load 54.8M historical loans for cross-cycle prepay research
+
+| Task | Status | Details |
+|------|--------|---------|
+| Create schema | ✅ Done | Migration 009: `dim_loan_historical`, `fact_loan_month_historical` |
+| Create ingestor | ✅ Done | `src/ingestors/sflld_ingestor.py` |
+| Download full dataset | 🔄 **Downloading** | 36.8 GB (~6 hours ETA) |
+| Parse origination data | ⏳ Pending | 54.8M loans → `dim_loan_historical` |
+| Parse performance data | ⏳ Pending | Monthly snapshots (optional, very large) |
+| Cross-cycle analysis | ⏳ Pending | 2000s boom, 2008 crisis, COVID refi, 2022 rates |
+
+**Commands (after download completes):**
+```bash
+# Move downloaded file
+mkdir -p ~/Downloads/sflld
+mv ~/Downloads/full_set_standard_historical*.zip ~/Downloads/sflld/
+
+# Process all files
+python3 -m src.ingestors.sflld_ingestor --process ~/Downloads/sflld
+```
+
+**Note:** Download initiated Jan 13, 2026. File: `full_set_standard_historical.zip` (36.8 GB)
 
 **New columns added to `dim_pool`:**
 - **Static:** `loan_balance_tier`, `loan_program`, `fico_bucket`, `ltv_bucket`, `occupancy_type`, `loan_purpose`, `state_prepay_friction`, `seasoning_stage`, `property_type`, `origination_channel`, `has_rate_buydown`
@@ -160,21 +188,27 @@ done
 
 ---
 
-## 📊 Current Database Status (Updated Jan 12, 2026)
+## 📊 Current Database Status (Updated Jan 13, 2026)
 
 | Table | Records | Status |
 |-------|---------|--------|
-| `dim_pool` | **167,272** | ✅ 163K tagged |
-| `dim_loan` | **4,566,457** | 🔄 Phase 3 (64%) |
+| `dim_pool` | **167,272** | ✅ 163K tagged (97.7%) |
+| `dim_loan` | **5,002,801** | 🔄 Phase 3 (70%) |
 | `fact_pool_month` | 157,600 | ✅ |
 | `freddie_file_catalog` | 45,356 | 76% downloaded |
+| `dim_loan_historical` | 0 | 🔄 Awaiting download |
 
-**Parsing Progress:**
-- IS: 200/200 ✅ (2019 CSV format fixed)
+**Parsing Progress (SFTP 2019+):**
+- IS: 200/200 ✅ 
 - FISS: 227/227 ✅
 - DPR: 34/34 ✅
-- ILLD: 52/81 (64%) - ~4.6M loans loaded
-- Geographic: 0/72 ⏳ pending
+- ILLD: **57/81 (70%)** - 5.0M loans loaded
+- Geographic: 0/72 ⏳ pending (parser ready)
+
+**Historical Data (Clarity 1999-2025):**
+- SFLLD Download: 🔄 **In Progress** (36.8 GB, ~6 hours)
+- Tables: Ready (`dim_loan_historical`, `fact_loan_month_historical`)
+- Expected: ~54.8M loans for cross-cycle research
 
 **AI Tag Distribution:**
 - Loan Balance: STD (54K), MLB (27K), LLB1-7 (77K), JUMBO (339)
@@ -183,14 +217,14 @@ done
 
 **Data Date Ranges:**
 - Pools: 2019-06 to 2025-12 (~6.5 years)
-- Loans: 1993-04 to 2026-01 (~32 years)
-- Factor Data: 70 months (2019-2025)
+- Loans (SFTP): 1993-04 to 2026-01 (~32 years)
+- Historical (pending): 1999-01 to 2025-06 (~26 years)
 
 **Next Steps:**
-1. Complete ILLD loan loading (29 files remaining)
-2. Parse geographic files (72 files)
-3. Calculate CPR from factor time series
-4. Update state_prepay_friction from loan-level state distribution
+1. Complete ILLD loan loading (24 files remaining)
+2. Process SFLLD historical data (when download completes)
+3. Parse geographic files (72 downloaded)
+4. Calculate CPR from factor time series
 
 ---
 
