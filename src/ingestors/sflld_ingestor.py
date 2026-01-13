@@ -39,7 +39,10 @@ from sqlalchemy.engine import Engine
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from src.db.connection import get_engine
-from src.config import GCS_RAW_BUCKET
+from src.config import GCSConfig
+
+# Get bucket name from config
+GCS_RAW_BUCKET = GCSConfig.from_env().raw_bucket
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
