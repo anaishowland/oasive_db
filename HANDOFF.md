@@ -33,6 +33,21 @@ The **Single-Family Loan-Level Dataset (SFLLD)** on Clarity contains:
 
 **Access:** Register at `capitalmarkets.freddiemac.com/clarity` → "CRT & Historical Data" → "SFLLD Data"
 
+### Fannie Mae Data Access
+
+| Source | URL | Coverage | Status |
+|--------|-----|----------|--------|
+| **PoolTalk (SFTP)** | `fanniemae.mbs-securities.com` | 2019-present | ⏳ Pending IP whitelist |
+| **Data Dynamics** | `datadynamics.fanniemae.com` | **2000-2025** | ✅ Available for download |
+
+**Fannie Mae Data Dynamics** provides:
+- **Primary Dataset**: 2000Q1-2025Q2 single file (similar to SFLLD)
+- **Quarterly files**: Individual quarter downloads
+- **HARP Dataset**: Home Affordable Refinance Program loans
+- ~62M loans covering 25 years of prepay history
+
+**Download recommendation**: Download the "2000Q1-2025Q2 Acquisition and Performance File" at the top for complete historical coverage. Once downloaded, use the same ingestor pattern as SFLLD.
+
 ### SFLLD Ingestion Tools
 
 The project includes tools for managing SFLLD historical data:
@@ -232,8 +247,9 @@ gcloud logging read 'resource.type="cloud_run_job" AND resource.labels.job_name=
 **Next Steps:**
 1. 🔄 SFLLD processing continues (~8-12 hours remaining)
 2. ⏳ Delete local `~/Downloads/sflld` after verification
-3. Calculate CPR from factor time series
-4. Validate prepay assumptions using research framework
+3. ⏳ Download Fannie Mae historical data from Data Dynamics (2000-2025)
+4. Calculate CPR from factor time series
+5. Validate prepay assumptions using research framework
 
 ---
 
@@ -263,8 +279,9 @@ gcloud logging read 'resource.type="cloud_run_job" AND resource.labels.job_name=
 **Note (Jan 14, 2026):** Fixed scheduler permission issue - added `roles/run.invoker` to service account. Scheduler was failing with code 7 (PERMISSION_DENIED) but Cloud Run job alerts weren't triggered because jobs never started.
 
 **Alert Policies:**
-- Cloud Run job failures → Email notification
-- ⚠️ Cloud Scheduler failures are NOT currently monitored (jobs silently fail to start)
+- ❌ Cloud Run job failures (FRED, Freddie) → Email notification
+- ⚠️ Cloud Scheduler failures (FRED, Freddie) → Email notification
+- All alerts configured with the same notification channel
 
 ---
 
@@ -352,6 +369,7 @@ python3 -m src.parsers.freddie_parser --tag-only
 - Use `--no-tag` flag to disable auto-tagging if needed
 - SFLLD uses `ON CONFLICT DO NOTHING` - safe to restart without duplicates
 - **Jan 14 Fix:** Added `roles/run.invoker` to service account for scheduler
+- **Jan 14:** Added Cloud Scheduler failure alert for Freddie (now have 4 alert policies total)
 
 ---
 
