@@ -144,12 +144,12 @@ gcloud run jobs execute freddie-parser --region=us-central1 \
 | Factor multipliers table | ✅ Done | 26 entries seeded for all factors |
 | Review tagging design | ✅ Done | User updated `ai_tagging_design.md` v2.0 |
 | Implement PoolTagger class | ✅ Done | `src/tagging/pool_tagger.py` (1192/sec) |
-| **Tag all pools** | ✅ Done | **163,347 pools tagged** (97.7%) |
+| **Tag all pools** | ✅ Done | **177,278 pools tagged (100%)** |
 | **Auto-tag integration** | ✅ Done | Parser auto-tags after file processing |
 | Apply FK constraints | ⏳ Pending | Migration 007 |
 | Validate assumptions | ⏳ Pending | Use research framework |
 
-### Phase 6: Historical Data (SFLLD 1999-2025) 🔄 Uploading to GCS
+### Phase 6: Historical Data (SFLLD 1999-2025) 🔄 19% Complete
 **Goal:** Load 54.8M historical loans for cross-cycle prepay research
 
 | Task | Status | Details |
@@ -157,31 +157,31 @@ gcloud run jobs execute freddie-parser --region=us-central1 \
 | Create schema | ✅ Done | Migration 009: `dim_loan_historical`, `fact_loan_month_historical` |
 | Create ingestor | ✅ Done | `src/ingestors/sflld_ingestor.py` with GCS support |
 | Download full dataset | ✅ Done | 36.8 GB downloaded from Clarity |
-| Extract locally | ✅ Partial | 1999-2008 extracted (41 origination + 41 performance files) |
-| Upload to GCS | 🔄 **In Progress** | 128 GB → `gs://oasive-raw-data/sflld/` (~1 hour ETA) |
-| Cloud Run processor | ✅ Ready | `sflld-processor` job created |
-| Parse origination data | ⏳ Pending | 54.8M loans → `dim_loan_historical` |
+| Upload to GCS | ✅ Done | 128 GB uploaded to `gs://oasive-raw-data/sflld/` |
+| Cloud Run processor | ✅ Running | `sflld-processor` job (24h timeout) |
+| Parse origination data | 🔄 **19%** | **10.46M / ~55M loans loaded** |
 | Parse performance data | ⏳ Pending | Monthly snapshots (large but important) |
 | Cross-cycle analysis | ⏳ Pending | 2000s boom, 2008 crisis, COVID refi, 2022 rates |
 
+**Current Progress:**
+- Currently processing: 2003-2004 data
+- Running since: Jan 14, 05:17 UTC
+- Timeout: 24 hours (plenty of time remaining)
+
 **GCS Processing (runs in cloud, not local):**
 ```bash
-# Start cloud processing
+# Start cloud processing (already running)
 gcloud run jobs execute sflld-processor \
   --region=us-central1 \
-  --project=gen-lang-client-0343560978 \
-  --args="-m,src.ingestors.sflld_ingestor,--process-gcs,gs://oasive-raw-data/sflld"
+    --project=gen-lang-client-0343560978 \
+  --args="python,-m,src.ingestors.sflld_ingestor,--process-gcs,gs://oasive-raw-data/sflld"
 
 # Monitor progress
 gcloud logging read 'resource.type="cloud_run_job" AND resource.labels.job_name="sflld-processor"' \
   --project=gen-lang-client-0343560978 --limit=50
 ```
 
-**Files in GCS (after upload):**
-- `gs://oasive-raw-data/sflld/extracted/` - Pre-extracted TXT files (1999-2008)
-- `gs://oasive-raw-data/sflld/yearly/` - Original yearly ZIPs (for remaining extraction)
-
-**Note:** Local disk space was insufficient (128GB extracted). Migrated to GCS for cloud processing.
+**Note:** Job uses `ON CONFLICT DO NOTHING` so restarts skip already-loaded data.
 
 **New columns added to `dim_pool`:**
 - **Static:** `loan_balance_tier`, `loan_program`, `fico_bucket`, `ltv_bucket`, `occupancy_type`, `loan_purpose`, `state_prepay_friction`, `seasoning_stage`, `property_type`, `origination_channel`, `has_rate_buydown`
@@ -195,28 +195,29 @@ gcloud logging read 'resource.type="cloud_run_job" AND resource.labels.job_name=
 
 ---
 
-## 📊 Current Database Status (Updated Jan 14, 2026)
+## 📊 Current Database Status (Updated Jan 14, 2026 - Evening)
 
 | Table | Records | Status |
 |-------|---------|--------|
-| `dim_pool` | **177,278** | ✅ 97.7% tagged |
-| `dim_loan` | **6,943,046** | 🔄 Phase 3 (99%) |
+| `dim_pool` | **177,278** | ✅ 100% AI tagged |
+| `dim_loan` | **6,997,748** | ✅ Complete |
 | `fact_pool_month` | 157,600 | ✅ |
 | `freddie_file_catalog` | 45,356 | 76% downloaded |
-| `dim_loan_historical` | 100 | 🔄 Awaiting GCS processing |
+| `dim_loan_historical` | **10,463,160** | 🔄 19% (~55M target) |
 
 **Parsing Progress (SFTP 2019+):**
 - IS: 200/200 ✅ 
 - FISS: 227/227 ✅
 - DPR: 34/34 ✅
-- ILLD: **80/81 (99%)** - 6.9M loans loaded
-- Geographic: **59/69 (86%)** - 10 remaining
+- ILLD: 81/81 ✅ - 7.0M loans loaded
+- Geographic: 59/69 (86%) - 10 remaining
 
 **Historical Data (Clarity 1999-2025):**
 - SFLLD Download: ✅ Done (36.8 GB)
-- Upload to GCS: 🔄 **In Progress** (128 GB, ~1 hour ETA)
-- Cloud Run job: ✅ `sflld-processor` ready
-- Expected: ~54.8M loans for cross-cycle research
+- Upload to GCS: ✅ Done
+- Cloud Run job: 🔄 **Running** (`sflld-processor-cz98r`)
+- Progress: **10.46M / ~55M loans (19%)**
+- Currently processing: 2003-2004 data
 
 **AI Tag Distribution:**
 - Loan Balance: STD (54K), MLB (27K), LLB1-7 (77K), JUMBO (339)
@@ -226,14 +227,13 @@ gcloud logging read 'resource.type="cloud_run_job" AND resource.labels.job_name=
 **Data Date Ranges:**
 - Pools: 2019-06 to 2025-12 (~6.5 years)
 - Loans (SFTP): 1993-04 to 2026-01 (~32 years)
-- Historical (pending): 1999-01 to 2025-06 (~26 years)
+- Historical: 1999-01 to 2003+ (loading...)
 
 **Next Steps:**
-1. ⏳ Wait for GCS upload to complete (~1 hour)
-2. 🚀 Run `sflld-processor` Cloud Run job
-3. ✅ Delete local SFLLD files to free disk space
-4. Finish last ILLD + geographic files
-5. Calculate CPR from factor time series
+1. 🔄 SFLLD processing continues (~8-12 hours remaining)
+2. ⏳ Delete local `~/Downloads/sflld` after verification
+3. Calculate CPR from factor time series
+4. Validate prepay assumptions using research framework
 
 ---
 
@@ -251,6 +251,20 @@ gcloud logging read 'resource.type="cloud_run_job" AND resource.labels.job_name=
 - `gs://oasive-raw-data/freddie/raw/` - SFTP downloaded files
 - `gs://oasive-raw-data/sflld/extracted/` - SFLLD pre-extracted TXT files
 - `gs://oasive-raw-data/sflld/yearly/` - SFLLD yearly ZIP archives
+
+## ⏰ Scheduled Jobs
+
+| Job | Schedule | Purpose | Status |
+|-----|----------|---------|:------:|
+| `fred-ingestor-daily` | 11:30 UTC daily | FRED interest rates | ✅ Working |
+| `freddie-ingestor-daily` | 16:45 UTC Mon-Fri | Daily SFTP FISS files | ✅ Working |
+| `freddie-ingestor-monthly` | 11:45 UTC 1st-3rd | Monthly IS/ILLD files | ✅ Working |
+
+**Note (Jan 14, 2026):** Fixed scheduler permission issue - added `roles/run.invoker` to service account. Scheduler was failing with code 7 (PERMISSION_DENIED) but Cloud Run job alerts weren't triggered because jobs never started.
+
+**Alert Policies:**
+- Cloud Run job failures → Email notification
+- ⚠️ Cloud Scheduler failures are NOT currently monitored (jobs silently fail to start)
 
 ---
 
@@ -329,12 +343,15 @@ python3 -m src.parsers.freddie_parser --tag-only
 
 ## 📝 Notes
 
-- Job timeout increased to 2 hours (was failing at 1 hour)
+- SFLLD processor timeout: **24 hours** (increased from 4h to avoid timeouts)
+- Freddie parser timeout: 4 hours
 - Alert policy sends both firing + recovery emails (need to disable recovery in Cloud Console)
 - FRE_FISS files are headerless (9 columns, no header row)
 - Servicer classification already being applied during parsing
 - **AI tagging is auto-integrated into parser** - runs after each file is processed
 - Use `--no-tag` flag to disable auto-tagging if needed
+- SFLLD uses `ON CONFLICT DO NOTHING` - safe to restart without duplicates
+- **Jan 14 Fix:** Added `roles/run.invoker` to service account for scheduler
 
 ---
 
