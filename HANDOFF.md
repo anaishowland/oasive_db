@@ -46,7 +46,25 @@ The **Single-Family Loan-Level Dataset (SFLLD)** on Clarity contains:
 - **HARP Dataset**: Home Affordable Refinance Program loans
 - ~62M loans covering 25 years of prepay history
 
-**Download recommendation**: Download the "2000Q1-2025Q2 Acquisition and Performance File" at the top for complete historical coverage. Once downloaded, use the same ingestor pattern as SFLLD.
+**Download recommendation**: Download the "2000Q1-2025Q2 Acquisition and Performance File" at the top for complete historical coverage.
+
+**Fannie Mae Ingestion Tools (Ready to Use):**
+```bash
+# Check status
+python3 -m src.ingestors.fannie_sflp_ingestor --status
+
+# Process downloaded files from local directory
+python3 -m src.ingestors.fannie_sflp_ingestor --process ~/Downloads/fannie_sflp
+
+# Process from GCS (after uploading)
+python3 -m src.ingestors.fannie_sflp_ingestor --process-gcs gs://oasive-raw-data/fannie/sflp
+```
+
+**Fannie Mae Tables (Migration 011):**
+- `dim_loan_fannie_historical` - Acquisition data (62M loans, 2000-2025)
+- `fact_loan_month_fannie_historical` - Monthly performance snapshots
+- `fannie_sflp_file_catalog` - File tracking
+- `v_all_historical_loans` - Unified view combining Freddie + Fannie
 
 ### SFLLD Ingestion Tools
 
@@ -300,6 +318,8 @@ gcloud logging read 'resource.type="cloud_run_job" AND resource.labels.job_name=
 | `migrations/008_ai_tagging_schema.sql` | AI tag columns + factor_multipliers |
 | `migrations/009_sflld_historical_schema.sql` | Historical loan tables |
 | `migrations/010_unified_research_views.sql` | Cross-era research views |
+| `migrations/011_fannie_historical_schema.sql` | **Fannie Mae historical tables** |
+| `src/ingestors/fannie_sflp_ingestor.py` | **Fannie Mae SFLP processor** |
 | `scripts/run_sflld_cloud_migration.sh` | GCS upload + Cloud Run setup |
 
 ---
