@@ -60,7 +60,7 @@ gcloud run jobs create sflld-processor \
     --project=gen-lang-client-0343560978 \
     --memory=4Gi \
     --cpu=2 \
-    --task-timeout=4h \
+    --task-timeout=24h \
     --max-retries=1 \
     --set-env-vars="CLOUDSQL_CONNECTION_NAME=gen-lang-client-0343560978:us-central1:oasive-postgres,GCP_PROJECT_ID=gen-lang-client-0343560978,GCS_RAW_BUCKET=oasive-raw-data,POSTGRES_DB=oasive,POSTGRES_USER=postgres" \
     --set-secrets="POSTGRES_PASSWORD=postgres-password:latest" \
@@ -75,7 +75,7 @@ gcloud run jobs update sflld-processor \
     --project=gen-lang-client-0343560978 \
     --memory=4Gi \
     --cpu=2 \
-    --task-timeout=4h
+    --task-timeout=24h
 
 echo "✅ Cloud Run job ready"
 
