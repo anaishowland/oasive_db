@@ -1,0 +1,47 @@
+# Dockerfile for Ginnie Mae Ingestor (Playwright-based)
+# 
+# This image includes Chromium for headless browser automation.
+# Use for the ginnie-ingestor Cloud Run job.
+#
+# Build:
+#   docker build -f Dockerfile.ginnie -t gcr.io/$PROJECT_ID/ginnie-ingestor .
+#
+# Deploy:
+#   gcloud run jobs create ginnie-ingestor \
+#     --image gcr.io/$PROJECT_ID/ginnie-ingestor \
+#     --memory 2Gi \
+#     --cpu 2 \
+#     --task-timeout 3600s \
+#     --region us-central1
+
+FROM mcr.microsoft.com/playwright/python:v1.40.0-jammy
+
+# Set working directory
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    libpq-dev \
+    gcc \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements first for better caching
+COPY requirements.txt .
+
+# Install Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Install Playwright browsers (Chromium only for smaller image)
+RUN playwright install chromium
+
+# Copy application code
+COPY src/ ./src/
+COPY migrations/ ./migrations/
+COPY scripts/ ./scripts/
+
+# Set Python path
+ENV PYTHONPATH=/app
+
+# Default command - daily mode
+ENTRYPOINT ["python", "-m", "src.ingestors.ginnie_ingestor"]
+CMD ["--mode", "daily"]

@@ -11,26 +11,36 @@ File Types:
 - Factor: factorA1/A2_YYYYMM.zip, factorB1/B2_YYYYMM.zip
 - Liquidations: llmonliq_YYYYMM.zip
 
-Authentication:
-- Site uses email-based magic link auth (anais@oasive.ai)
-- Bulk downloads appear to be public (no login required)
-- If auth needed, use session cookies stored in Secret Manager
+Authentication Strategy:
+- Primary: No auth required - site is public, just needs JS execution for bot check
+- Fallback: If login required, automate via Gmail API to capture magic link
+- Account: anais@oasive.ai
 
 Reliability:
-- Explicit waits for page loads
-- Retry logic with exponential backoff
-- Screenshot capture on failures
-- Health check for auth status
+- Explicit waits for page loads (networkidle)
+- Retry logic with exponential backoff (3 attempts)
+- Screenshot capture on ALL failures (uploaded to GCS for debugging)
+- Health check detects login walls
+- Email alert on auth_required status
+
+Gmail API Setup (for automated magic link capture):
+1. Enable Gmail API in GCP console
+2. Create OAuth2 credentials or use service account with domain-wide delegation
+3. Store credentials in Secret Manager as 'gmail-api-credentials'
+4. Grant read access to anais@oasive.ai inbox
 """
 
 import argparse
+import base64
 import json
 import logging
 import os
 import re
+import smtplib
 import tempfile
 import time
 from datetime import datetime, timezone
+from email.mime.text import MIMEText
 from pathlib import Path
 from typing import Any
 
@@ -48,6 +58,14 @@ try:
 except ImportError:
     PLAYWRIGHT_AVAILABLE = False
     PlaywrightTimeout = Exception
+
+# Gmail API import with fallback
+try:
+    from google.oauth2 import service_account
+    from googleapiclient.discovery import build
+    GMAIL_API_AVAILABLE = True
+except ImportError:
+    GMAIL_API_AVAILABLE = False
 
 logging.basicConfig(
     level=logging.INFO,
@@ -150,23 +168,19 @@ class GinnieIngestor:
         self._page = None
         self._cookies_loaded = False
     
-    def _get_cookies_from_secret(self) -> list[dict] | None:
-        """
-        Load session cookies from Secret Manager.
-        Returns None if no cookies stored.
-        """
+    def _get_secret(self, secret_id: str) -> str | None:
+        """Get a secret from Secret Manager."""
         try:
             client = secretmanager.SecretManagerServiceClient()
-            name = f"projects/{self.gcs_config.project_id}/secrets/ginnie-session-cookies/versions/latest"
+            name = f"projects/{self.gcs_config.project_id}/secrets/{secret_id}/versions/latest"
             response = client.access_secret_version(request={"name": name})
-            cookies_json = response.payload.data.decode("UTF-8")
-            return json.loads(cookies_json)
+            return response.payload.data.decode("UTF-8")
         except Exception as e:
-            logger.warning(f"Could not load cookies from Secret Manager: {e}")
+            logger.debug(f"Could not load secret {secret_id}: {e}")
             return None
     
-    def _save_cookies_to_secret(self, cookies: list[dict]) -> None:
-        """Save session cookies to Secret Manager."""
+    def _save_secret(self, secret_id: str, value: str) -> bool:
+        """Save a secret to Secret Manager (creates if doesn't exist)."""
         try:
             client = secretmanager.SecretManagerServiceClient()
             parent = f"projects/{self.gcs_config.project_id}"
@@ -176,24 +190,189 @@ class GinnieIngestor:
                 client.create_secret(
                     request={
                         "parent": parent,
-                        "secret_id": "ginnie-session-cookies",
+                        "secret_id": secret_id,
                         "secret": {"replication": {"automatic": {}}},
                     }
                 )
+                logger.info(f"Created secret: {secret_id}")
             except Exception:
                 pass  # Secret already exists
             
             # Add new version
-            secret_name = f"{parent}/secrets/ginnie-session-cookies"
+            secret_name = f"{parent}/secrets/{secret_id}"
             client.add_secret_version(
                 request={
                     "parent": secret_name,
-                    "payload": {"data": json.dumps(cookies).encode("UTF-8")},
+                    "payload": {"data": value.encode("UTF-8")},
                 }
             )
-            logger.info("Saved cookies to Secret Manager")
+            logger.info(f"Saved secret version: {secret_id}")
+            return True
         except Exception as e:
-            logger.warning(f"Could not save cookies to Secret Manager: {e}")
+            logger.error(f"Could not save secret {secret_id}: {e}")
+            return False
+    
+    def _get_cookies_from_secret(self) -> list[dict] | None:
+        """Load session cookies from Secret Manager."""
+        cookies_json = self._get_secret("ginnie-session-cookies")
+        if cookies_json:
+            try:
+                return json.loads(cookies_json)
+            except json.JSONDecodeError:
+                return None
+        return None
+    
+    def _save_cookies_to_secret(self, cookies: list[dict]) -> None:
+        """Save session cookies to Secret Manager."""
+        self._save_secret("ginnie-session-cookies", json.dumps(cookies))
+    
+    def _send_alert_email(self, subject: str, body: str) -> None:
+        """
+        Send alert email via SendGrid or SMTP.
+        Falls back to logging if email not configured.
+        """
+        alert_email = os.environ.get("ALERT_EMAIL", "anais@oasive.ai")
+        sendgrid_key = self._get_secret("sendgrid-api-key")
+        
+        if sendgrid_key:
+            try:
+                import requests
+                response = requests.post(
+                    "https://api.sendgrid.com/v3/mail/send",
+                    headers={
+                        "Authorization": f"Bearer {sendgrid_key}",
+                        "Content-Type": "application/json",
+                    },
+                    json={
+                        "personalizations": [{"to": [{"email": alert_email}]}],
+                        "from": {"email": "alerts@oasive.ai", "name": "Oasive Alerts"},
+                        "subject": f"[Oasive Alert] {subject}",
+                        "content": [{"type": "text/plain", "value": body}],
+                    },
+                    timeout=10,
+                )
+                if response.status_code == 202:
+                    logger.info(f"Alert email sent to {alert_email}")
+                else:
+                    logger.warning(f"SendGrid returned {response.status_code}")
+            except Exception as e:
+                logger.warning(f"Could not send alert email: {e}")
+        else:
+            # Just log if no email configured
+            logger.warning(f"ALERT: {subject}\n{body}")
+    
+    def _check_for_magic_link_email(self, since_minutes: int = 10) -> str | None:
+        """
+        Check Gmail for magic link from Ginnie Mae.
+        Returns the magic link URL if found.
+        
+        Requires Gmail API credentials in Secret Manager.
+        """
+        if not GMAIL_API_AVAILABLE:
+            logger.warning("Gmail API not available - install google-api-python-client")
+            return None
+        
+        creds_json = self._get_secret("gmail-api-credentials")
+        if not creds_json:
+            logger.warning("Gmail API credentials not configured")
+            return None
+        
+        try:
+            creds_data = json.loads(creds_json)
+            credentials = service_account.Credentials.from_service_account_info(
+                creds_data,
+                scopes=['https://www.googleapis.com/auth/gmail.readonly'],
+                subject='anais@oasive.ai'  # Email to impersonate
+            )
+            
+            service = build('gmail', 'v1', credentials=credentials)
+            
+            # Search for recent emails from Ginnie Mae
+            query = f'from:ginniemae.gov newer_than:{since_minutes}m'
+            results = service.users().messages().list(
+                userId='me', q=query, maxResults=5
+            ).execute()
+            
+            messages = results.get('messages', [])
+            
+            for msg in messages:
+                # Get full message
+                full_msg = service.users().messages().get(
+                    userId='me', id=msg['id'], format='full'
+                ).execute()
+                
+                # Decode body
+                payload = full_msg.get('payload', {})
+                body = ""
+                
+                if 'parts' in payload:
+                    for part in payload['parts']:
+                        if part['mimeType'] == 'text/plain':
+                            body = base64.urlsafe_b64decode(
+                                part['body']['data']
+                            ).decode('utf-8')
+                            break
+                elif 'body' in payload and 'data' in payload['body']:
+                    body = base64.urlsafe_b64decode(
+                        payload['body']['data']
+                    ).decode('utf-8')
+                
+                # Look for magic link
+                link_match = re.search(
+                    r'https://[^\s]*(?:login|auth|verify|confirm)[^\s]*',
+                    body,
+                    re.IGNORECASE
+                )
+                if link_match:
+                    logger.info("Found magic link in email")
+                    return link_match.group(0)
+            
+            logger.info("No magic link email found")
+            return None
+            
+        except Exception as e:
+            logger.error(f"Error checking Gmail: {e}")
+            return None
+    
+    def _attempt_automated_login(self) -> bool:
+        """
+        Attempt to complete login automatically using magic link from email.
+        Returns True if successful.
+        """
+        logger.info("Attempting automated login via magic link...")
+        
+        # Check if there's a login form on the current page
+        login_email_field = self._page.query_selector('input[type="email"], input[name="email"]')
+        
+        if login_email_field:
+            # Enter email to trigger magic link
+            login_email_field.fill("anais@oasive.ai")
+            
+            # Look for submit button
+            submit_btn = self._page.query_selector('button[type="submit"], input[type="submit"]')
+            if submit_btn:
+                submit_btn.click()
+                logger.info("Submitted email for magic link")
+                
+                # Wait for email to arrive
+                time.sleep(30)
+                
+                # Check for magic link
+                magic_link = self._check_for_magic_link_email(since_minutes=5)
+                if magic_link:
+                    # Navigate to magic link
+                    self._page.goto(magic_link, wait_until="networkidle")
+                    
+                    # Check if we're now authenticated
+                    time.sleep(2)
+                    if "login" not in self._page.url.lower():
+                        logger.info("Magic link login successful!")
+                        # Save cookies
+                        cookies = self._context.cookies()
+                        self._save_cookies_to_secret(cookies)
+                        return True
+        
+        return False
     
     def _start_browser(self, headless: bool = True) -> None:
         """Start Playwright browser with retry logic."""
@@ -283,9 +462,13 @@ class GinnieIngestor:
         stop=stop_after_attempt(3),
         wait=wait_exponential(multiplier=1, min=4, max=30),
     )
-    def _navigate_to_bulk_page(self) -> bool:
+    def _navigate_to_bulk_page(self, auto_login: bool = True) -> bool:
         """
         Navigate to bulk download page and wait for it to load.
+        
+        Args:
+            auto_login: If True, attempt automated login via magic link if needed
+            
         Returns True if successful, raises exception otherwise.
         """
         logger.info(f"Navigating to {self.BULK_URL}")
@@ -293,19 +476,73 @@ class GinnieIngestor:
         # Navigate with networkidle wait (most reliable for JS-heavy pages)
         self._page.goto(self.BULK_URL, wait_until="networkidle", timeout=self.PAGE_TIMEOUT)
         
+        # Check for login wall
+        page_content = self._page.content().lower()
+        current_url = self._page.url.lower()
+        
+        is_login_page = (
+            "login" in current_url or 
+            "sign in" in page_content or
+            "enter your e-mail" in page_content or
+            "create a new account" in page_content
+        )
+        
+        if is_login_page:
+            logger.warning("Login page detected")
+            self._take_screenshot("login_detected")
+            
+            if auto_login:
+                # Attempt automated login
+                if self._attempt_automated_login():
+                    # Re-navigate after successful login
+                    self._page.goto(self.BULK_URL, wait_until="networkidle", timeout=self.PAGE_TIMEOUT)
+                else:
+                    # Send alert and raise
+                    self._send_alert_email(
+                        "Ginnie Mae Login Required",
+                        f"""The Ginnie Mae bulk download job requires authentication.
+
+Automated login failed. Please manually refresh the session:
+1. Go to https://bulk.ginniemae.gov/
+2. Log in with anais@oasive.ai
+3. Run: python -m src.ingestors.ginnie_ingestor --export-cookies
+
+Or set up Gmail API for automated magic link capture.
+
+Debug screenshot: gs://{self.gcs_config.raw_bucket}/ginnie/debug/
+
+Job: ginnie-ingestor
+Time: {datetime.now(timezone.utc).isoformat()}
+"""
+                    )
+                    raise AuthenticationRequiredError(
+                        "Login required and automated login failed. Alert sent."
+                    )
+        
         # Wait for the file table to appear
         try:
             self._page.wait_for_selector("table", timeout=30000)
-            logger.info("Page loaded successfully")
+            logger.info("Page loaded successfully - file table visible")
             return True
         except PlaywrightTimeout:
-            # Check if we hit a login wall
-            if "login" in self._page.url.lower() or "sign" in self._page.content().lower():
-                logger.error("Login required - need to refresh session cookies")
-                self._take_screenshot("login_required")
-                raise AuthenticationRequiredError("Login required - session cookies expired")
+            self._take_screenshot("page_load_timeout")
             
-            self._take_screenshot("page_load_failed")
+            # Send alert with debug info
+            self._send_alert_email(
+                "Ginnie Mae Page Load Failed",
+                f"""The Ginnie Mae bulk download page failed to load properly.
+
+URL: {self._page.url}
+Expected: File listing table
+
+Debug screenshot: gs://{self.gcs_config.raw_bucket}/ginnie/debug/
+
+This might be a temporary issue. The job will retry.
+
+Job: ginnie-ingestor
+Time: {datetime.now(timezone.utc).isoformat()}
+"""
+            )
             raise
     
     def _parse_file_table(self) -> list[dict[str, Any]]:
@@ -681,6 +918,7 @@ class GinnieIngestor:
             error_msg = str(e)
             logger.error(f"Authentication required: {error_msg}")
             results["errors"].append(error_msg)
+            results["auth_required"] = True
             
             self.log_ingest_run(
                 status="auth_required",
@@ -689,12 +927,34 @@ class GinnieIngestor:
                 run_started_at=run_started_at,
             )
             
+            # Alert already sent in _navigate_to_bulk_page
+            
         except Exception as e:
             error_msg = str(e)
             logger.error(f"Sync failed: {error_msg}")
             results["errors"].append(error_msg)
             
-            self._take_screenshot("sync_failed")
+            screenshot_path = self._take_screenshot("sync_failed")
+            
+            # Send alert for unexpected errors
+            self._send_alert_email(
+                f"Ginnie Mae Sync Failed: {type(e).__name__}",
+                f"""The Ginnie Mae bulk download job failed with an unexpected error.
+
+Error: {error_msg}
+
+Mode: {mode}
+Files discovered: {results.get('files_discovered', 0)}
+Files downloaded: {results.get('files_downloaded', 0)}
+
+Debug screenshot: gs://{self.gcs_config.raw_bucket}/{screenshot_path if screenshot_path else 'N/A'}
+
+Stack trace in Cloud Logging.
+
+Job: ginnie-ingestor
+Time: {datetime.now(timezone.utc).isoformat()}
+"""
+            )
             
             self.log_ingest_run(
                 status="error",
