@@ -478,7 +478,27 @@ def download_to_gcs(page, file_info):
     update_file_catalog(file_info, gcs_path)
 ```
 
-### Authentication Approach: Fully Automated
+### Data Availability: IMPORTANT LIMITATION
+
+**Unlike Freddie Mac (full SFTP archive), Ginnie Mae only provides CURRENT MONTH data on the bulk download page.**
+
+| Data Type | Availability | Notes |
+|-----------|-------------|-------|
+| Current month files | ✅ Public | 58 files (daily, monthly, factor) |
+| Historical files (2012-present) | ❌ Not public | Protected URLs redirect to login |
+| Pre-2012 data | ⚠️ Separate archive | Different format, via Disclosure Data History |
+
+**What this means for research:**
+- We CAN automate daily/monthly ingestion of NEW data going forward
+- We CANNOT bulk download 13 years of historical data automatically
+- For historical backfill, contact Ginnie Mae directly or use data vendors
+
+**Historical data options:**
+1. **Contact Ginnie Mae investor relations** - Request historical data access
+2. **Data vendors** - Bloomberg, Intex, CoreLogic have historical Ginnie data
+3. **Manual download** - If you can get login access, download manually
+
+### Authentication Approach: Fully Automated (Current Data Only)
 
 **Strategy: Primary path (no auth) + Automated fallback (Gmail API magic link)**
 

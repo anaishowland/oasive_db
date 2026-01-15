@@ -139,7 +139,8 @@ class GinnieIngestor:
             "liquidations",
         ],
         "factor": ["factor_a1", "factor_a2", "factor_b1", "factor_b2", "factor_a_plat", "factor_a_add"],
-        "backfill": None,  # All files
+        "backfill": None,  # All files from current page
+        "historical": None,  # Generate historical URLs programmatically
     }
     
     # Timeouts and retries
@@ -734,16 +735,21 @@ Time: {datetime.now(timezone.utc).isoformat()}
         """Get cataloged files with their status."""
         with self.engine.connect() as conn:
             result = conn.execute(text("""
-                SELECT filename, download_status, local_gcs_path
+                SELECT filename, file_type, download_status, local_gcs_path
                 FROM ginnie_file_catalog
             """))
-            return {
-                row.filename: {
+            files = {}
+            for row in result:
+                # Don't compute href here - files from the page should be
+                # downloaded by finding them on the page. Only historical
+                # files generated programmatically should have hrefs.
+                files[row.filename] = {
                     "status": row.download_status,
                     "gcs_path": row.local_gcs_path,
+                    "file_type": row.file_type,
+                    "href": None,  # Will be set by historical generation only
                 }
-                for row in result
-            }
+            return files
     
     def add_to_catalog(self, file_info: dict[str, Any]) -> None:
         """Add file to catalog."""
@@ -831,6 +837,148 @@ Time: {datetime.now(timezone.utc).isoformat()}
             )
             conn.commit()
     
+    def _generate_historical_file_list(
+        self,
+        start_year: int = 2013,
+        start_month: int = 1,
+        end_year: int | None = None,
+        end_month: int | None = None,
+    ) -> list[dict[str, Any]]:
+        """
+        Generate list of historical files to download.
+        
+        Historical files are available at predictable URLs but not listed on 
+        the bulk download page. This generates the full list of monthly files
+        from the start date to present.
+        
+        File types with monthly archives:
+        - llmon1_YYYYMM.zip - Ginnie I loan-level portfolio
+        - llmon2_YYYYMM.zip - Ginnie II loan-level portfolio  
+        - monthlySFPS_YYYYMM.zip - Pool/Security data
+        - monthlySFS_YYYYMM.zip - Pool Supplemental
+        - nimonSFPS_YYYYMM.zip - Monthly new issues pool
+        - nimonSFS_YYYYMM.zip - Monthly new issues supplemental
+        - llmonliq_YYYYMM.zip - Liquidations
+        - factorA1_YYYYMM.zip, factorA2_YYYYMM.zip - Factor data
+        - factorB1_YYYYMM.zip, factorB2_YYYYMM.zip - Factor data
+        """
+        from datetime import date
+        from dateutil.relativedelta import relativedelta
+        
+        if end_year is None:
+            end_date = date.today()
+        else:
+            end_month = end_month or 12
+            end_date = date(end_year, end_month, 1)
+        
+        start_date = date(start_year, start_month, 1)
+        
+        # File templates with their types and categories
+        file_templates = [
+            # Loan-level portfolio (most important for research)
+            ("llmon1_{ym}.zip", "portfolio_loan_g1", "MBS_SF"),
+            ("llmon2_{ym}.zip", "portfolio_loan_g2", "MBS_SF"),
+            # Pool-level portfolio
+            ("monthlySFPS_{ym}.zip", "portfolio_pool", "MBS_SF"),
+            ("monthlySFS_{ym}.zip", "portfolio_pool_supp", "MBS_SF"),
+            # Monthly new issues
+            ("nimonSFPS_{ym}.zip", "monthly_new_pool", "MBS_SF"),
+            ("nimonSFS_{ym}.zip", "monthly_new_pool_supp", "MBS_SF"),
+            # Liquidations
+            ("llmonliq_{ym}.zip", "liquidations", "MBS_SF"),
+            # Factor data
+            ("factorA1_{ym}.zip", "factor_a1", "FACTOR"),
+            ("factorA2_{ym}.zip", "factor_a2", "FACTOR"),
+            ("factorB1_{ym}.zip", "factor_b1", "FACTOR"),
+            ("factorB2_{ym}.zip", "factor_b2", "FACTOR"),
+            # HMBS loan-level
+            ("hllmon1_{ym}.zip", "hmbs_monthly", "HMBS"),
+            ("hllmon2_{ym}.zip", "hmbs_monthly", "HMBS"),
+        ]
+        
+        files = []
+        current = start_date
+        
+        while current <= end_date:
+            ym = current.strftime("%Y%m")
+            file_date = current
+            
+            for template, file_type, category in file_templates:
+                filename = template.format(ym=ym)
+                files.append({
+                    "filename": filename,
+                    "file_type": file_type,
+                    "file_category": category,
+                    "file_date": file_date,
+                    "file_size_bytes": None,
+                    "last_posted_at": None,
+                    "href": f"https://bulk.ginniemae.gov/protectedfiledownload.aspx?dlfile=data_bulk/{filename}",
+                })
+            
+            current += relativedelta(months=1)
+        
+        logger.info(f"Generated {len(files)} historical file URLs from {start_date} to {end_date}")
+        return files
+    
+    def _download_file_direct(self, filename: str, url: str) -> str:
+        """
+        Download a file directly by URL using Playwright's download handling.
+        This maintains the authenticated session properly.
+        """
+        logger.info(f"Downloading {filename} from {url}")
+        
+        try:
+            # Use Playwright to download - this handles the session properly
+            with self._page.expect_download(timeout=self.DOWNLOAD_TIMEOUT) as download_info:
+                # Navigate to the download URL - this should trigger a download
+                self._page.goto(url, wait_until="commit")
+            
+            download = download_info.value
+            download_path = download.path()
+            
+            # Check if download succeeded
+            if not download_path or not os.path.exists(download_path):
+                raise ValueError(f"Download failed for {filename}")
+            
+            file_size = os.path.getsize(download_path)
+            if file_size < 1000:
+                os.unlink(download_path)
+                raise ValueError(f"Downloaded file too small ({file_size} bytes)")
+            
+            logger.info(f"Downloaded {file_size / 1024 / 1024:.1f} MB")
+            
+        except PlaywrightTimeout:
+            # If expect_download times out, try checking if it's a redirect to login
+            current_url = self._page.url.lower()
+            if 'profile.aspx' in current_url or 'login' in current_url:
+                raise AuthenticationRequiredError(f"Authentication required for {filename}")
+            raise
+        
+        # Upload to GCS
+        # Extract year/month from filename for organization
+        match = re.search(r"_(\d{4})(\d{2})\.", filename)
+        if match:
+            year, month = match.groups()
+            gcs_path = f"ginnie/raw/{year}/{month}/{filename}"
+        else:
+            now = datetime.now(timezone.utc)
+            gcs_path = f"ginnie/raw/{now.year}/{now.month:02d}/{filename}"
+        
+        bucket = self.storage_client.bucket(self.gcs_config.raw_bucket)
+        blob = bucket.blob(gcs_path)
+        blob.upload_from_filename(download_path, timeout=300)
+        
+        # Clean up
+        try:
+            os.unlink(download_path)
+        except Exception:
+            pass
+        
+        full_gcs_path = f"gs://{self.gcs_config.raw_bucket}/{gcs_path}"
+        logger.info(f"Uploaded to {full_gcs_path}")
+        
+        return full_gcs_path
+    
     def run(
         self,
         mode: str = "daily",
@@ -871,18 +1019,28 @@ Time: {datetime.now(timezone.utc).isoformat()}
             # Navigate to bulk download page
             self._navigate_to_bulk_page()
             
-            # Parse file table
+            # Parse file table or generate historical URLs
             if not skip_catalog:
-                logger.info("Parsing file list...")
-                remote_files = self._parse_file_table()
-                results["files_discovered"] = len(remote_files)
-                
-                # Determine which file types to process
-                target_types = file_types or self.MODE_FILE_TYPES.get(mode)
-                
-                if target_types:
-                    remote_files = [f for f in remote_files if f["file_type"] in target_types]
-                    logger.info(f"Filtered to {len(remote_files)} files of types: {target_types}")
+                if mode == "historical":
+                    # Generate historical file URLs programmatically
+                    logger.info("Generating historical file list (2013-present)...")
+                    remote_files = self._generate_historical_file_list(
+                        start_year=2013,
+                        start_month=1,
+                    )
+                    results["files_discovered"] = len(remote_files)
+                else:
+                    # Parse from current page
+                    logger.info("Parsing file list...")
+                    remote_files = self._parse_file_table()
+                    results["files_discovered"] = len(remote_files)
+                    
+                    # Determine which file types to process
+                    target_types = file_types or self.MODE_FILE_TYPES.get(mode)
+                    
+                    if target_types:
+                        remote_files = [f for f in remote_files if f["file_type"] in target_types]
+                        logger.info(f"Filtered to {len(remote_files)} files of types: {target_types}")
                 
                 # Catalog new files
                 cataloged = self.get_cataloged_files()
@@ -922,10 +1080,20 @@ Time: {datetime.now(timezone.utc).isoformat()}
                 
                 for file_info in to_download:
                     try:
-                        # Re-fetch file info from page if needed
                         file_info["file_size_bytes"] = file_info.get("file_size_bytes", 0)
                         
-                        gcs_path = self._download_file(file_info)
+                        # Check if file has a direct URL (historical files)
+                        # or needs to be found on the page (current files)
+                        if "href" in file_info and file_info["href"]:
+                            # Historical file with direct URL
+                            gcs_path = self._download_file_direct(
+                                file_info["filename"],
+                                file_info["href"]
+                            )
+                        else:
+                            # Current file - find on page
+                            gcs_path = self._download_file(file_info)
+                        
                         self.update_catalog_status(
                             file_info["filename"],
                             "downloaded",
@@ -1054,9 +1222,9 @@ def main():
     parser = argparse.ArgumentParser(description="Ginnie Mae Bulk Download Ingestor")
     parser.add_argument(
         "--mode",
-        choices=["daily", "monthly", "factor", "backfill", "catalog"],
+        choices=["daily", "monthly", "factor", "backfill", "catalog", "historical"],
         default="daily",
-        help="Run mode"
+        help="Run mode (historical = download all files from 2013 to present)"
     )
     parser.add_argument(
         "--file-types",
