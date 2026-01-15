@@ -11,18 +11,27 @@ Usage:
     python -m src.ingestors.fannie_sflp_ingestor --status
     python -m src.ingestors.fannie_sflp_ingestor --process ~/Downloads
     python -m src.ingestors.fannie_sflp_ingestor --process-file ~/Downloads/Performance_All.zip
+    python -m src.ingestors.fannie_sflp_ingestor --process-gcs gs://oasive-raw-data/fannie/sflp
 """
 
 import os
 import sys
 import zipfile
 import logging
+import tempfile
 from pathlib import Path
 from datetime import datetime
 from typing import Dict, List, Optional, Set
 from decimal import Decimal, InvalidOperation
 import argparse
 import io
+
+# GCS imports
+try:
+    from google.cloud import storage
+    HAS_GCS = True
+except ImportError:
+    HAS_GCS = False
 
 from sqlalchemy import text
 from sqlalchemy.engine import Engine
@@ -407,6 +416,74 @@ class FannieSFLPTracker:
 
 
 # =============================================================================
+# GCS Processor
+# =============================================================================
+
+class GCSFannieProcessor:
+    """Process Fannie Mae files directly from GCS."""
+    
+    def __init__(self, engine, gcs_path: str):
+        self.engine = engine
+        self.gcs_path = gcs_path
+        
+        if not HAS_GCS:
+            raise RuntimeError("google-cloud-storage not installed")
+        
+        # Parse GCS path
+        if gcs_path.startswith('gs://'):
+            parts = gcs_path[5:].split('/', 1)
+            self.bucket_name = parts[0]
+            self.prefix = parts[1] if len(parts) > 1 else ''
+        else:
+            raise ValueError(f"Invalid GCS path: {gcs_path}")
+        
+        self.client = storage.Client()
+        self.bucket = self.client.bucket(self.bucket_name)
+        
+    def process(self):
+        """Process all ZIP files in the GCS path."""
+        logger.info(f"Processing files from {self.gcs_path}")
+        
+        # List all ZIP files
+        blobs = list(self.bucket.list_blobs(prefix=self.prefix))
+        zip_blobs = [b for b in blobs if b.name.endswith('.zip')]
+        
+        if not zip_blobs:
+            logger.warning(f"No ZIP files found in {self.gcs_path}")
+            return
+        
+        logger.info(f"Found {len(zip_blobs)} ZIP files")
+        
+        for blob in zip_blobs:
+            self._process_gcs_zip(blob)
+    
+    def _process_gcs_zip(self, blob):
+        """Download and process a single ZIP from GCS."""
+        logger.info(f"Downloading {blob.name} ({blob.size / 1e9:.1f} GB)...")
+        
+        # Download to temp file (ZIP is too large for memory)
+        with tempfile.NamedTemporaryFile(suffix='.zip', delete=False) as tmp:
+            tmp_path = tmp.name
+            blob.download_to_filename(tmp_path)
+        
+        logger.info(f"Downloaded to {tmp_path}")
+        
+        try:
+            # Process the ZIP
+            parser = FannieCombinedParser(self.engine)
+            counts = parser.process_zip(Path(tmp_path))
+            
+            logger.info(f"Completed {blob.name}:")
+            logger.info(f"  New loans: {counts['loans_new']:,}")
+            logger.info(f"  Prepay events: {counts['prepays']:,}")
+            logger.info(f"  Total records: {counts['performance']:,}")
+        finally:
+            # Clean up temp file
+            os.unlink(tmp_path)
+            logger.info(f"Cleaned up temp file")
+
+
+# =============================================================================
 # Main
 # =============================================================================
 
@@ -415,6 +492,7 @@ def main():
     parser.add_argument('--status', action='store_true', help='Show status')
     parser.add_argument('--process', type=str, help='Process files from directory')
     parser.add_argument('--process-file', type=str, help='Process a single ZIP file')
+    parser.add_argument('--process-gcs', type=str, help='Process files from GCS (gs://bucket/path)')
     args = parser.parse_args()
     
     engine = get_engine()
@@ -422,6 +500,14 @@ def main():
     if args.status:
         tracker = FannieSFLPTracker(engine)
         tracker.print_status()
+    
+    elif args.process_gcs:
+        if not HAS_GCS:
+            logger.error("google-cloud-storage not installed. Run: pip install google-cloud-storage")
+            return
+        
+        processor = GCSFannieProcessor(engine, args.process_gcs)
+        processor.process()
     
     elif args.process_file:
         zip_path = Path(args.process_file)
