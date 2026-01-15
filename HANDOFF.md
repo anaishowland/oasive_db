@@ -66,6 +66,48 @@ python3 -m src.ingestors.fannie_sflp_ingestor --process-gcs gs://oasive-raw-data
 - `fannie_sflp_file_catalog` - File tracking
 - `v_all_historical_loans` - Unified view combining Freddie + Fannie
 
+### Ginnie Mae Data Access
+
+⚠️ **Key Difference**: Unlike Freddie Mac and Fannie Mae, Ginnie Mae does NOT offer SFTP feeds or REST APIs. Data must be downloaded via authenticated HTTP from their bulk download portal.
+
+| Source | URL | Coverage | Status |
+|--------|-----|----------|--------|
+| **Bulk Download Portal** | `bulk.ginniemae.gov` | 2013-present (loan-level) | ✅ Account created |
+| **Historical Disclosure** | Bulk portal → History section | Pre-2012 (pool-level only) | Available |
+
+**Key Resources:**
+- Bulk Download: https://bulk.ginniemae.gov/
+- File Layouts: https://www.ginniemae.gov/data_and_reports/disclosure_data/Pages/bulk_data_download_layout.aspx
+- Data Dictionaries: https://www.ginniemae.gov/investors/disclosures_and_reports/pages/disclosure-data-dictionaries.aspx
+- Release Schedule: https://www.ginniemae.gov/investors/disclosures_and_reports/Pages/Disclosure-Data-Release-Schedule.aspx
+- Contact: `InvestorInquiries@HUD.gov`
+
+**File Types (Single Family MBS):**
+
+| Category | File | Size | Release |
+|----------|------|------|---------|
+| Daily New Issues | `dailySFPS.zip`, `dailySFS.zip`, `dailyll_new.zip` | ~4 MB | ~5 AM ET |
+| Monthly New Issues | `nimonSFPS_YYYYMM.zip`, `nimonSFS_YYYYMM.zip`, `dailyllmni.zip` | ~6 MB | BD1 |
+| Portfolio | `monthlySFPS_YYYYMM.zip`, `monthlySFS_YYYYMM.zip` | ~200 MB | BD6 |
+| Loan Level | `llmon1_YYYYMM.zip` (Ginnie I), `llmon2_YYYYMM.zip` (Ginnie II) | ~360 MB | BD6 |
+| Factor Files | `factorA1/A2_YYYYMM.zip`, `factorB1/B2_YYYYMM.zip` | ~21 MB | BD4-6 |
+
+**⚠️ Historical Limitation**: Ginnie Mae only has loan-level data from ~2013 onwards (when they started loan-level disclosure). Unlike Freddie/Fannie SFLLD (1999-2025), there is NO equivalent 25+ year historical loan dataset.
+
+**Automation Approach:**
+Since there's no SFTP/API, implement HTTP polling:
+1. Create `ginnie_ingestor.py` that scrapes `bulk.ginniemae.gov` for file list
+2. Compare against `ginnie_file_catalog` table
+3. Download new files via authenticated HTTP GET to GCS
+4. Parse into database tables
+
+**Ginnie Mae Pipeline (To Build):**
+```bash
+# Future implementation
+python3 -m src.ingestors.ginnie_ingestor --mode daily
+python3 -m src.ingestors.ginnie_ingestor --mode backfill --start-date 2013-01
+```
+
 ### SFLLD Ingestion Tools
 
 The project includes tools for managing SFLLD historical data:
@@ -184,6 +226,268 @@ gcloud run jobs execute freddie-parser --region=us-central1 \
 
 ### Phase 6: Historical Data (SFLLD + Fannie SFLP) 🔄 In Progress
 **Goal:** Load 54.8M Freddie + 62M Fannie historical loans for cross-cycle prepay research
+
+### Phase 7: Ginnie Mae Data Ingestion ⏳ Planned
+**Goal:** Ingest GNMA pool and loan-level data via HTTP bulk download
+
+| Task | Status | Details |
+|------|--------|---------|
+| Research data access | ✅ Done | No SFTP/API - HTTP bulk download only |
+| Account created | ✅ Done | `anais@oasive.ai` (no password, email-based auth) |
+| Create schema | ⏳ Pending | Migration 012: `dim_pool_ginnie`, `dim_loan_ginnie`, etc. |
+| Build Playwright ingestor | ⏳ Pending | Headless browser to bypass bot protection |
+| Create file catalog | ⏳ Pending | `ginnie_file_catalog` table |
+| Daily download pipeline | ⏳ Pending | Cloud Run job with Playwright |
+| Monthly download pipeline | ⏳ Pending | BD7 trigger for portfolio files |
+| Backfill historical | ⏳ Pending | 2013-present (loan-level), pre-2012 (pool-level) |
+| Create parser | ⏳ Pending | `ginnie_parser.py` to parse files into database |
+
+---
+
+## Ginnie Mae Implementation Plan
+
+### Why Playwright (Not Simple HTTP)?
+
+Testing confirmed that `bulk.ginniemae.gov` uses JavaScript-based bot protection:
+- Direct HTTP requests get 302 redirect to `/?check=XXXXX`
+- Page requires JavaScript execution to pass validation
+- **Solution**: Use Playwright (headless browser) in Cloud Run
+
+### Files to Download (Equivalent to Freddie Data)
+
+**Daily Files** (posted ~4:50-5:04 AM ET, Tue-Sat):
+| Ginnie File | Equivalent Freddie File | Purpose |
+|-------------|------------------------|---------|
+| `dailySFPS.zip` | `FRE_FISS_*.zip` | Daily pool/security issuance |
+| `dailySFS.zip` | - | Pool supplemental (extended attributes) |
+| `dailyll_new.zip` | - | Daily loan-level issuance |
+
+**Monthly Files** (posted BD1-BD6):
+| Ginnie File | Release | Equivalent Freddie | Purpose |
+|-------------|---------|-------------------|---------|
+| `nimonSFPS_YYYYMM.zip` | BD1 10PM | `FRE_IS_*.zip` | Monthly new issues pool |
+| `nimonSFS_YYYYMM.zip` | BD1 10PM | - | Monthly new issues supplemental |
+| `dailyllmni.zip` | BD1 | `FRE_ILLD_*.zip` | Monthly new issues loan-level |
+| `monthlySFPS_YYYYMM.zip` | BD6 6PM | - | Portfolio pool/security |
+| `monthlySFS_YYYYMM.zip` | BD6 6PM | - | Portfolio supplemental |
+| `llmon1_YYYYMM.zip` | BD6 6PM | - | Loan-level portfolio (Ginnie I) |
+| `llmon2_YYYYMM.zip` | BD6 6PM | - | Loan-level portfolio (Ginnie II) |
+| `llmonliq_YYYYMM.zip` | BD4 9:30PM | - | Loan liquidations |
+
+**Factor Files** (BD4-BD6):
+| Ginnie File | Release | Purpose |
+|-------------|---------|---------|
+| `factorA1_YYYYMM.zip` | BD4 9PM | Factor A, Ginnie I |
+| `factorA2_YYYYMM.zip` | BD4 9PM | Factor A, Ginnie II |
+| `factorB1_YYYYMM.zip` | BD6 7PM | Factor B, Ginnie I |
+| `factorB2_YYYYMM.zip` | BD6 7PM | Factor B, Ginnie II |
+
+### Historical Data Backfill
+
+**Loan-Level (2013-present):**
+- Download monthly portfolio files (`llmon1/llmon2_YYYYMM.zip`) from Disclosure Data History
+- ~12 years × 12 months × 2 files = ~288 historical files
+
+**Pool-Level (Pre-2012):**
+- Download "Disclosure Data History" files (aggregate stats)
+- Covers: Pool issuance dates, WAC, WAM, delinquency rates, etc.
+- NOT individual loan attributes, but useful for historical prepay research
+
+### Cloud Run Schedule (UTC)
+
+| Job | Schedule (UTC) | Schedule (ET) | Files Downloaded |
+|-----|----------------|---------------|------------------|
+| `ginnie-ingestor-daily` | `0 10 * * 2-6` | 5:00 AM ET (Tue-Sat) | Daily new issues |
+| `ginnie-ingestor-monthly-bd1` | `0 3 1-7 * *` | 10:00 PM ET BD1 | Monthly new issues |
+| `ginnie-ingestor-monthly-bd6` | `0 23 6-12 * *` | 6:00 PM ET BD6 | Portfolio + loan-level |
+| `ginnie-ingestor-factor` | `0 2 4-10 * *` | 9:00 PM ET BD4-6 | Factor files |
+
+**Note:** BD schedules need calendar logic to determine actual business days.
+
+### Database Schema (Migration 012)
+
+```sql
+-- Ginnie Mae file catalog
+CREATE TABLE ginnie_file_catalog (
+  id SERIAL PRIMARY KEY,
+  filename TEXT UNIQUE NOT NULL,
+  file_type TEXT NOT NULL,  -- daily_pool, daily_loan, monthly_pool, monthly_loan, factor, historical
+  file_date DATE,
+  file_size_bytes BIGINT,
+  download_status TEXT DEFAULT 'pending',  -- pending, downloaded, processed, error
+  local_gcs_path TEXT,
+  downloaded_at TIMESTAMPTZ,
+  processed_at TIMESTAMPTZ,
+  error_message TEXT
+);
+
+-- Ginnie Mae pool dimension (similar to dim_pool but GNMA-specific)
+CREATE TABLE dim_pool_ginnie (
+  pool_id TEXT PRIMARY KEY,
+  cusip TEXT UNIQUE,
+  security_type TEXT,  -- GNM1, GNM2, HMBS, Platinum
+  product_type TEXT,   -- 30YR, 15YR, ARM
+  coupon NUMERIC(5,3),
+  issue_date DATE,
+  maturity_date DATE,
+  orig_upb NUMERIC(15,2),
+  orig_loan_count INTEGER,
+  wac NUMERIC(5,3),
+  wam INTEGER,
+  wala INTEGER,
+  avg_fico INTEGER,
+  avg_ltv NUMERIC(5,2),
+  issuer_id TEXT,
+  issuer_name TEXT,
+  program_type TEXT,   -- FHA, VA, USDA, RD
+  -- AI tags (same as dim_pool)
+  loan_balance_tier TEXT,
+  fico_bucket TEXT,
+  ltv_bucket TEXT,
+  servicer_prepay_risk TEXT,
+  composite_prepay_score NUMERIC,
+  behavior_tags JSONB,
+  tags_updated_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Ginnie Mae loan dimension
+CREATE TABLE dim_loan_ginnie (
+  loan_id TEXT PRIMARY KEY,
+  pool_id TEXT REFERENCES dim_pool_ginnie(pool_id),
+  orig_upb NUMERIC(12,2),
+  orig_rate NUMERIC(5,3),
+  orig_term INTEGER,
+  orig_date DATE,
+  first_pay_date DATE,
+  fico INTEGER,
+  ltv NUMERIC(5,2),
+  dti NUMERIC(5,2),
+  property_type TEXT,
+  occupancy TEXT,
+  state TEXT,
+  msa TEXT,
+  purpose TEXT,
+  program_type TEXT,   -- FHA, VA, USDA, RD
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Ginnie Mae monthly pool facts
+CREATE TABLE fact_pool_month_ginnie (
+  pool_id TEXT REFERENCES dim_pool_ginnie(pool_id),
+  as_of_date DATE,
+  factor NUMERIC(10,8),
+  curr_upb NUMERIC(15,2),
+  loan_count INTEGER,
+  wac NUMERIC(5,3),
+  wala INTEGER,
+  smm NUMERIC(8,6),
+  cpr NUMERIC(5,2),
+  dlq_30_count INTEGER,
+  dlq_60_count INTEGER,
+  dlq_90_count INTEGER,
+  serious_dlq_rate NUMERIC(5,4),
+  PRIMARY KEY (pool_id, as_of_date)
+);
+
+-- Historical pool stats (pre-2012 aggregate data)
+CREATE TABLE ginnie_historical_pool_stats (
+  as_of_date DATE,
+  security_type TEXT,  -- GNM1, GNM2
+  product_type TEXT,
+  coupon_bucket TEXT,
+  total_upb NUMERIC(18,2),
+  pool_count INTEGER,
+  loan_count INTEGER,
+  avg_wac NUMERIC(5,3),
+  avg_wam INTEGER,
+  avg_cpr NUMERIC(5,2),
+  dlq_90_plus_rate NUMERIC(5,4),
+  PRIMARY KEY (as_of_date, security_type, product_type, coupon_bucket)
+);
+```
+
+### Implementation Steps
+
+1. **Add Playwright to requirements.txt:**
+   ```
+   playwright==1.40.0
+   ```
+
+2. **Create `src/ingestors/ginnie_ingestor.py`:**
+   - Use Playwright to navigate to bulk.ginniemae.gov
+   - Parse file list from HTML
+   - Download files to GCS via streaming
+   - Update `ginnie_file_catalog`
+
+3. **Create Cloud Run job with Playwright:**
+   - Use Playwright Docker image as base
+   - Install Chromium in container
+   - Configure for headless execution
+
+4. **Create `src/parsers/ginnie_parser.py`:**
+   - Parse downloaded files into database tables
+   - Auto-tag pools after parsing
+
+5. **Schedule jobs:**
+   - Daily job at 5:00 AM ET (10:00 UTC)
+   - Monthly jobs on BD1, BD4, BD6
+
+### Playwright Ingestor Code Outline
+
+```python
+# src/ingestors/ginnie_ingestor.py
+from playwright.sync_api import sync_playwright
+import os
+from google.cloud import storage
+
+BULK_URL = "https://bulk.ginniemae.gov/"
+
+def download_ginnie_files(mode="daily", max_files=None):
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=True)
+        page = browser.new_page()
+        
+        # Navigate and wait for JS to execute
+        page.goto(BULK_URL, wait_until="networkidle")
+        
+        # Parse file table
+        files = parse_file_table(page)
+        
+        # Filter by mode (daily, monthly, factor)
+        files_to_download = filter_files(files, mode)
+        
+        # Download each file
+        for file_info in files_to_download[:max_files]:
+            download_to_gcs(page, file_info)
+        
+        browser.close()
+
+def download_to_gcs(page, file_info):
+    """Click download link and stream to GCS"""
+    with page.expect_download() as download_info:
+        page.click(f'a:has-text("{file_info["filename"]}")')
+    download = download_info.value
+    
+    # Upload to GCS
+    gcs_path = f"gs://oasive-raw-data/ginnie/raw/{file_info['filename']}"
+    upload_to_gcs(download.path(), gcs_path)
+    
+    # Update catalog
+    update_file_catalog(file_info, gcs_path)
+```
+
+### Authentication Note
+
+Account email: `anais@oasive.ai`
+- Site uses email-based magic link authentication
+- For bulk downloads, no login required (public data)
+- If login needed in future, can automate magic link flow via email API
+
+---
+
+**Phase 6 Details:**
 
 #### Freddie Mac SFLLD (1999-2025)
 
@@ -313,6 +617,8 @@ gcloud run jobs execute fannie-sflp-processor \
 - `gs://oasive-raw-data/freddie/raw/` - SFTP downloaded files
 - `gs://oasive-raw-data/sflld/extracted/` - SFLLD pre-extracted TXT files
 - `gs://oasive-raw-data/sflld/yearly/` - SFLLD yearly ZIP archives
+- `gs://oasive-raw-data/fannie/sflp/` - Fannie Mae historical data
+- `gs://oasive-raw-data/ginnie/raw/` - Ginnie Mae HTTP downloaded files (future)
 
 ## ⏰ Scheduled Jobs
 
