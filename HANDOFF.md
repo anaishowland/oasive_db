@@ -220,9 +220,9 @@ gcloud run jobs execute sflld-processor \
 | Create schema | ✅ Done | Migration 011: `dim_loan_fannie_historical`, `fact_loan_month_fannie_historical` |
 | Create ingestor | ✅ Done | `src/ingestors/fannie_sflp_ingestor.py` |
 | Download file | ✅ Done | `Performance_All.zip` (56 GB) |
-| Upload to GCS | 🔄 **In Progress** | Uploading to `gs://oasive-raw-data/fannie/sflp/` |
-| Cloud Run processor | ⏳ Pending | Will start after upload completes |
-| Parse loan data | ⏳ Pending | ~62M loans expected |
+| Upload to GCS | ✅ **Done** | `gs://oasive-raw-data/fannie/sflp/Performance_All.zip` |
+| Cloud Run processor | 🔄 **Running** | `fannie-sflp-processor-zrfsw` started Jan 15 |
+| Parse loan data | 🔄 In Progress | ~62M loans expected |
 
 **Fannie Mae Processing (runs in cloud):**
 ```bash
@@ -259,7 +259,7 @@ gcloud run jobs execute fannie-sflp-processor \
 | `fact_pool_month` | 157,600 | ✅ |
 | `freddie_file_catalog` | 45,356 | 76% downloaded |
 | `dim_loan_historical` | **18,649,688** | ⚠️ 1999-2008 only (see note) |
-| `dim_loan_fannie_historical` | 0 | 🔄 Upload in progress |
+| `dim_loan_fannie_historical` | 0 | 🔄 Cloud Run processing |
 
 **Parsing Progress (SFTP 2019+):**
 - IS: 200/200 ✅ 
@@ -273,8 +273,8 @@ gcloud run jobs execute fannie-sflp-processor \
 | Dataset | Years | Records | Status |
 |---------|-------|---------|--------|
 | Freddie SFLLD | 1999-2008 | 18.6M | ✅ Loaded |
-| Freddie SFLLD | 2009-2025 | ~36M | ⏳ Re-downloading |
-| Fannie SFLP | 2000-2025 | ~62M | 🔄 Uploading to GCS |
+| Freddie SFLLD | 2009-2025 | ~36M | ⏳ User re-downloading |
+| Fannie SFLP | 2000-2025 | ~62M | 🔄 Cloud Run processing |
 
 **⚠️ Freddie SFLLD Gap:** The 2009-2025 data was never extracted due to local disk space limits during initial processing. User is re-downloading the full file for cloud-only processing.
 
@@ -290,9 +290,9 @@ gcloud run jobs execute fannie-sflp-processor \
 - Historical Fannie: Pending upload
 
 **Next Steps:**
-1. 🔄 Fannie Mae upload to GCS (in progress)
-2. ⏳ Freddie SFLLD re-download (user downloading)
-3. ⏳ After uploads: Kick off Cloud Run jobs for both
+1. 🔄 Fannie Mae Cloud Run processing (started - `fannie-sflp-processor-zrfsw`)
+2. ⏳ Freddie SFLLD 2009-2025 re-download (user downloading from Clarity)
+3. ⏳ After re-download: Upload to GCS + kick off Cloud Run job
 4. ⏳ Delete local historical files after cloud processing verified
 5. Calculate CPR from factor time series
 6. Validate prepay assumptions using research framework
