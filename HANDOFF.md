@@ -227,20 +227,22 @@ gcloud run jobs execute freddie-parser --region=us-central1 \
 ### Phase 6: Historical Data (SFLLD + Fannie SFLP) 🔄 In Progress
 **Goal:** Load 54.8M Freddie + 62M Fannie historical loans for cross-cycle prepay research
 
-### Phase 7: Ginnie Mae Data Ingestion ⏳ Planned
+### Phase 7: Ginnie Mae Data Ingestion ✅ Deployed (Partial)
 **Goal:** Ingest GNMA pool and loan-level data via HTTP bulk download
 
 | Task | Status | Details |
 |------|--------|---------|
 | Research data access | ✅ Done | No SFTP/API - HTTP bulk download only |
-| Account created | ✅ Done | `anais@oasive.ai` (no password, email-based auth) |
-| Create schema | ⏳ Pending | Migration 012: `dim_pool_ginnie`, `dim_loan_ginnie`, etc. |
-| Build Playwright ingestor | ⏳ Pending | Headless browser to bypass bot protection |
-| Create file catalog | ⏳ Pending | `ginnie_file_catalog` table |
-| Daily download pipeline | ⏳ Pending | Cloud Run job with Playwright |
-| Monthly download pipeline | ⏳ Pending | BD7 trigger for portfolio files |
-| Backfill historical | ⏳ Pending | 2013-present (loan-level), pre-2012 (pool-level) |
-| Create parser | ⏳ Pending | `ginnie_parser.py` to parse files into database |
+| Account created | ✅ Done | `anais@oasive.ai` (email-based magic link auth) |
+| Create schema | ✅ Done | Migration 012 applied |
+| Build Playwright ingestor | ✅ Done | `src/ingestors/ginnie_ingestor.py` |
+| Create file catalog | ✅ Done | 58 files cataloged in `ginnie_file_catalog` |
+| Daily download pipeline | ✅ Deployed | `ginnie-ingestor` Cloud Run + 3 schedulers |
+| Current month download | ✅ Done | 58 files in `gs://oasive-raw-data/ginnie/raw/2026/01/` |
+| **Historical backfill** | ❌ Blocked | Ginnie Mae doesn't expose historical files publicly |
+| Create parser | ⏳ Pending | Stub exists, needs file layout specs |
+
+**⚠️ Historical Data Limitation:** Unlike Freddie Mac, Ginnie Mae's bulk download portal only provides **current month** files. Historical files (2012-2025) are not accessible via automated download. Contact `InvestorInquiries@HUD.gov` or use data vendors (Bloomberg, Intex).
 
 ---
 
@@ -583,13 +585,24 @@ echo -n "SG.your-api-key" | gcloud secrets create sendgrid-api-key --data-file=-
 
 ### Implementation Status
 
-| Component | Status | File |
-|-----------|--------|------|
+| Component | Status | File/Details |
+|-----------|--------|--------------|
 | Database migration | ✅ Done | `migrations/012_ginnie_schema.sql` |
 | Ingestor (Playwright) | ✅ Done | `src/ingestors/ginnie_ingestor.py` |
-| Dockerfile | ✅ Done | `Dockerfile.ginnie` |
-| Parser | ⏳ Pending | `src/parsers/ginnie_parser.py` |
-| Cloud Run deploy | ⏳ Pending | See commands below |
+| Dockerfile | ✅ Done | `Dockerfile` (updated for Playwright) |
+| Cloud Run Job | ✅ Deployed | `ginnie-ingestor` in us-central1 |
+| Cloud Scheduler (Daily) | ✅ Active | `ginnie-ingestor-daily` (11:30 UTC Tue-Sat) |
+| Cloud Scheduler (Monthly) | ✅ Active | `ginnie-ingestor-monthly` (11:30 UTC 2nd) |
+| Cloud Scheduler (Factor) | ✅ Active | `ginnie-ingestor-factor` (11:30 UTC 5th) |
+| Files Downloaded | ✅ 58 files | December 2025 data in GCS |
+| Parser | ⏳ Pending | `src/parsers/ginnie_parser.py` (stub, needs file layout specs) |
+
+**GCS Location:** `gs://oasive-raw-data/ginnie/raw/2026/01/`
+
+**Database Status:**
+- `ginnie_file_catalog`: 58 files (all downloaded)
+- `ginnie_ingest_log`: Tracking successful runs
+- Dimension tables: Pending parser implementation
 
 ### Deployment Commands
 

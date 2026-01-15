@@ -292,6 +292,151 @@ From FRE_FISS (intraday) and FRE_IS (monthly) files.
 
 ---
 
+## Ginnie Mae Tables
+
+### File Ingestion Layer
+
+#### `ginnie_file_catalog` — Bulk Download File Inventory
+
+Tracks files discovered and downloaded from `bulk.ginniemae.gov`.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | SERIAL | Auto-increment PK |
+| `filename` | TEXT | File name (**UNIQUE**) |
+| `file_type` | TEXT | daily_pool, portfolio_loan_g1, factor_a1, etc. |
+| `file_category` | TEXT | MBS_SF, HMBS, MULTIFAMILY, PLATINUM, FACTOR |
+| `file_date` | DATE | Date from filename |
+| `file_size_bytes` | BIGINT | File size in bytes |
+| `last_posted_at` | TIMESTAMPTZ | When file was posted on Ginnie site |
+| `local_gcs_path` | TEXT | GCS location after download |
+| `download_status` | TEXT | pending, downloaded, processed, error |
+| `downloaded_at` | TIMESTAMPTZ | When downloaded |
+| `processed_at` | TIMESTAMPTZ | When parsed into DB |
+| `error_message` | TEXT | Error details if failed |
+
+**Current Stats**: 58 files cataloged (December 2025 data)
+
+#### `ginnie_ingest_log` — Download Run Log
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | SERIAL | Auto-increment PK |
+| `run_started_at` | TIMESTAMPTZ | Job start time |
+| `run_mode` | TEXT | daily, monthly, factor, backfill |
+| `status` | TEXT | running, success, error, auth_required |
+| `files_discovered` | INTEGER | Files found on page |
+| `files_downloaded` | INTEGER | Files successfully downloaded |
+| `bytes_downloaded` | BIGINT | Total bytes transferred |
+
+### Dimension Tables
+
+#### `dim_pool_ginnie` — Pool Dimension (GNMA-specific)
+
+One row per Ginnie Mae pool. Contains static attributes and AI-generated tags.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `pool_id` | TEXT | Ginnie Mae pool ID (**PK**) |
+| `cusip` | TEXT | Pool CUSIP (**UNIQUE**) |
+| `security_type` | TEXT | GNM1, GNM2, HMBS, PLATINUM |
+| `product_type` | TEXT | 30YR, 15YR, 20YR, ARM, etc. |
+| `coupon` | NUMERIC(5,3) | Pool coupon rate |
+| `issue_date` | DATE | Pool issue date |
+| `maturity_date` | DATE | Pool maturity date |
+| `orig_upb` | NUMERIC(15,2) | Original UPB at issuance |
+| `orig_loan_count` | INTEGER | Original loan count |
+| `wac` | NUMERIC(5,3) | Weighted avg coupon |
+| `wam` | INTEGER | Weighted avg maturity (months) |
+| `wala` | INTEGER | Weighted avg loan age (months) |
+| `avg_fico` | INTEGER | Weighted avg FICO |
+| `avg_ltv` | NUMERIC(5,2) | Weighted avg LTV |
+| `program_type` | TEXT | FHA, VA, USDA, RD, PIH |
+| `issuer_id` | TEXT | Issuer ID |
+| `issuer_name` | TEXT | Issuer name |
+| **AI Tags** | | (Same structure as `dim_pool`) |
+| `loan_balance_tier` | TEXT | LLB1-7, MLB, STD, JUMBO |
+| `fico_bucket` | TEXT | FICO_SUB620 to FICO_780PLUS |
+| `ltv_bucket` | TEXT | LTV_60 to LTV_95PLUS |
+| `servicer_prepay_risk` | TEXT | PREPAY_PROTECTED, NEUTRAL, PREPAY_EXPOSED |
+| `composite_prepay_score` | NUMERIC | 0-100 overall prepay risk score |
+| `behavior_tags` | JSONB | AI tags |
+
+#### `dim_loan_ginnie` — Loan Dimension (GNMA-specific)
+
+One row per Ginnie Mae loan.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `loan_id` | TEXT | Ginnie Mae loan ID (**PK**) |
+| `pool_id` | TEXT | FK → `dim_pool_ginnie` |
+| `orig_upb` | NUMERIC(12,2) | Original UPB |
+| `orig_rate` | NUMERIC(5,3) | Original note rate |
+| `fico` | INTEGER | FICO score |
+| `ltv` | NUMERIC(5,2) | LTV ratio |
+| `dti` | NUMERIC(5,2) | DTI ratio |
+| `property_type` | TEXT | SF, CONDO, PUD, MH, 2-4UNIT |
+| `state` | TEXT | Property state |
+| `program_type` | TEXT | FHA, VA, USDA, RD, PIH |
+| `fha_insurance_pct` | NUMERIC(5,2) | FHA insurance percentage |
+| `va_guaranty_pct` | NUMERIC(5,2) | VA guaranty percentage |
+
+### Fact Tables
+
+#### `fact_pool_month_ginnie` — Monthly Pool Performance
+
+One row per pool per month. Contains factor, prepayment, and delinquency metrics.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `pool_id` | TEXT | FK → `dim_pool_ginnie` (**PK part**) |
+| `as_of_date` | DATE | Factor date (**PK part**) |
+| `factor` | NUMERIC(10,8) | Current factor |
+| `curr_upb` | NUMERIC(15,2) | Current UPB |
+| `loan_count` | INTEGER | Current loan count |
+| `smm` | NUMERIC(8,6) | Single Monthly Mortality |
+| `cpr` | NUMERIC(5,2) | Conditional Prepayment Rate |
+| `dlq_30_pct` | NUMERIC(5,4) | 30 DPD rate |
+| `dlq_60_pct` | NUMERIC(5,4) | 60 DPD rate |
+| `dlq_90_plus_pct` | NUMERIC(5,4) | 90+ DPD rate |
+| `serious_dlq_rate` | NUMERIC(5,4) | 90+ DPD rate |
+
+#### `ginnie_historical_pool_stats` — Pre-2012 Aggregate Stats
+
+Historical pool-level statistics for pre-loan-level-disclosure era.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `as_of_date` | DATE | (**PK part**) |
+| `security_type` | TEXT | GNM1, GNM2 (**PK part**) |
+| `product_type` | TEXT | 30YR, 15YR, ARM (**PK part**) |
+| `coupon_bucket` | TEXT | 3.0, 3.5, 4.0, etc. (**PK part**) |
+| `total_upb` | NUMERIC(18,2) | Total UPB |
+| `pool_count` | INTEGER | Number of pools |
+| `avg_cpr` | NUMERIC(5,2) | Average CPR |
+
+### Views
+
+| View | Description |
+|------|-------------|
+| `ginnie_pool_latest_factor` | Most recent factor for each Ginnie pool |
+| `ginnie_pool_summary` | Pool dimension with latest metrics joined |
+| `v_all_agency_pools` | Combined Freddie + Ginnie pools for cross-agency analysis |
+
+### Data Availability
+
+⚠️ **Important**: Unlike Freddie Mac (full SFTP archive), Ginnie Mae only provides **current month data** on the bulk download portal.
+
+| Data Type | Availability |
+|-----------|-------------|
+| Current month files | ✅ 58 files downloaded |
+| Historical (2012-2025) | ❌ Not publicly available |
+| Pre-2012 aggregate | ⚠️ Separate archive |
+
+For historical Ginnie Mae data, contact `InvestorInquiries@HUD.gov` or use data vendors (Bloomberg, Intex, CoreLogic).
+
+---
+
 ## Entity Relationship Diagram
 
 ```
