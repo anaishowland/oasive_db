@@ -44,6 +44,7 @@ from email.mime.text import MIMEText
 from pathlib import Path
 from typing import Any
 
+import requests
 from google.cloud import secretmanager, storage
 from sqlalchemy import text
 from tenacity import retry, stop_after_attempt, wait_exponential
@@ -646,22 +647,69 @@ Time: {datetime.now(timezone.utc).isoformat()}
     def _download_file(self, file_info: dict[str, Any]) -> str:
         """
         Download a file and upload to GCS.
+        
+        Strategy:
+        1. Find the download link by filename
+        2. Extract the href URL
+        3. Download using requests with browser cookies
+        4. Upload to GCS
+        
         Returns GCS path.
         """
         filename = file_info["filename"]
-        logger.info(f"Downloading {filename} ({file_info.get('file_size_bytes', 0) / 1024 / 1024:.1f} MB)")
+        file_size_mb = file_info.get('file_size_bytes', 0) / 1024 / 1024
+        logger.info(f"Downloading {filename} ({file_size_mb:.1f} MB)")
         
-        # Find and click the download link
+        # Find the download link and get its href
         link_selector = f'a:has-text("{filename}")'
+        link = self._page.query_selector(link_selector)
         
-        # Set up download handling
-        with self._page.expect_download(timeout=self.DOWNLOAD_TIMEOUT) as download_info:
-            self._page.click(link_selector)
+        if not link:
+            raise ValueError(f"Could not find download link for {filename}")
         
-        download = download_info.value
+        href = link.get_attribute("href")
+        if not href:
+            raise ValueError(f"Download link for {filename} has no href")
         
-        # Wait for download to complete
-        download_path = download.path()
+        # Make href absolute if needed
+        if href.startswith("/"):
+            href = f"https://bulk.ginniemae.gov{href}"
+        elif not href.startswith("http"):
+            href = f"https://bulk.ginniemae.gov/{href}"
+        
+        logger.info(f"Download URL: {href}")
+        
+        # Get cookies from browser context for the request
+        cookies = self._context.cookies()
+        cookie_dict = {c['name']: c['value'] for c in cookies if 'ginniemae.gov' in c.get('domain', '')}
+        
+        # Download using requests with browser cookies
+        # This bypasses any JavaScript download handling
+        with tempfile.NamedTemporaryFile(delete=False, suffix=Path(filename).suffix) as tmp:
+            response = requests.get(
+                href,
+                cookies=cookie_dict,
+                headers={
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                    'Accept': '*/*',
+                    'Referer': self.BULK_URL,
+                },
+                stream=True,
+                timeout=300,
+                allow_redirects=True,
+            )
+            response.raise_for_status()
+            
+            # Stream download to temp file
+            total_size = 0
+            for chunk in response.iter_content(chunk_size=8192):
+                if chunk:
+                    tmp.write(chunk)
+                    total_size += len(chunk)
+            
+            download_path = tmp.name
+        
+        logger.info(f"Downloaded {total_size / 1024 / 1024:.1f} MB to temp file")
         
         # Upload to GCS
         now = datetime.now(timezone.utc)
