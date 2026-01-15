@@ -1,6 +1,6 @@
 # Agent Handoff Document
 
-**Last updated:** January 14, 2026
+**Last updated:** January 15, 2026
 
 This document provides context for AI agents continuing development on Oasive.
 
@@ -182,39 +182,61 @@ gcloud run jobs execute freddie-parser --region=us-central1 \
 | Apply FK constraints | ⏳ Pending | Migration 007 |
 | Validate assumptions | ⏳ Pending | Use research framework |
 
-### Phase 6: Historical Data (SFLLD 1999-2025) 🔄 19% Complete
-**Goal:** Load 54.8M historical loans for cross-cycle prepay research
+### Phase 6: Historical Data (SFLLD + Fannie SFLP) 🔄 In Progress
+**Goal:** Load 54.8M Freddie + 62M Fannie historical loans for cross-cycle prepay research
+
+#### Freddie Mac SFLLD (1999-2025)
 
 | Task | Status | Details |
 |------|--------|---------|
 | Create schema | ✅ Done | Migration 009: `dim_loan_historical`, `fact_loan_month_historical` |
 | Create ingestor | ✅ Done | `src/ingestors/sflld_ingestor.py` with GCS support |
-| Download full dataset | ✅ Done | 36.8 GB downloaded from Clarity |
-| Upload to GCS | ✅ Done | 128 GB uploaded to `gs://oasive-raw-data/sflld/` |
-| Cloud Run processor | ✅ Running | `sflld-processor` job (24h timeout) |
-| Parse origination data | 🔄 **19%** | **10.46M / ~55M loans loaded** |
-| Parse performance data | ⏳ Pending | Monthly snapshots (large but important) |
-| Cross-cycle analysis | ⏳ Pending | 2000s boom, 2008 crisis, COVID refi, 2022 rates |
+| Download 1999-2008 | ✅ Done | Processed in first batch |
+| **1999-2008 loaded** | ✅ **Done** | **18.6M loans in `dim_loan_historical`** |
+| **2009-2025 data** | ⚠️ **MISSING** | Needs re-download (see below) |
 
-**Current Progress:**
-- Currently processing: 2003-2004 data
-- Running since: Jan 14, 05:17 UTC
-- Timeout: 24 hours (plenty of time remaining)
+**⚠️ IMPORTANT: Freddie SFLLD Partial Coverage Issue**
 
-**GCS Processing (runs in cloud, not local):**
+The initial download ran out of local disk space during extraction, so only 1999-2008 data was uploaded to GCS. The 2009-2025 data was never extracted or processed.
+
+**Solution:** Re-download `full_set_standard_historical_data.zip` from Clarity and upload directly to GCS (no local extraction needed). Currently downloading on user's laptop.
+
+**Re-download workflow:**
 ```bash
-# Start cloud processing (already running)
+# 1. Upload ZIP directly to GCS (no local extraction)
+gsutil cp ~/Downloads/full_set_standard_historical_data.zip gs://oasive-raw-data/sflld/
+
+# 2. Cloud Run will extract and process in cloud
 gcloud run jobs execute sflld-processor \
   --region=us-central1 \
-    --project=gen-lang-client-0343560978 \
+  --project=gen-lang-client-0343560978 \
   --args="python,-m,src.ingestors.sflld_ingestor,--process-gcs,gs://oasive-raw-data/sflld"
-
-# Monitor progress
-gcloud logging read 'resource.type="cloud_run_job" AND resource.labels.job_name="sflld-processor"' \
-  --project=gen-lang-client-0343560978 --limit=50
 ```
 
-**Note:** Job uses `ON CONFLICT DO NOTHING` so restarts skip already-loaded data.
+#### Fannie Mae SFLP (2000-2025)
+
+| Task | Status | Details |
+|------|--------|---------|
+| Create schema | ✅ Done | Migration 011: `dim_loan_fannie_historical`, `fact_loan_month_fannie_historical` |
+| Create ingestor | ✅ Done | `src/ingestors/fannie_sflp_ingestor.py` |
+| Download file | ✅ Done | `Performance_All.zip` (56 GB) |
+| Upload to GCS | 🔄 **In Progress** | Uploading to `gs://oasive-raw-data/fannie/sflp/` |
+| Cloud Run processor | ⏳ Pending | Will start after upload completes |
+| Parse loan data | ⏳ Pending | ~62M loans expected |
+
+**Fannie Mae Processing (runs in cloud):**
+```bash
+# Check upload progress
+gsutil ls -l gs://oasive-raw-data/fannie/sflp/
+
+# Start cloud processing (after upload completes)
+gcloud run jobs execute fannie-sflp-processor \
+  --region=us-central1 \
+  --project=gen-lang-client-0343560978 \
+  --args="-m,src.ingestors.fannie_sflp_ingestor,--process-gcs,gs://oasive-raw-data/fannie/sflp"
+```
+
+**Note:** Both ingestors use `ON CONFLICT DO NOTHING` - safe to restart without duplicates.
 
 **New columns added to `dim_pool`:**
 - **Static:** `loan_balance_tier`, `loan_program`, `fico_bucket`, `ltv_bucket`, `occupancy_type`, `loan_purpose`, `state_prepay_friction`, `seasoning_stage`, `property_type`, `origination_channel`, `has_rate_buydown`
@@ -228,15 +250,16 @@ gcloud logging read 'resource.type="cloud_run_job" AND resource.labels.job_name=
 
 ---
 
-## 📊 Current Database Status (Updated Jan 14, 2026 - Evening)
+## 📊 Current Database Status (Updated Jan 15, 2026 - Morning)
 
 | Table | Records | Status |
 |-------|---------|--------|
 | `dim_pool` | **177,278** | ✅ 100% AI tagged |
-| `dim_loan` | **6,997,748** | ✅ Complete |
+| `dim_loan` | **6,997,748** | ✅ Complete (SFTP 2019+) |
 | `fact_pool_month` | 157,600 | ✅ |
 | `freddie_file_catalog` | 45,356 | 76% downloaded |
-| `dim_loan_historical` | **10,463,160** | 🔄 19% (~55M target) |
+| `dim_loan_historical` | **18,649,688** | ⚠️ 1999-2008 only (see note) |
+| `dim_loan_fannie_historical` | 0 | 🔄 Upload in progress |
 
 **Parsing Progress (SFTP 2019+):**
 - IS: 200/200 ✅ 
@@ -245,12 +268,15 @@ gcloud logging read 'resource.type="cloud_run_job" AND resource.labels.job_name=
 - ILLD: 81/81 ✅ - 7.0M loans loaded
 - Geographic: 59/69 (86%) - 10 remaining
 
-**Historical Data (Clarity 1999-2025):**
-- SFLLD Download: ✅ Done (36.8 GB)
-- Upload to GCS: ✅ Done
-- Cloud Run job: 🔄 **Running** (`sflld-processor-cz98r`)
-- Progress: **10.46M / ~55M loans (19%)**
-- Currently processing: 2003-2004 data
+**Historical Data Status:**
+
+| Dataset | Years | Records | Status |
+|---------|-------|---------|--------|
+| Freddie SFLLD | 1999-2008 | 18.6M | ✅ Loaded |
+| Freddie SFLLD | 2009-2025 | ~36M | ⏳ Re-downloading |
+| Fannie SFLP | 2000-2025 | ~62M | 🔄 Uploading to GCS |
+
+**⚠️ Freddie SFLLD Gap:** The 2009-2025 data was never extracted due to local disk space limits during initial processing. User is re-downloading the full file for cloud-only processing.
 
 **AI Tag Distribution:**
 - Loan Balance: STD (54K), MLB (27K), LLB1-7 (77K), JUMBO (339)
@@ -260,14 +286,16 @@ gcloud logging read 'resource.type="cloud_run_job" AND resource.labels.job_name=
 **Data Date Ranges:**
 - Pools: 2019-06 to 2025-12 (~6.5 years)
 - Loans (SFTP): 1993-04 to 2026-01 (~32 years)
-- Historical: 1999-01 to 2003+ (loading...)
+- Historical Freddie: 1999-01 to 2008-12 (partial - needs 2009-2025)
+- Historical Fannie: Pending upload
 
 **Next Steps:**
-1. 🔄 SFLLD processing continues (~8-12 hours remaining)
-2. ⏳ Delete local `~/Downloads/sflld` after verification
-3. ⏳ Download Fannie Mae historical data from Data Dynamics (2000-2025)
-4. Calculate CPR from factor time series
-5. Validate prepay assumptions using research framework
+1. 🔄 Fannie Mae upload to GCS (in progress)
+2. ⏳ Freddie SFLLD re-download (user downloading)
+3. ⏳ After uploads: Kick off Cloud Run jobs for both
+4. ⏳ Delete local historical files after cloud processing verified
+5. Calculate CPR from factor time series
+6. Validate prepay assumptions using research framework
 
 ---
 
