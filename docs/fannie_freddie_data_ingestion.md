@@ -51,6 +51,45 @@ This document covers data access and ingestion for Fannie Mae, Freddie Mac, and 
 
 ⚠️ **Note**: Unlike Fannie Mae (4 intraday releases), Freddie Mac only releases ONCE per day.
 
+### Parsing Performance (Cloud Run)
+
+The following benchmarks are based on observed Cloud Run job executions:
+
+| File Type | Files/Job | Duration | Records | Notes |
+|-----------|-----------|----------|---------|-------|
+| **FRE_FISS** (daily) | 1 | ~1-2 min | ~100-500 pools | Small daily files, fast |
+| **FRE_IS** (monthly) | 5 | ~5-10 min | ~5,000 pools | Pool-level issuance data |
+| **FRE_ILLD** (loan-level) | 2 | ~30-60 min | ~200K loans | Large files, batch inserts |
+| **FRE_GE** (geographic) | 4-5 | ~10-15 min | Distribution stats | Updates existing pools |
+| **FRE_DPR** (factors) | 2 | ~5-10 min | ~10K factor records | Monthly prepay data |
+
+**AI Tagging:** After parsing, the `PoolTagger` runs automatically at **~1,200 pools/sec** (optimized batch updates).
+
+**Daily Pipeline Timeline:**
+```
+16:45 UTC - Cloud Scheduler triggers freddie-ingestor-daily
+           ↓ (download FISS from SFTP: ~1 min)
+           ↓ (parse to dim_pool: ~1-2 min)
+           ↓ (auto-tag new pools: <1 sec for ~100 pools)
+~16:50 UTC - Complete (total: ~5 minutes)
+```
+
+**Monthly Pipeline Timeline (BD1):**
+```
+11:45 UTC - Cloud Scheduler triggers freddie-ingestor-monthly
+           ↓ (download IS + ILLD from SFTP: ~5-10 min)
+           ↓ (parse pools: ~10 min)
+           ↓ (parse loans: ~30-60 min depending on volume)
+           ↓ (auto-tag new pools: ~2 min for ~5K pools)
+~12:45 UTC - Complete (total: ~1 hour)
+```
+
+**Resource Configuration (Cloud Run):**
+- Memory: 2-4 GiB
+- CPU: 2 vCPUs
+- Timeout: 4 hours (parser), 2 hours (ingestor)
+- Batch size: 10,000 records per insert
+
 ---
 
 ## Ginnie Mae (GNMA)
