@@ -273,22 +273,40 @@ gcloud run jobs execute freddie-parser --region=us-central1 \
 - CPU: 4 vCPUs
 - Timeout: 24 hours
 
-### Phase 7: Ginnie Mae Data Ingestion ✅ Deployed (Partial)
+### Phase 7: Ginnie Mae Data Ingestion ✅ FULLY WORKING
 **Goal:** Ingest GNMA pool and loan-level data via HTTP bulk download
 
 | Task | Status | Details |
 |------|--------|---------|
 | Research data access | ✅ Done | No SFTP/API - HTTP bulk download only |
-| Account created | ✅ Done | `anais@oasive.ai` (email-based magic link auth) |
+| Account created | ✅ Done | `anais@oasive.ai` (email + security question auth) |
 | Create schema | ✅ Done | Migration 012 applied |
 | Build Playwright ingestor | ✅ Done | `src/ingestors/ginnie_ingestor.py` |
+| **Full auth flow** | ✅ Working | Email → Submit → Security Question → Verify |
 | Create file catalog | ✅ Done | 58 files cataloged in `ginnie_file_catalog` |
 | Daily download pipeline | ✅ Deployed | `ginnie-ingestor` Cloud Run + 3 schedulers |
-| Current month download | ✅ Done | 58 files in `gs://oasive-raw-data/ginnie/raw/2026/01/` |
-| **Historical backfill** | ❌ Blocked | Ginnie Mae doesn't expose historical files publicly |
+| **Current month download** | ✅ Done | **58 files, 4.94 GB** in GCS |
+| **Historical backfill** | ❌ Blocked | Ginnie Mae only provides current month files |
 | Create parser | ⏳ Pending | Stub exists, needs file layout specs |
 
-**⚠️ Historical Data Limitation:** Unlike Freddie Mac, Ginnie Mae's bulk download portal only provides **current month** files. Historical files (2012-2025) are not accessible via automated download. Contact `InvestorInquiries@HUD.gov` or use data vendors (Bloomberg, Intex).
+**Authentication Flow (Jan 16, 2026 - WORKING):**
+1. Navigate to download URL → Redirects to profile.aspx
+2. Enter email (anais@oasive.ai) → Click Submit
+3. Security question: "In what city did you meet your spouse..." → Answer: "Berkeley"
+4. Click Verify → Download starts automatically
+
+**Secrets in GCP Secret Manager:**
+- `ginnie-security-answer`: "Berkeley"
+- `ginnie-session-cookies`: Browser cookies for session persistence
+
+**Files Downloaded (Jan 2026 - VERIFIED):**
+- Total: **58 files, 4.94 GB**
+- Pool-level: `monthlySFPS_202512.zip` (18 MB), `dailySFPS.zip`
+- Loan-level: `LoanPerfAnn_202412.zip` (2.75 GB), `llmon1_202512.zip`
+- Factor files: `factorA1/A2/B1/B2_202512.zip`
+- HMBS: `hmonthlyPS_202512.zip`, `hllmon1_202512.zip`
+
+**⚠️ Historical Data Limitation:** Ginnie Mae bulk download portal only provides **current month** files. Historical files (2012-2025) require direct contact with `InvestorInquiries@HUD.gov` or data vendors (Bloomberg, Intex).
 
 ---
 
