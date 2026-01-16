@@ -941,7 +941,7 @@ Time: {datetime.now(timezone.utc).isoformat()}
         """Get cataloged files with their status."""
         with self.engine.connect() as conn:
             result = conn.execute(text("""
-                SELECT filename, file_type, download_status, local_gcs_path
+                SELECT filename, file_type, download_status, local_gcs_path, file_date
                 FROM ginnie_file_catalog
             """))
             files = {}
@@ -953,6 +953,7 @@ Time: {datetime.now(timezone.utc).isoformat()}
                     "status": row.download_status,
                     "gcs_path": row.local_gcs_path,
                     "file_type": row.file_type,
+                    "file_date": row.file_date,  # For historical detection
                     "href": None,  # Will be set by historical generation only
                 }
             return files
@@ -1294,7 +1295,11 @@ Time: {datetime.now(timezone.utc).isoformat()}
                         is_historical = False
                         file_date = file_info.get("file_date")
                         if file_date:
-                            current_month_start = datetime.now().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+                            from datetime import date as date_type
+                            current_month_start = date_type.today().replace(day=1)
+                            # Handle both date and datetime objects
+                            if hasattr(file_date, 'date'):
+                                file_date = file_date.date()
                             if file_date < current_month_start:
                                 is_historical = True
                         
