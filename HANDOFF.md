@@ -84,18 +84,23 @@ python3 -m src.ingestors.fannie_sflp_ingestor --process-gcs gs://oasive-raw-data
 
 ### Ginnie Mae Data Access
 
-⚠️ **Key Difference**: Unlike Freddie Mac and Fannie Mae, Ginnie Mae does NOT offer SFTP feeds or REST APIs. Data must be downloaded via authenticated HTTP from their bulk download portal.
+⚠️ **Key Difference**: Unlike Freddie Mac and Fannie Mae, Ginnie Mae does NOT offer SFTP feeds or REST APIs. Data must be downloaded via authenticated HTTP.
 
 | Source | URL | Coverage | Status |
 |--------|-----|----------|--------|
-| **Bulk Download Portal** | `bulk.ginniemae.gov` | 2013-present (loan-level) | ✅ Account created |
-| **Historical Disclosure** | Bulk portal → History section | Pre-2012 (pool-level only) | Available |
+| **Bulk Download Portal** | `bulk.ginniemae.gov` | Current month only | ✅ Working (58 files, 4.94 GB) |
+| **Disclosure Data History** | `ginniemae.gov/.../DisclosureHistory.aspx` | **2013-present** | ✅ Available |
+
+**⚠️ IMPORTANT DISCOVERY (Jan 16, 2026):**
+- `bulk.ginniemae.gov` only has **current month** files
+- **Historical files (2013+) are on a DIFFERENT page**: https://www.ginniemae.gov/data_and_reports/disclosure_data/Pages/DisclosureHistory.aspx
+- This page has **all historical loan-level data back to 2013**!
 
 **Key Resources:**
-- Bulk Download: https://bulk.ginniemae.gov/
+- Current Month: https://bulk.ginniemae.gov/
+- **Historical Data: https://www.ginniemae.gov/data_and_reports/disclosure_data/Pages/DisclosureHistory.aspx**
 - File Layouts: https://www.ginniemae.gov/data_and_reports/disclosure_data/Pages/bulk_data_download_layout.aspx
-- Data Dictionaries: https://www.ginniemae.gov/investors/disclosures_and_reports/pages/disclosure-data-dictionaries.aspx
-- Release Schedule: https://www.ginniemae.gov/investors/disclosures_and_reports/Pages/Disclosure-Data-Release-Schedule.aspx
+- Historical Layouts Guide: Available on the Disclosure History page
 - Contact: `InvestorInquiries@HUD.gov`
 
 **File Types (Single Family MBS):**
@@ -108,7 +113,23 @@ python3 -m src.ingestors.fannie_sflp_ingestor --process-gcs gs://oasive-raw-data
 | Loan Level | `llmon1_YYYYMM.zip` (Ginnie I), `llmon2_YYYYMM.zip` (Ginnie II) | ~360 MB | BD6 |
 | Factor Files | `factorA1/A2_YYYYMM.zip`, `factorB1/B2_YYYYMM.zip` | ~21 MB | BD4-6 |
 
-**⚠️ Historical Limitation**: Ginnie Mae only has loan-level data from ~2013 onwards (when they started loan-level disclosure). Unlike Freddie/Fannie SFLLD (1999-2025), there is NO equivalent 25+ year historical loan dataset.
+**Historical Data Available (Disclosure History Page):**
+
+| Category | Key Files | Coverage |
+|----------|-----------|----------|
+| MBS Single Family | Loan Level Ginnie I/II, Portfolio, Liquidations | **2013-present** |
+| HMBS | Pool Level, Loan Level | 2014+ |
+| Multifamily | Pool and Loan Disclosure | 2018+ |
+| Factor Files | Factor A/B, REMIC factors | **1982-present!** |
+| Other | **LOAN PERFORMANCE (Quarterly/Annual)**, **CPR Monthly** | **2013+** |
+
+**Most Important for Prepay Research:**
+1. `LOAN PERFORMANCE FILE, QUARTERLY` - loan-level data 2013+
+2. `CONDITIONAL PREPAYMENT RATE MONTHLY` - direct CPR data
+3. `MBS SF PORTFOLIO - LOAN LEVEL, GINNIE I/II` - monthly portfolio
+4. `Factor Files` - for CPR calculation from factors
+
+**⚠️ Note**: Unlike Freddie/Fannie SFLLD (1999-2025), Ginnie loan-level data starts ~2013.
 
 **Automation Approach:**
 Since there's no SFTP/API, implement HTTP polling:
