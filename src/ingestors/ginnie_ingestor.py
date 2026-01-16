@@ -1287,15 +1287,29 @@ Time: {datetime.now(timezone.utc).isoformat()}
                 for file_info in to_download:
                     try:
                         file_info["file_size_bytes"] = file_info.get("file_size_bytes", 0)
+                        filename = file_info["filename"]
                         
-                        # Check if file has a direct URL (historical files)
-                        # or needs to be found on the page (current files)
+                        # Determine if this is a historical file (before current month)
+                        # Historical files need direct URL download since they're not on the bulk page
+                        is_historical = False
+                        file_date = file_info.get("file_date")
+                        if file_date:
+                            current_month_start = datetime.now().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+                            if file_date < current_month_start:
+                                is_historical = True
+                        
+                        # Check if file has a direct URL or needs to be found on the page
                         if "href" in file_info and file_info["href"]:
-                            # Historical file with direct URL
+                            # Already has URL (generated historical file)
                             gcs_path = self._download_file_direct(
-                                file_info["filename"],
+                                filename,
                                 file_info["href"]
                             )
+                        elif is_historical:
+                            # Historical file - construct URL
+                            url = f"https://bulk.ginniemae.gov/protectedfiledownload.aspx?dlfile=data_bulk/{filename}"
+                            logger.info(f"Historical file detected, using direct URL: {url}")
+                            gcs_path = self._download_file_direct(filename, url)
                         else:
                             # Current file - find on page
                             gcs_path = self._download_file(file_info)
