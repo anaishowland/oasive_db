@@ -1352,6 +1352,35 @@ Time: {datetime.now(timezone.utc).isoformat()}
             logger.info("Catalog status after reset:")
             for row in result:
                 logger.info(f"  {row.download_status}: {row.cnt}")
+    
+    def clean_historical(self) -> None:
+        """
+        Remove historical files from catalog (files not in current month).
+        
+        Historical files were generated programmatically but can't be downloaded
+        from the bulk page - they require different authentication or aren't available.
+        """
+        logger.info("Cleaning historical files from catalog...")
+        
+        with self.engine.connect() as conn:
+            # Delete files with dates older than current month
+            result = conn.execute(text("""
+                DELETE FROM ginnie_file_catalog 
+                WHERE file_date < date_trunc('month', CURRENT_DATE)
+                   OR file_date IS NULL AND filename ~ '_\\d{6}\\.' 
+                   AND NOT filename ~ '_' || to_char(CURRENT_DATE, 'YYYYMM') || '\\.'
+                RETURNING filename
+            """))
+            deleted_count = result.rowcount
+            conn.commit()
+            logger.info(f"Deleted {deleted_count} historical files from catalog")
+            
+            # Show remaining
+            result = conn.execute(text("""
+                SELECT COUNT(*) as cnt FROM ginnie_file_catalog
+            """))
+            remaining = result.fetchone()[0]
+            logger.info(f"Remaining files in catalog: {remaining}")
 
 
 class AuthenticationRequiredError(Exception):
@@ -1398,10 +1427,19 @@ def main():
         action="store_true",
         help="Reset all downloaded/error files to pending status"
     )
+    parser.add_argument(
+        "--clean-historical",
+        action="store_true",
+        help="Remove historical files from catalog (keep only current month)"
+    )
     
     args = parser.parse_args()
     
     ingestor = GinnieIngestor()
+    
+    if args.clean_historical:
+        ingestor.clean_historical()
+        return
     
     if args.reset_catalog:
         ingestor.reset_catalog()
