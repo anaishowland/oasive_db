@@ -338,42 +338,152 @@ class GinnieIngestor:
     
     def _attempt_automated_login(self) -> bool:
         """
-        Attempt to complete login automatically using magic link from email.
+        Attempt to complete login automatically.
+        
+        Authentication flow:
+        1. Enter email address
+        2. Submit -> redirects to security question page
+        3. Answer security question
+        4. Click Verify -> authenticated, can download files
+        
         Returns True if successful.
         """
-        logger.info("Attempting automated login via magic link...")
+        logger.info("Attempting automated login...")
         
-        # Check if there's a login form on the current page
-        login_email_field = self._page.query_selector('input[type="email"], input[name="email"]')
+        page_content = self._page.content().lower()
         
-        if login_email_field:
-            # Enter email to trigger magic link
-            login_email_field.fill("anais@oasive.ai")
+        # Step 1: Check if we need to answer security question
+        if "secret question" in page_content or "welcome back" in page_content:
+            logger.info("Security question page detected")
+            return self._answer_security_question()
+        
+        # Step 2: Check if we need to enter email first
+        email_field = self._page.query_selector('input[name*="email" i], input[type="email"]')
+        
+        if email_field:
+            logger.info("Email entry page detected")
+            
+            # Enter email
+            email_field.fill("anais@oasive.ai")
             
             # Look for submit button
-            submit_btn = self._page.query_selector('button[type="submit"], input[type="submit"]')
+            submit_btn = self._page.query_selector(
+                'input[type="submit"][value*="Submit" i], '
+                'button[type="submit"], '
+                'input[value="Submit"]'
+            )
             if submit_btn:
                 submit_btn.click()
-                logger.info("Submitted email for magic link")
+                logger.info("Submitted email")
                 
-                # Wait for email to arrive
-                time.sleep(30)
+                # Wait for page transition
+                self._page.wait_for_load_state("networkidle", timeout=30000)
+                time.sleep(2)
                 
-                # Check for magic link
-                magic_link = self._check_for_magic_link_email(since_minutes=5)
-                if magic_link:
-                    # Navigate to magic link
-                    self._page.goto(magic_link, wait_until="networkidle")
-                    
-                    # Check if we're now authenticated
-                    time.sleep(2)
-                    if "login" not in self._page.url.lower():
-                        logger.info("Magic link login successful!")
-                        # Save cookies
-                        cookies = self._context.cookies()
-                        self._save_cookies_to_secret(cookies)
-                        return True
+                # Check if we're now on security question page
+                page_content = self._page.content().lower()
+                if "secret question" in page_content or "welcome back" in page_content:
+                    return self._answer_security_question()
         
+        # Step 3: Fallback to magic link if configured
+        magic_link = self._check_for_magic_link_email(since_minutes=5)
+        if magic_link:
+            self._page.goto(magic_link, wait_until="networkidle")
+            time.sleep(2)
+            if "login" not in self._page.url.lower():
+                logger.info("Magic link login successful!")
+                cookies = self._context.cookies()
+                self._save_cookies_to_secret(cookies)
+                return True
+        
+        return False
+    
+    def _answer_security_question(self) -> bool:
+        """
+        Answer the security question to complete authentication.
+        
+        Security answer is stored in Secret Manager as 'ginnie-security-answer'.
+        """
+        logger.info("Answering security question...")
+        
+        # Get security answer from Secret Manager
+        security_answer = self._get_secret("ginnie-security-answer")
+        if not security_answer:
+            logger.error("Security answer not found in Secret Manager")
+            self._send_alert_email(
+                "Ginnie Mae Login Failed - Missing Security Answer",
+                """The Ginnie Mae login requires a security answer but it's not configured.
+
+Please add the security answer to Secret Manager:
+  gcloud secrets create ginnie-security-answer --data-file=- --project=gen-lang-client-0343560978
+  (then type the answer and press Ctrl+D)
+
+Or update existing:
+  echo -n "YourAnswer" | gcloud secrets versions add ginnie-security-answer --data-file=-
+
+Security Question: In what city did you meet your spouse or significant other?
+"""
+            )
+            return False
+        
+        # Find the answer input field
+        answer_field = self._page.query_selector(
+            'input[name*="answer" i], '
+            'input[id*="answer" i], '
+            'input[type="text"]:near(:text("Answer"))'
+        )
+        
+        if not answer_field:
+            # Try to find by label
+            answer_field = self._page.query_selector('input[type="text"]')
+            
+        if not answer_field:
+            logger.error("Could not find security answer field")
+            self._take_screenshot("no_answer_field")
+            return False
+        
+        # Enter the answer
+        answer_field.fill(security_answer.strip())
+        logger.info("Entered security answer")
+        
+        # Find and click Verify button
+        verify_btn = self._page.query_selector(
+            'input[type="submit"][value*="Verify" i], '
+            'button:has-text("Verify"), '
+            'input[value="Verify"]'
+        )
+        
+        if not verify_btn:
+            logger.error("Could not find Verify button")
+            self._take_screenshot("no_verify_button")
+            return False
+        
+        verify_btn.click()
+        logger.info("Clicked Verify button")
+        
+        # Wait for authentication to complete
+        self._page.wait_for_load_state("networkidle", timeout=30000)
+        time.sleep(2)
+        
+        # Check if we're authenticated (should redirect to download or bulk page)
+        current_url = self._page.url.lower()
+        if "profile.aspx" not in current_url and "login" not in current_url:
+            logger.info("Security question authentication successful!")
+            # Save cookies for future sessions
+            cookies = self._context.cookies()
+            self._save_cookies_to_secret(cookies)
+            return True
+        
+        # Check if we need to handle a download that started
+        page_content = self._page.content().lower()
+        if "download" in page_content or "file" in page_content:
+            logger.info("Authentication appears successful - download may have started")
+            cookies = self._context.cookies()
+            self._save_cookies_to_secret(cookies)
+            return True
+        
+        logger.error("Authentication may have failed - still on profile page")
+        self._take_screenshot("auth_failed")
         return False
     
     def _start_browser(self, headless: bool = True) -> None:
