@@ -1,6 +1,6 @@
 # Agent Handoff Document
 
-**Last updated:** January 15, 2026
+**Last updated:** January 16, 2026
 
 This document provides context for AI agents continuing development on Oasive.
 
@@ -226,6 +226,36 @@ gcloud run jobs execute freddie-parser --region=us-central1 \
 
 ### Phase 6: Historical Data (SFLLD + Fannie SFLP) 🔄 In Progress
 **Goal:** Load 54.8M Freddie + 62M Fannie historical loans for cross-cycle prepay research
+
+#### Freddie Mac SFLLD (1999-2025)
+
+| Task | Status | Details |
+|------|--------|---------|
+| Create schema | ✅ Done | Migration 009: `dim_loan_historical`, `fact_loan_month_historical` |
+| Create ingestor | ✅ Done | `src/ingestors/sflld_ingestor.py` with GCS support |
+| Download 1999-2008 | ✅ Done | Processed in first batch |
+| **1999-2008 loaded** | ✅ **Done** | **18.6M loans in `dim_loan_historical`** |
+| **Re-download full dataset** | ✅ **Done** | `full_set_standard_historical_data.zip` (37 GB) |
+| **Upload to GCS** | 🔄 **In Progress** | Uploading to `gs://oasive-raw-data/sflld/` |
+| **Non-standard dataset** | ⏳ Pending | `non_std_historical_data.zip` (4.4 GB) - ARMs, IOs |
+| Cloud Run processor | ⏳ Ready | `sflld-processor` job (Gen2, 8Gi, 24h timeout) |
+
+#### Fannie Mae SFLP (2000-2025)
+
+| Task | Status | Details |
+|------|--------|---------|
+| Create schema | ✅ Done | Migration 011: `dim_loan_fannie_historical` |
+| Create ingestor | ✅ Done | `src/ingestors/fannie_sflp_ingestor.py` with GCS support |
+| Download file | ✅ Done | `Performance_All.zip` (56 GB) |
+| Upload to GCS | ✅ **Done** | `gs://oasive-raw-data/fannie/sflp/Performance_All.zip` |
+| Cloud Run processor | 🔄 **Running** | `fannie-sflp-processor-n924r` (Gen2, 8Gi, 24h timeout) |
+| Parse loan data | 🔄 In Progress | ~62M loans expected |
+
+**Cloud Run Configuration (Updated Jan 16):**
+- Execution environment: **Gen2** (for larger ephemeral storage)
+- Memory: 8 GiB
+- CPU: 4 vCPUs
+- Timeout: 24 hours
 
 ### Phase 7: Ginnie Mae Data Ingestion ✅ Deployed (Partial)
 **Goal:** Ingest GNMA pool and loan-level data via HTTP bulk download
