@@ -850,73 +850,64 @@ Time: {datetime.now(timezone.utc).isoformat()}
         
         logger.info(f"Download URL: {href}")
         
-        # Navigate to the download URL - this may redirect to auth page
-        self._page.goto(href, wait_until="networkidle", timeout=60000)
+        # Try to download - use expect_download to capture download that may start during navigation
+        download_path = None
         
-        # Check if we're on auth page
-        current_url = self._page.url.lower()
-        page_content = self._page.content().lower()
-        
-        if "profile.aspx" in current_url or "enter your e-mail" in page_content or "secret question" in page_content:
-            logger.info("Authentication required for download")
-            
-            # Handle full auth flow
-            if not self._handle_download_auth():
-                raise AuthenticationRequiredError(f"Authentication failed for {filename}")
-            
-            # After auth, we should be redirected to the download
-            # Wait for download or re-navigate
-            self._page.wait_for_load_state("networkidle", timeout=30000)
-        
-        # Now try to download - either we got redirected to download or we need to initiate it
-        # The download might start during navigation (Page.goto throws "Download is starting")
         try:
-            with self._page.expect_download(timeout=self.DOWNLOAD_TIMEOUT) as download_info:
-                # If we're back on bulk page, click the link again
-                if "bulk.ginniemae.gov" in self._page.url.lower() and "protectedfiledownload" not in self._page.url.lower():
-                    link = self._page.query_selector(link_selector)
-                    if link:
-                        link.click()
-                else:
-                    # Navigate to the download URL (this may start download immediately)
-                    try:
-                        self._page.goto(href, timeout=30000)
-                    except Exception as nav_error:
-                        # "Download is starting" error is expected when download starts during navigation
-                        if "Download is starting" not in str(nav_error):
-                            raise
+            # First attempt: Navigate to download URL with expect_download wrapping it
+            with self._page.expect_download(timeout=60000) as download_info:
+                try:
+                    self._page.goto(href, wait_until="load", timeout=60000)
+                except Exception as nav_error:
+                    # "Download is starting" error is expected when download starts during navigation
+                    if "Download is starting" not in str(nav_error):
+                        raise
             
             download = download_info.value
             download_path = download.path()
-            
-            if not download_path or not os.path.exists(download_path):
-                raise ValueError(f"Download failed - no file path")
-            
-            file_size = os.path.getsize(download_path)
+            logger.info(f"Download captured during navigation")
             
         except PlaywrightTimeout:
-            # Download didn't start - try direct navigation with auth
-            logger.info("Download didn't start automatically, trying direct download with navigation...")
+            # Download didn't start immediately - likely redirected to auth page
+            logger.info("Download didn't start immediately, checking for auth...")
             
-            try:
-                with self._page.expect_download(timeout=self.DOWNLOAD_TIMEOUT) as download_info:
-                    try:
-                        self._page.goto(href)
-                    except Exception as nav_error:
-                        # "Download is starting" error is expected
-                        if "Download is starting" not in str(nav_error):
-                            raise
+            # Check if we're on auth page
+            current_url = self._page.url.lower()
+            page_content = self._page.content().lower()
+            
+            if "profile.aspx" in current_url or "enter your e-mail" in page_content or "secret question" in page_content:
+                logger.info("Authentication required for download")
                 
-                download = download_info.value
-                download_path = download.path()
+                # Handle full auth flow
+                if not self._handle_download_auth():
+                    raise AuthenticationRequiredError(f"Authentication failed for {filename}")
                 
-                if not download_path:
-                    raise ValueError(f"Download failed for {filename}")
+                # After auth, try download again
+                logger.info("Auth completed, retrying download...")
                 
-                file_size = os.path.getsize(download_path)
-            except Exception as e:
-                logger.error(f"Direct download attempt failed: {e}")
-                raise
+                try:
+                    with self._page.expect_download(timeout=self.DOWNLOAD_TIMEOUT) as download_info:
+                        try:
+                            self._page.goto(href, wait_until="load", timeout=60000)
+                        except Exception as nav_error:
+                            if "Download is starting" not in str(nav_error):
+                                raise
+                    
+                    download = download_info.value
+                    download_path = download.path()
+                    logger.info(f"Download captured after authentication")
+                    
+                except Exception as e:
+                    logger.error(f"Download failed after auth: {e}")
+                    raise
+            else:
+                # We're on some other page - maybe the download page but it didn't auto-start
+                raise ValueError(f"Unexpected page state for {filename}")
+        
+        if not download_path or not os.path.exists(download_path):
+            raise ValueError(f"Download failed - no file path for {filename}")
+        
+        file_size = os.path.getsize(download_path)
         
         # Verify download is not an HTML error page
         with open(download_path, 'rb') as f:
