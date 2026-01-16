@@ -1320,6 +1320,38 @@ Time: {datetime.now(timezone.utc).isoformat()}
             
         finally:
             self._stop_browser()
+    
+    def reset_catalog(self) -> None:
+        """
+        Reset all downloaded/error files to pending status.
+        Use this when files need to be re-downloaded (e.g., after auth fix).
+        """
+        logger.info("Resetting catalog - marking all downloaded/error files as pending")
+        
+        with self.engine.connect() as conn:
+            # Reset all downloaded/error files to pending
+            result = conn.execute(text("""
+                UPDATE ginnie_file_catalog 
+                SET download_status = 'pending', 
+                    local_gcs_path = NULL, 
+                    downloaded_at = NULL,
+                    error_message = NULL
+                WHERE download_status IN ('downloaded', 'error')
+                RETURNING filename
+            """))
+            reset_count = result.rowcount
+            conn.commit()
+            logger.info(f"Reset {reset_count} files to pending status")
+            
+            # Show current status
+            result = conn.execute(text("""
+                SELECT download_status, COUNT(*) as cnt
+                FROM ginnie_file_catalog 
+                GROUP BY download_status
+            """))
+            logger.info("Catalog status after reset:")
+            for row in result:
+                logger.info(f"  {row.download_status}: {row.cnt}")
 
 
 class AuthenticationRequiredError(Exception):
@@ -1361,10 +1393,19 @@ def main():
         action="store_true",
         help="Interactive mode to export session cookies"
     )
+    parser.add_argument(
+        "--reset-catalog",
+        action="store_true",
+        help="Reset all downloaded/error files to pending status"
+    )
     
     args = parser.parse_args()
     
     ingestor = GinnieIngestor()
+    
+    if args.reset_catalog:
+        ingestor.reset_catalog()
+        return
     
     if args.export_cookies:
         ingestor.export_cookies_interactive()
