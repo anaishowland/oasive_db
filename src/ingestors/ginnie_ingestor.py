@@ -1383,32 +1383,24 @@ Time: {datetime.now(timezone.utc).isoformat()}
     
     def clean_historical(self) -> None:
         """
-        Remove historical files from catalog (files not in current month).
+        Remove ALL files from catalog - start fresh.
         
-        Historical files were generated programmatically but can't be downloaded
-        from the bulk page - they require different authentication or aren't available.
+        This clears all generated historical files and lets the ingestor
+        re-catalog from the actual bulk download page.
         """
-        logger.info("Cleaning historical files from catalog...")
+        logger.info("Clearing ALL files from catalog...")
         
         with self.engine.connect() as conn:
-            # Get current YYYYMM
-            result = conn.execute(text("SELECT to_char(CURRENT_DATE, 'YYYYMM')"))
-            current_ym = result.fetchone()[0]
-            logger.info(f"Current month: {current_ym}")
-            
-            # Delete files with dates older than current month
-            # Keep only files that have current month in filename or no date at all
+            # Delete ALL catalog entries
             result = conn.execute(text("""
                 DELETE FROM ginnie_file_catalog 
-                WHERE (file_date IS NOT NULL AND file_date < date_trunc('month', CURRENT_DATE))
-                   OR (filename ~ '_[0-9]{6}\\.' AND filename NOT LIKE :pattern)
                 RETURNING filename
-            """), {"pattern": f"%_{current_ym}.%"})
+            """))
             deleted_count = result.rowcount
             conn.commit()
-            logger.info(f"Deleted {deleted_count} historical files from catalog")
+            logger.info(f"Deleted {deleted_count} files from catalog")
             
-            # Show remaining
+            # Confirm empty
             result = conn.execute(text("""
                 SELECT COUNT(*) as cnt FROM ginnie_file_catalog
             """))
