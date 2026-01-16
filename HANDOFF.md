@@ -619,20 +619,35 @@ echo -n "SG.your-api-key" | gcloud secrets create sendgrid-api-key --data-file=-
 |-----------|--------|--------------|
 | Database migration | ✅ Done | `migrations/012_ginnie_schema.sql` |
 | Ingestor (Playwright) | ✅ Done | `src/ingestors/ginnie_ingestor.py` |
+| **Security Question Auth** | ✅ Done | Reads answer from `ginnie-security-answer` secret |
 | Dockerfile | ✅ Done | `Dockerfile` (updated for Playwright) |
 | Cloud Run Job | ✅ Deployed | `ginnie-ingestor` in us-central1 |
+| **Scheduler Permission** | ✅ Fixed | Added `roles/run.invoker` to service account |
 | Cloud Scheduler (Daily) | ✅ Active | `ginnie-ingestor-daily` (11:30 UTC Tue-Sat) |
 | Cloud Scheduler (Monthly) | ✅ Active | `ginnie-ingestor-monthly` (11:30 UTC 2nd) |
 | Cloud Scheduler (Factor) | ✅ Active | `ginnie-ingestor-factor` (11:30 UTC 5th) |
-| Files Downloaded | ✅ 58 files | December 2025 data in GCS |
-| Parser | ⏳ Pending | `src/parsers/ginnie_parser.py` (stub, needs file layout specs) |
+| **Files Downloaded** | ⚠️ Need Reset | Previous downloads were HTML error pages |
+| Parser | ⏳ Pending | `src/parsers/ginnie_parser.py` (needs file layout specs) |
 
 **GCS Location:** `gs://oasive-raw-data/ginnie/raw/2026/01/`
 
-**Database Status:**
-- `ginnie_file_catalog`: 58 files (all downloaded)
-- `ginnie_ingest_log`: Tracking successful runs
-- Dimension tables: Pending parser implementation
+**Secrets (GCP Secret Manager):**
+- `ginnie-security-answer`: Security question answer for login
+- `ginnie-session-cookies`: Auto-saved browser cookies
+
+**IMPORTANT - Catalog Reset Needed:**
+The 58 files in `ginnie_file_catalog` are marked "downloaded" but contain HTML error pages (authentication failures). To properly download:
+
+```sql
+-- Reset catalog to re-download (run via Cloud SQL or ingestor)
+UPDATE ginnie_file_catalog 
+SET download_status = 'pending', 
+    local_gcs_path = NULL, 
+    downloaded_at = NULL 
+WHERE download_status = 'downloaded';
+```
+
+Then run: `gcloud run jobs execute ginnie-ingestor --args="--mode,backfill"`
 
 ### Deployment Commands
 
