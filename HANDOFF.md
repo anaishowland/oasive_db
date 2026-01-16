@@ -306,7 +306,12 @@ gcloud run jobs execute freddie-parser --region=us-central1 \
 - Factor files: `factorA1/A2/B1/B2_202512.zip`
 - HMBS: `hmonthlyPS_202512.zip`, `hllmon1_202512.zip`
 
-**⚠️ Historical Data Limitation:** Ginnie Mae bulk download portal only provides **current month** files. Historical files (2012-2025) require direct contact with `InvestorInquiries@HUD.gov` or data vendors (Bloomberg, Intex).
+**⚠️ Historical Data Limitation:** Ginnie Mae bulk download portal only provides **current month** files. Historical URLs like `llmon1_201301.zip` return "There was an issue processing your request" error - the files do not exist at those URLs.
+
+**Historical data options:**
+1. Contact `InvestorInquiries@HUD.gov` to request historical data access
+2. Data vendors: Bloomberg, Intex, CoreLogic
+3. Check "Disclosure Data History" page (covers periods before March 2012 only)
 
 ---
 
