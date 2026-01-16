@@ -1363,14 +1363,19 @@ Time: {datetime.now(timezone.utc).isoformat()}
         logger.info("Cleaning historical files from catalog...")
         
         with self.engine.connect() as conn:
+            # Get current YYYYMM
+            result = conn.execute(text("SELECT to_char(CURRENT_DATE, 'YYYYMM')"))
+            current_ym = result.fetchone()[0]
+            logger.info(f"Current month: {current_ym}")
+            
             # Delete files with dates older than current month
+            # Keep only files that have current month in filename or no date at all
             result = conn.execute(text("""
                 DELETE FROM ginnie_file_catalog 
-                WHERE file_date < date_trunc('month', CURRENT_DATE)
-                   OR file_date IS NULL AND filename ~ '_\\d{6}\\.' 
-                   AND NOT filename ~ '_' || to_char(CURRENT_DATE, 'YYYYMM') || '\\.'
+                WHERE (file_date IS NOT NULL AND file_date < date_trunc('month', CURRENT_DATE))
+                   OR (filename ~ '_[0-9]{6}\\.' AND filename NOT LIKE :pattern)
                 RETURNING filename
-            """))
+            """), {"pattern": f"%_{current_ym}.%"})
             deleted_count = result.rowcount
             conn.commit()
             logger.info(f"Deleted {deleted_count} historical files from catalog")
