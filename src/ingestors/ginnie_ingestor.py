@@ -757,19 +757,20 @@ Time: {datetime.now(timezone.utc).isoformat()}
     
     def _download_file(self, file_info: dict[str, Any]) -> str:
         """
-        Download a file and upload to GCS.
+        Download a file and upload to GCS using Playwright with authentication handling.
         
         Strategy:
-        1. Find the download link by filename
-        2. Extract the href URL
-        3. Download using requests with browser cookies
+        1. Click on the download link
+        2. If redirected to profile.aspx, complete authentication
+        3. Download the file
         4. Upload to GCS
         
         Returns GCS path.
         """
         filename = file_info["filename"]
-        file_size_mb = file_info.get('file_size_bytes', 0) / 1024 / 1024
-        logger.info(f"Downloading {filename} ({file_size_mb:.1f} MB)")
+        expected_size = file_info.get('file_size_bytes', 0)
+        file_size_mb = expected_size / 1024 / 1024
+        logger.info(f"Downloading {filename} (expected: {file_size_mb:.1f} MB)")
         
         # Find the download link and get its href
         link_selector = f'a:has-text("{filename}")'
@@ -790,37 +791,64 @@ Time: {datetime.now(timezone.utc).isoformat()}
         
         logger.info(f"Download URL: {href}")
         
-        # Get cookies from browser context for the request
-        cookies = self._context.cookies()
-        cookie_dict = {c['name']: c['value'] for c in cookies if 'ginniemae.gov' in c.get('domain', '')}
+        # Navigate to the download URL - this may redirect to auth page
+        self._page.goto(href, wait_until="networkidle", timeout=60000)
         
-        # Download using requests with browser cookies
-        # This bypasses any JavaScript download handling
-        with tempfile.NamedTemporaryFile(delete=False, suffix=Path(filename).suffix) as tmp:
-            response = requests.get(
-                href,
-                cookies=cookie_dict,
-                headers={
-                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-                    'Accept': '*/*',
-                    'Referer': self.BULK_URL,
-                },
-                stream=True,
-                timeout=300,
-                allow_redirects=True,
-            )
-            response.raise_for_status()
-            
-            # Stream download to temp file
-            total_size = 0
-            for chunk in response.iter_content(chunk_size=8192):
-                if chunk:
-                    tmp.write(chunk)
-                    total_size += len(chunk)
-            
-            download_path = tmp.name
+        # Check if we're on auth page
+        current_url = self._page.url.lower()
+        page_content = self._page.content().lower()
         
-        logger.info(f"Downloaded {total_size / 1024 / 1024:.1f} MB to temp file")
+        if "profile.aspx" in current_url or "secret question" in page_content or "welcome back" in page_content:
+            logger.info("Authentication required for download")
+            if not self._answer_security_question():
+                raise AuthenticationRequiredError(f"Authentication failed for {filename}")
+            
+            # After auth, we should be redirected to the download
+            # Wait for download or re-navigate
+            self._page.wait_for_load_state("networkidle", timeout=30000)
+        
+        # Now try to download - either we got redirected to download or we need to initiate it
+        # Check if download started automatically
+        try:
+            with self._page.expect_download(timeout=30000) as download_info:
+                # If we're back on bulk page, click the link again
+                if "bulk.ginniemae.gov" in self._page.url.lower() and "protectedfiledownload" not in self._page.url.lower():
+                    link = self._page.query_selector(link_selector)
+                    if link:
+                        link.click()
+            
+            download = download_info.value
+            download_path = download.path()
+            
+            if not download_path or not os.path.exists(download_path):
+                raise ValueError(f"Download failed - no file path")
+            
+            file_size = os.path.getsize(download_path)
+            
+        except PlaywrightTimeout:
+            # Download didn't start via click - try direct navigation with auth
+            logger.info("Download didn't start automatically, trying direct download...")
+            
+            # Re-navigate to download URL
+            with self._page.expect_download(timeout=self.DOWNLOAD_TIMEOUT) as download_info:
+                self._page.goto(href)
+            
+            download = download_info.value
+            download_path = download.path()
+            
+            if not download_path:
+                raise ValueError(f"Download failed for {filename}")
+            
+            file_size = os.path.getsize(download_path)
+        
+        # Verify download is not an HTML error page
+        with open(download_path, 'rb') as f:
+            header = f.read(50)
+            if b'<!DOCTYPE' in header or b'<html' in header:
+                os.unlink(download_path)
+                raise ValueError(f"Download returned HTML error page instead of actual file")
+        
+        logger.info(f"Downloaded {file_size / 1024 / 1024:.1f} MB")
         
         # Upload to GCS
         now = datetime.now(timezone.utc)
