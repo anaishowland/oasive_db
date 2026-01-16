@@ -8,11 +8,27 @@ This document provides context for AI agents continuing development on Oasive.
 
 ## 🎯 Mission
 
-Build an AI-powered MBS analytics platform that:
-1. Ingests Freddie Mac/Fannie Mae disclosure data
-2. Tags pools with AI-generated behavioral characteristics
-3. Enables semantic search ("show me prepay-protected pools")
-4. Supports empirical prepay research
+Build an AI-powered **securitized products analytics platform** covering the **entire mortgage market**:
+
+1. **Single-Family MBS** (Agency)
+   - Freddie Mac, Fannie Mae, Ginnie Mae pools
+   - Fixed-rate, ARMs, IOs, HARP loans
+   
+2. **Multifamily/Commercial MBS** (Agency)
+   - Fannie Mae Multifamily loans
+   - DSCR and credit metrics
+   
+3. **Non-Agency** (Future)
+   - Private-label MBS
+   - CMOs, ABS
+
+**Core Capabilities:**
+- Ingest disclosure data from all GSE sources
+- Tag pools with AI-generated behavioral characteristics
+- Enable semantic search ("show me prepay-protected pools")
+- Support empirical prepay research across ALL loan types
+
+**⚠️ SCOPE NOTE:** We want the ENTIRE mortgage market, not just single-family conforming loans. This includes ARMs, IOs, HARP, Multifamily, and eventually CMOs and non-agency.
 
 ---
 
@@ -678,10 +694,10 @@ gcloud run jobs execute ginnie-ingestor --region=us-central1 \
 # 5. Schedule daily job (6 AM ET = 11 AM UTC)
 gcloud scheduler jobs create http ginnie-ingestor-daily \
   --schedule="0 11 * * 2-6" \
-  --time-zone="UTC" \
+    --time-zone="UTC" \
   --uri="https://us-central1-run.googleapis.com/apis/run.googleapis.com/v1/namespaces/gen-lang-client-0343560978/jobs/ginnie-ingestor:run" \
-  --http-method=POST \
-  --oauth-service-account-email=cloud-run-jobs-sa@gen-lang-client-0343560978.iam.gserviceaccount.com
+    --http-method=POST \
+    --oauth-service-account-email=cloud-run-jobs-sa@gen-lang-client-0343560978.iam.gserviceaccount.com
 ```
 
 ---
