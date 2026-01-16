@@ -398,6 +398,65 @@ class GinnieIngestor:
         
         return False
     
+    def _handle_download_auth(self) -> bool:
+        """
+        Handle full authentication flow for downloads.
+        
+        Steps:
+        1. Enter email address if prompted
+        2. Click Submit
+        3. Answer security question if prompted
+        4. Click Verify
+        
+        Returns True if authentication succeeded.
+        """
+        import time
+        
+        page_content = self._page.content().lower()
+        
+        # Step 1: Check if email entry is needed
+        email_input = self._page.query_selector('input[type="text"][name*="Email" i], input[type="email"]')
+        
+        if email_input or "enter your e-mail" in page_content:
+            logger.info("Email entry required - filling email...")
+            
+            # Get the email to use
+            email = os.environ.get("GINNIE_EMAIL", "anais@oasive.ai")
+            
+            if not email_input:
+                # Try other selectors
+                email_input = self._page.query_selector('input[type="text"]')
+            
+            if email_input:
+                email_input.fill(email)
+                logger.info(f"Filled email: {email}")
+                
+                # Click Submit button
+                submit_btn = self._page.query_selector(
+                    'input[type="submit"][value*="Submit" i], '
+                    'button:has-text("Submit"), '
+                    'input[value="Submit"]'
+                )
+                
+                if submit_btn:
+                    submit_btn.click()
+                    logger.info("Clicked Submit button")
+                    
+                    # Wait for page to load
+                    self._page.wait_for_load_state("networkidle", timeout=30000)
+                    time.sleep(2)
+                else:
+                    logger.error("Could not find Submit button")
+                    self._take_screenshot("no_submit_button")
+                    return False
+            else:
+                logger.error("Could not find email input")
+                self._take_screenshot("no_email_input")
+                return False
+        
+        # Step 2: Check if security question is now visible
+        return self._answer_security_question()
+    
     def _answer_security_question(self) -> bool:
         """
         Answer the security question to complete authentication.
@@ -798,9 +857,11 @@ Time: {datetime.now(timezone.utc).isoformat()}
         current_url = self._page.url.lower()
         page_content = self._page.content().lower()
         
-        if "profile.aspx" in current_url or "secret question" in page_content or "welcome back" in page_content:
+        if "profile.aspx" in current_url or "enter your e-mail" in page_content or "secret question" in page_content:
             logger.info("Authentication required for download")
-            if not self._answer_security_question():
+            
+            # Handle full auth flow
+            if not self._handle_download_auth():
                 raise AuthenticationRequiredError(f"Authentication failed for {filename}")
             
             # After auth, we should be redirected to the download
