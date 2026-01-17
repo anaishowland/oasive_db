@@ -131,6 +131,54 @@ Contains:
 - Monthly performance data (prepay history)
 - ~25 years across multiple rate cycles
 
+### Historical Data Tables (SFLLD 1999-2025)
+
+#### `dim_loan_historical` — Freddie Mac Historical Loans
+
+Historical loan origination data from Clarity Platform SFLLD (54.8M loans, 1999-2025).
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | SERIAL | Auto-increment PK |
+| `loan_sequence` | VARCHAR(20) | Freddie Mac loan ID (**UNIQUE**) |
+| `credit_score` | INTEGER | FICO at origination (300-850) |
+| `first_time_buyer` | VARCHAR(1) | Y/N |
+| `num_borrowers` | INTEGER | Number of borrowers |
+| `dti` | DECIMAL(6,2) | Original DTI ratio |
+| `orig_upb` | DECIMAL(14,2) | Original UPB |
+| `orig_rate` | DECIMAL(6,3) | Original interest rate |
+| `loan_term` | INTEGER | Loan term (months) |
+| `amort_type` | VARCHAR(5) | FRM, ARM |
+| `loan_purpose` | VARCHAR(1) | P=Purchase, C=CashOut, N=NoCash |
+| `channel` | VARCHAR(1) | R=Retail, B=Broker, C=Correspondent |
+| `ltv` | DECIMAL(6,2) | Original LTV |
+| `cltv` | DECIMAL(6,2) | Original CLTV |
+| `property_type` | VARCHAR(2) | SF, PU, CO, MH, CP |
+| `state` | VARCHAR(2) | Property state |
+| `zipcode` | VARCHAR(5) | 3-digit ZIP |
+| `first_payment_date` | DATE | First payment date |
+| `servicer_name` | VARCHAR(100) | Servicer name |
+| `seller_name` | VARCHAR(100) | Seller/Originator |
+| `source` | VARCHAR(20) | SFLLD or SFLLD_NONSTD |
+
+**Current Stats**: 18,602,822 loans loaded (Standard dataset 1999-2008)
+
+#### `fact_loan_month_historical` — Monthly Performance (Historical)
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `loan_sequence` | VARCHAR(20) | FK to `dim_loan_historical` |
+| `report_date` | DATE | Monthly reporting period |
+| `current_upb` | DECIMAL(14,2) | Current UPB |
+| `current_rate` | DECIMAL(6,3) | Current rate |
+| `dlq_status` | VARCHAR(3) | Delinquency status |
+| `zero_balance_code` | VARCHAR(2) | Termination reason |
+| `zero_balance_date` | DATE | Termination date |
+
+**Zero Balance Codes**: 01=Prepaid, 02=Third Party Sale, 03=Short Sale, 09=REO
+
+---
+
 ### File Ingestion Layer
 
 #### `freddie_file_catalog` — SFTP File Inventory
@@ -289,6 +337,122 @@ From FRE_FISS (intraday) and FRE_IS (monthly) files.
 | `coupon` | NUMERIC(5,3) | Coupon |
 | `orig_face` | NUMERIC(15,2) | Original face |
 | `file_sequence` | INTEGER | 1-4 for intraday files |
+
+---
+
+## Fannie Mae Tables
+
+### Historical Data (2000-2025 via Data Dynamics)
+
+#### `dim_loan_fannie_historical` — Fannie Mae Historical Loans
+
+Single-Family Loan Performance (SFLP) data from Data Dynamics (~62M loans, 2000-2025).
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `loan_id` | TEXT | Fannie Mae loan ID (**PK**) |
+| `channel` | TEXT | R=Retail, B=Broker, C=Correspondent, T=TPO |
+| `seller_name` | TEXT | Seller/Originator |
+| `servicer_name` | TEXT | Current servicer |
+| `orig_rate` | DECIMAL(6,3) | Original interest rate |
+| `orig_upb` | DECIMAL(14,2) | Original UPB |
+| `orig_loan_term` | INT | Original term (months) |
+| `orig_date` | DATE | Origination date |
+| `first_payment_date` | DATE | First payment date |
+| `ltv` | DECIMAL(6,2) | Original LTV |
+| `cltv` | DECIMAL(6,2) | Original CLTV |
+| `dti` | DECIMAL(5,2) | Original DTI |
+| `fico` | INT | FICO at origination |
+| `first_time_buyer` | TEXT | Y/N |
+| `loan_purpose` | TEXT | P=Purchase, C=CashOut, N=NoCash |
+| `property_type` | TEXT | SF/PU/CO/MH/CP |
+| `state` | TEXT | Property state |
+| `zipcode` | TEXT | 3-digit ZIP |
+| `product_type` | TEXT | FRM/ARM |
+| `super_conforming` | TEXT | Y/N (high-balance) |
+| `pre_harp_loan_id` | TEXT | Original ID if HARP refi |
+
+**Current Stats**: 751,201 loans loaded
+
+#### `fact_loan_month_fannie_historical` — Monthly Performance
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `loan_id` | TEXT | FK to `dim_loan_fannie_historical` |
+| `report_date` | DATE | Monthly reporting period |
+| `current_upb` | DECIMAL(14,2) | Current UPB |
+| `current_rate` | DECIMAL(6,3) | Current rate |
+| `dlq_status` | TEXT | Delinquency status |
+| `zero_balance_code` | TEXT | Termination reason |
+| `zero_balance_date` | DATE | Termination date |
+
+---
+
+### HARP Data
+
+#### `dim_loan_fannie_harp` — HARP Loan Data
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `loan_id` | VARCHAR(50) | Loan ID (**PK**) |
+| `channel` | VARCHAR(50) | Origination channel |
+| `seller_name` | VARCHAR(100) | Seller name |
+| `orig_rate` | NUMERIC(9,6) | Original rate |
+| `orig_upb` | NUMERIC(18,2) | Original UPB |
+| `orig_loan_term` | INTEGER | Term (months) |
+| `fico` | INTEGER | FICO score |
+| `state` | VARCHAR(2) | Property state |
+
+**Current Stats**: 130,000 loans
+
+#### `harp_loan_mapping` — Pre/Post HARP Loan IDs
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `original_loan_id` | VARCHAR(50) | Pre-HARP loan ID (**PK**) |
+| `new_loan_id` | VARCHAR(50) | Post-HARP loan ID |
+
+**Current Stats**: 135,000 mappings
+
+---
+
+### Multifamily Data
+
+#### `dim_loan_fannie_multifamily` — Multifamily Loans
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `loan_id` | VARCHAR(50) | Loan ID (**PK**) |
+| `deal_name` | VARCHAR(255) | Securitization deal |
+| `property_name` | VARCHAR(255) | Property name |
+| `orig_date` | DATE | Origination date |
+| `maturity_date` | DATE | Maturity date |
+| `orig_upb` | NUMERIC(18,2) | Original UPB |
+| `current_upb` | NUMERIC(18,2) | Current UPB |
+| `property_type` | VARCHAR(50) | Apartment, Student, etc. |
+| `property_state` | VARCHAR(2) | State |
+| `units` | INTEGER | Number of units |
+| `orig_ltv` | NUMERIC(5,2) | Original LTV |
+| `orig_dscr` | NUMERIC(5,2) | Original DSCR |
+| `current_dscr` | NUMERIC(5,2) | Current DSCR |
+| `dlq_status` | VARCHAR(50) | Delinquency status |
+
+**Current Stats**: 184 loans
+
+---
+
+### RPL/SCRT Mapping Tables (Freddie Mac)
+
+#### `rpl_loan_id_mapping` — Seasoned Credit Risk Transfer Mappings
+
+Maps original loan IDs to new IDs for RPL/SCRT/SLST transactions.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `original_loan_id` | VARCHAR(50) | Original loan ID (**PK**) |
+| `new_loan_id` | VARCHAR(50) | New transaction loan ID |
+
+**Current Stats**: 90,000 standard + 169,369 non-standard mappings
 
 ---
 
@@ -570,6 +734,12 @@ Complete series metadata with coverage statistics.
 | `002_seed_fred_series.sql` | Initial 38 series definitions |
 | `003_freddie_schema.sql` | Freddie file catalog and ingest log |
 | `004_freddie_data_schema.sql` | dim_pool, dim_loan, fact tables, calendar |
+| `009_sflld_historical_schema.sql` | Freddie SFLLD historical (1999-2025) |
+| `010_ginnie_schema.sql` | Ginnie Mae pool/loan/fact tables |
+| `011_fannie_historical_schema.sql` | Fannie Mae SFLP historical (2000-2025) |
+| `013_fannie_multifamily_schema.sql` | Fannie Mae Multifamily loans |
+| `014_fannie_harp_schema.sql` | Fannie Mae HARP data + mapping |
+| `015_freddie_rpl_scrt_schema.sql` | Freddie RPL/SCRT/SLST mappings |
 
 Run migrations:
 ```bash
