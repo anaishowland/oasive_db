@@ -142,6 +142,8 @@ class GinnieIngestor:
         "backfill": None,  # All files from current page
         "historical": None,  # Generate historical URLs programmatically
         "historical-mbs-sf": None,  # MBS Single Family historical from Disclosure History page
+        "historical-factor": None,  # Factor files historical from Disclosure History page
+        "historical-all": None,  # All categories (MBS SF + Factor)
     }
     
     # Historical file categories from Disclosure History page
@@ -154,6 +156,8 @@ class GinnieIngestor:
             "history_url": "https://www.ginniemae.gov/data_and_reports/disclosure_data/Pages/disclosurehistoryfiles.aspx?prefix=nimonSFPS&grp=MBS%20(Single%20Family)",
             "file_type": "monthly_new_pool",
             "category": "MBS_SF",
+            "first_available": "2020-01",  # nimonSFPS_202001.zip
+            "priority": "medium",
         },
         "nimonSFS": {
             "name": "MBS SF MONTHLY NEW ISSUES - POOL SUPPLEMENTAL",
@@ -161,6 +165,8 @@ class GinnieIngestor:
             "history_url": "https://www.ginniemae.gov/data_and_reports/disclosure_data/Pages/disclosurehistoryfiles.aspx?prefix=nimonSFS&grp=MBS%20(Single%20Family)",
             "file_type": "monthly_new_pool_supp",
             "category": "MBS_SF",
+            "first_available": "2020-01",  # nimonSFS_202001.zip
+            "priority": "low",
         },
         "dailyllmni": {
             "name": "MBS SF MONTHLY NEW ISSUES - LOAN LEVEL",
@@ -168,6 +174,8 @@ class GinnieIngestor:
             "history_url": "https://www.ginniemae.gov/data_and_reports/disclosure_data/Pages/disclosurehistoryfiles.aspx?prefix=dailyllmni&grp=MBS%20(Single%20Family)",
             "file_type": "monthly_new_loan",
             "category": "MBS_SF",
+            "first_available": "2013-09",  # dailyllmni_201309.zip
+            "priority": "high",
         },
         "monthlySFPS": {
             "name": "MBS SF PORTFOLIO - POOL/SECURITY",
@@ -175,6 +183,8 @@ class GinnieIngestor:
             "history_url": "https://www.ginniemae.gov/data_and_reports/disclosure_data/Pages/disclosurehistoryfiles.aspx?prefix=monthlySFPS&grp=MBS%20(Single%20Family)",
             "file_type": "portfolio_pool",
             "category": "MBS_SF",
+            "first_available": "2020-01",  # monthlySFPS_202001.zip
+            "priority": "medium",
         },
         "monthlySFS": {
             "name": "MBS SF PORTFOLIO - POOL SUPPLEMENTAL",
@@ -182,6 +192,8 @@ class GinnieIngestor:
             "history_url": "https://www.ginniemae.gov/data_and_reports/disclosure_data/Pages/disclosurehistoryfiles.aspx?prefix=monthlySFS&grp=MBS%20(Single%20Family)",
             "file_type": "portfolio_pool_supp",
             "category": "MBS_SF",
+            "first_available": "2020-01",  # monthlySFS_202001.zip
+            "priority": "low",
         },
         "llmon1": {
             "name": "MBS SF PORTFOLIO - LOAN LEVEL, GINNIE I",
@@ -189,6 +201,8 @@ class GinnieIngestor:
             "history_url": "https://www.ginniemae.gov/data_and_reports/disclosure_data/Pages/disclosurehistoryfiles.aspx?prefix=llmon1&grp=MBS%20(Single%20Family)",
             "file_type": "portfolio_loan_g1",
             "category": "MBS_SF",
+            "first_available": "2013-10",  # llmon1_201310.zip
+            "priority": "high",
         },
         "llmon2": {
             "name": "MBS SF PORTFOLIO - LOAN LEVEL, GINNIE II",
@@ -196,6 +210,8 @@ class GinnieIngestor:
             "history_url": "https://www.ginniemae.gov/data_and_reports/disclosure_data/Pages/disclosurehistoryfiles.aspx?prefix=llmon2&grp=MBS%20(Single%20Family)",
             "file_type": "portfolio_loan_g2",
             "category": "MBS_SF",
+            "first_available": "2013-10",  # llmon2_201310.zip
+            "priority": "high",
         },
         "llmonliq": {
             "name": "MBS SF LOAN LIQUIDATIONS MONTHLY",
@@ -203,6 +219,8 @@ class GinnieIngestor:
             "history_url": "https://www.ginniemae.gov/data_and_reports/disclosure_data/Pages/disclosurehistoryfiles.aspx?prefix=llmonliq&grp=MBS%20(Single%20Family)",
             "file_type": "liquidations",
             "category": "MBS_SF",
+            "first_available": "2018-09",  # llmonliq_201809.zip
+            "priority": "high",
         },
         "nissues": {
             "name": "MBS MONTHLY (NI) - POOL LEVEL",
@@ -210,6 +228,8 @@ class GinnieIngestor:
             "history_url": "https://www.ginniemae.gov/data_and_reports/disclosure_data/Pages/disclosurehistoryfiles.aspx?prefix=nissues&grp=MBS%20(Single%20Family)",
             "file_type": "monthly_ni_pool",
             "category": "MBS_SF",
+            "first_available": "2012-02",  # nissues_201202.zip
+            "priority": "medium",
         },
         "monthly": {
             "name": "MBS (PORTFOLIO)",
@@ -217,8 +237,117 @@ class GinnieIngestor:
             "history_url": "https://www.ginniemae.gov/data_and_reports/disclosure_data/Pages/disclosurehistoryfiles.aspx?prefix=monthly&grp=MBS%20(Single%20Family)",
             "file_type": "portfolio",
             "category": "MBS_SF",
+            "first_available": "2012-02",  # monthly_201202.zip
+            "priority": "medium",
         },
     }
+    
+    # Factor File categories from Disclosure History
+    HISTORICAL_FACTOR_CATEGORIES = {
+        "factorA1": {
+            "name": "FACTOR A G I",
+            "prefix": "factorA1",
+            "history_url": "https://www.ginniemae.gov/data_and_reports/disclosure_data/Pages/disclosurehistoryfiles.aspx?prefix=factorA1&grp=Factor%20Files",
+            "file_type": "factor_a1",
+            "category": "FACTOR",
+            "first_available": "2012-08",  # factorA1_201208.zip
+            "priority": "high",
+            "extension": ".zip",
+        },
+        "factorA2": {
+            "name": "FACTOR A G II",
+            "prefix": "factorA2",
+            "history_url": "https://www.ginniemae.gov/data_and_reports/disclosure_data/Pages/disclosurehistoryfiles.aspx?prefix=factorA2&grp=Factor%20Files",
+            "file_type": "factor_a2",
+            "category": "FACTOR",
+            "first_available": "2012-08",  # factorA2_201208.zip
+            "priority": "high",
+            "extension": ".zip",
+        },
+        "factorAplat": {
+            "name": "FACTOR A PLATINUM",
+            "prefix": "factorAplat",
+            "history_url": "https://www.ginniemae.gov/data_and_reports/disclosure_data/Pages/disclosurehistoryfiles.aspx?prefix=factorAplat&grp=Factor%20Files",
+            "file_type": "factor_a_plat",
+            "category": "FACTOR",
+            "first_available": "2019-06",  # factorAplat_201906.txt
+            "priority": "medium",
+            "extension": ".txt",
+        },
+        "factorAAdd": {
+            "name": "FACTOR A ADDITIONAL",
+            "prefix": "factorAAdd",
+            "history_url": "https://www.ginniemae.gov/data_and_reports/disclosure_data/Pages/disclosurehistoryfiles.aspx?prefix=factorAAdd&grp=Factor%20Files",
+            "file_type": "factor_a_add",
+            "category": "FACTOR",
+            "first_available": "2015-09",  # factorAAdd_201509.zip
+            "priority": "low",
+            "extension": ".zip",
+        },
+        "factorB1": {
+            "name": "FACTOR B G I",
+            "prefix": "factorB1",
+            "history_url": "https://www.ginniemae.gov/data_and_reports/disclosure_data/Pages/disclosurehistoryfiles.aspx?prefix=factorB1&grp=Factor%20Files",
+            "file_type": "factor_b1",
+            "category": "FACTOR",
+            "first_available": "2012-08",  # factorB1_201208.zip
+            "priority": "high",
+            "extension": ".zip",
+        },
+        "factorB2": {
+            "name": "FACTOR B G II",
+            "prefix": "factorB2",
+            "history_url": "https://www.ginniemae.gov/data_and_reports/disclosure_data/Pages/disclosurehistoryfiles.aspx?prefix=factorB2&grp=Factor%20Files",
+            "file_type": "factor_b2",
+            "category": "FACTOR",
+            "first_available": "2012-08",  # factorB2_201208.zip
+            "priority": "high",
+            "extension": ".zip",
+        },
+        "remic1": {
+            "name": "REMIC 1 FACTOR",
+            "prefix": "remic1",
+            "history_url": "https://www.ginniemae.gov/data_and_reports/disclosure_data/Pages/disclosurehistoryfiles.aspx?prefix=remic1&grp=Factor%20Files",
+            "file_type": "remic_1",
+            "category": "FACTOR",
+            "first_available": "2012-02",  # remic1_201202.zip
+            "priority": "low",
+            "extension": ".zip",
+        },
+        "remic2": {
+            "name": "REMIC 2 FACTOR",
+            "prefix": "remic2",
+            "history_url": "https://www.ginniemae.gov/data_and_reports/disclosure_data/Pages/disclosurehistoryfiles.aspx?prefix=remic2&grp=Factor%20Files",
+            "file_type": "remic_2",
+            "category": "FACTOR",
+            "first_available": "2012-02",  # remic2_201202.zip
+            "priority": "low",
+            "extension": ".zip",
+        },
+        "FRR": {
+            "name": "FRR HISTORY FILES",
+            "prefix": "FRR",
+            "history_url": "https://www.ginniemae.gov/data_and_reports/disclosure_data/Pages/disclosurehistoryfiles.aspx?prefix=FRR&grp=Factor%20Files",
+            "file_type": "frr",
+            "category": "FACTOR",
+            "first_available": "2015-03",  # FRR_201503.TXT
+            "priority": "low",
+            "extension": ".TXT",
+        },
+        "SRF": {
+            "name": "SRF HISTORY FILES",
+            "prefix": "SRF",
+            "history_url": "https://www.ginniemae.gov/data_and_reports/disclosure_data/Pages/disclosurehistoryfiles.aspx?prefix=SRF&grp=Factor%20Files",
+            "file_type": "srf",
+            "category": "FACTOR",
+            "first_available": "2015-03",  # SRF_201503.TXT
+            "priority": "low",
+            "extension": ".TXT",
+        },
+    }
+    
+    # Combined categories for easy lookup
+    ALL_HISTORICAL_CATEGORIES = {**HISTORICAL_MBS_SF_CATEGORIES, **HISTORICAL_FACTOR_CATEGORIES}
     
     # Base URL for historical file downloads
     HISTORICAL_DOWNLOAD_BASE = "https://bulk.ginniemae.gov/protectedfiledownload.aspx?dlfile=data_history_cons\\"
@@ -1207,20 +1336,26 @@ Time: {datetime.now(timezone.utc).isoformat()}
         logger.info(f"Generated {len(files)} historical file URLs from {start_date} to {end_date}")
         return files
     
-    def _scrape_disclosure_history_page(self, category_key: str) -> list[dict[str, Any]]:
+    def _scrape_disclosure_history_page(self, category_key: str, is_factor: bool = False) -> list[dict[str, Any]]:
         """
         Scrape a Disclosure History page to get the list of available historical files.
         
         Args:
-            category_key: Key from HISTORICAL_MBS_SF_CATEGORIES (e.g., "nimonSFPS")
+            category_key: Key from HISTORICAL_MBS_SF_CATEGORIES or HISTORICAL_FACTOR_CATEGORIES
+            is_factor: If True, look in HISTORICAL_FACTOR_CATEGORIES
             
         Returns:
             List of file info dicts with filename, href, file_date, etc.
         """
-        if category_key not in self.HISTORICAL_MBS_SF_CATEGORIES:
-            raise ValueError(f"Unknown category: {category_key}")
-        
-        category = self.HISTORICAL_MBS_SF_CATEGORIES[category_key]
+        # Look up category from appropriate dict
+        if is_factor or category_key in self.HISTORICAL_FACTOR_CATEGORIES:
+            if category_key not in self.HISTORICAL_FACTOR_CATEGORIES:
+                raise ValueError(f"Unknown factor category: {category_key}")
+            category = self.HISTORICAL_FACTOR_CATEGORIES[category_key]
+        else:
+            if category_key not in self.HISTORICAL_MBS_SF_CATEGORIES:
+                raise ValueError(f"Unknown MBS SF category: {category_key}")
+            category = self.HISTORICAL_MBS_SF_CATEGORIES[category_key]
         history_url = category["history_url"]
         
         logger.info(f"Scraping Disclosure History page for: {category['name']}")
@@ -1240,14 +1375,14 @@ Time: {datetime.now(timezone.utc).isoformat()}
             # Re-navigate after auth
             self._page.goto(history_url, wait_until="networkidle", timeout=self.PAGE_TIMEOUT)
         
-        # Parse the file list - look for all .zip links
+        # Parse the file list - look for all .zip and .txt links
         files = []
-        links = self._page.query_selector_all("a[href*='.zip']")
+        links = self._page.query_selector_all("a[href*='.zip'], a[href*='.txt'], a[href*='.TXT']")
         
         for link in links:
             try:
                 filename = link.inner_text().strip()
-                if not filename.endswith(".zip"):
+                if not (filename.endswith(".zip") or filename.lower().endswith(".txt")):
                     continue
                 
                 # The href on the page is relative, construct the full download URL
@@ -1314,6 +1449,46 @@ Time: {datetime.now(timezone.utc).isoformat()}
                 continue
         
         logger.info(f"Total MBS SF historical files discovered: {len(all_files)}")
+        return all_files
+    
+    def _scrape_all_factor_historical(self) -> list[dict[str, Any]]:
+        """
+        Scrape all Factor File categories from Disclosure History.
+        
+        Returns combined list of all historical factor files.
+        """
+        all_files = []
+        
+        for category_key in self.HISTORICAL_FACTOR_CATEGORIES:
+            try:
+                files = self._scrape_disclosure_history_page(category_key, is_factor=True)
+                all_files.extend(files)
+                logger.info(f"Total factor files so far: {len(all_files)}")
+                
+                # Small delay to avoid rate limiting
+                time.sleep(2)
+                
+            except Exception as e:
+                logger.error(f"Error scraping factor {category_key}: {e}")
+                self._take_screenshot(f"scrape_error_{category_key}")
+                continue
+        
+        logger.info(f"Total Factor historical files discovered: {len(all_files)}")
+        return all_files
+    
+    def _scrape_all_historical(self) -> list[dict[str, Any]]:
+        """
+        Scrape ALL historical categories (MBS SF + Factor).
+        
+        Returns combined list of all historical files.
+        """
+        logger.info("Scraping ALL historical categories...")
+        
+        mbs_files = self._scrape_all_mbs_sf_historical()
+        factor_files = self._scrape_all_factor_historical()
+        
+        all_files = mbs_files + factor_files
+        logger.info(f"Total ALL historical files discovered: {len(all_files)}")
         return all_files
     
     def _download_historical_file(self, file_info: dict[str, Any]) -> str:
@@ -1536,6 +1711,20 @@ Time: {datetime.now(timezone.utc).isoformat()}
                         logger.info("Scraping ALL MBS SF historical files from Disclosure History pages...")
                         remote_files = self._scrape_all_mbs_sf_historical()
                     results["files_discovered"] = len(remote_files)
+                elif mode == "historical-factor":
+                    # Scrape Disclosure History pages for Factor files
+                    if historical_category:
+                        logger.info(f"Scraping Factor historical files for category: {historical_category}")
+                        remote_files = self._scrape_disclosure_history_page(historical_category, is_factor=True)
+                    else:
+                        logger.info("Scraping ALL Factor historical files from Disclosure History pages...")
+                        remote_files = self._scrape_all_factor_historical()
+                    results["files_discovered"] = len(remote_files)
+                elif mode == "historical-all":
+                    # Scrape ALL historical categories (MBS SF + Factor)
+                    logger.info("Scraping ALL historical files (MBS SF + Factor)...")
+                    remote_files = self._scrape_all_historical()
+                    results["files_discovered"] = len(remote_files)
                 elif mode == "historical":
                     # Generate historical file URLs programmatically (old method)
                     logger.info("Generating historical file list (2013-present)...")
@@ -1588,14 +1777,14 @@ Time: {datetime.now(timezone.utc).isoformat()}
                     ]
                 
                 # Filter by historical category if specified
-                if mode == "historical-mbs-sf" and historical_category:
-                    category_info = self.HISTORICAL_MBS_SF_CATEGORIES.get(historical_category)
+                if mode in ("historical-mbs-sf", "historical-factor", "historical-all") and historical_category:
+                    category_info = self.ALL_HISTORICAL_CATEGORIES.get(historical_category)
                     if category_info:
                         prefix = category_info["prefix"]
                         logger.info(f"Filtering downloads to category: {historical_category} (prefix: {prefix})")
                         to_download = [
                             f for f in to_download 
-                            if f["filename"].startswith(prefix + "_")
+                            if f["filename"].startswith(prefix + "_") or f["filename"].startswith(prefix + ".")
                         ]
                         logger.info(f"After category filter: {len(to_download)} files")
                 
@@ -1831,9 +2020,9 @@ def main():
     parser = argparse.ArgumentParser(description="Ginnie Mae Bulk Download Ingestor")
     parser.add_argument(
         "--mode",
-        choices=["daily", "monthly", "factor", "backfill", "catalog", "historical", "historical-mbs-sf"],
+        choices=["daily", "monthly", "factor", "backfill", "catalog", "historical", "historical-mbs-sf", "historical-factor", "historical-all"],
         default="daily",
-        help="Run mode: daily/monthly/factor for current files, historical-mbs-sf for MBS SF from Disclosure History (2012-present)"
+        help="Run mode: daily/monthly/factor for current files, historical-mbs-sf/historical-factor/historical-all for Disclosure History (2012-present)"
     )
     parser.add_argument(
         "--file-types",
@@ -1872,8 +2061,8 @@ def main():
     )
     parser.add_argument(
         "--historical-category",
-        choices=list(GinnieIngestor.HISTORICAL_MBS_SF_CATEGORIES.keys()),
-        help="Download only this specific MBS SF category (e.g., llmon1, dailyllmni)"
+        choices=list(GinnieIngestor.ALL_HISTORICAL_CATEGORIES.keys()),
+        help="Download only this specific category (e.g., llmon1, dailyllmni, factorA1, factorB1)"
     )
     
     args = parser.parse_args()

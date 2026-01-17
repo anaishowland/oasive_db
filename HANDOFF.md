@@ -103,47 +103,120 @@ python3 -m src.ingestors.fannie_sflp_ingestor --process-gcs gs://oasive-raw-data
 - Historical Layouts Guide: Available on the Disclosure History page
 - Contact: `InvestorInquiries@HUD.gov`
 
-**File Types (Single Family MBS):**
+### Ginnie Mae Historical File Categories (Complete Inventory)
 
-| Category | File | Size | Release |
-|----------|------|------|---------|
-| Daily New Issues | `dailySFPS.zip`, `dailySFS.zip`, `dailyll_new.zip` | ~4 MB | ~5 AM ET |
-| Monthly New Issues | `nimonSFPS_YYYYMM.zip`, `nimonSFS_YYYYMM.zip`, `dailyllmni.zip` | ~6 MB | BD1 |
-| Portfolio | `monthlySFPS_YYYYMM.zip`, `monthlySFS_YYYYMM.zip` | ~200 MB | BD6 |
-| Loan Level | `llmon1_YYYYMM.zip` (Ginnie I), `llmon2_YYYYMM.zip` (Ginnie II) | ~360 MB | BD6 |
-| Factor Files | `factorA1/A2_YYYYMM.zip`, `factorB1/B2_YYYYMM.zip` | ~21 MB | BD4-6 |
+**Download URL Pattern:** `https://bulk.ginniemae.gov/protectedfiledownload.aspx?dlfile=data_history_cons\<filename>`
 
-**Historical Data Available (Disclosure History Page):**
+**MBS Single Family Files:**
 
-| Category | Key Files | Coverage |
-|----------|-----------|----------|
-| MBS Single Family | Loan Level Ginnie I/II, Portfolio, Liquidations | **2013-present** |
-| HMBS | Pool Level, Loan Level | 2014+ |
-| Multifamily | Pool and Loan Disclosure | 2018+ |
-| Factor Files | Factor A/B, REMIC factors | **1982-present!** |
-| Other | **LOAN PERFORMANCE (Quarterly/Annual)**, **CPR Monthly** | **2013+** |
+| Category | Prefix | First Available | Est. Files | Download Status | Priority |
+|----------|--------|-----------------|------------|-----------------|----------|
+| MBS SF MONTHLY NEW ISSUES - POOL/SECURITY | `nimonSFPS` | **2020-01** | ~72 | ⏳ Pending | Medium |
+| MBS SF MONTHLY NEW ISSUES - POOL SUPPLEMENTAL | `nimonSFS` | **2020-01** | ~72 | ⏳ Pending | Low |
+| MBS SF MONTHLY NEW ISSUES - LOAN LEVEL | `dailyllmni` | **2013-09** | ~148 | ⏳ Pending | ⭐ High |
+| MBS SF PORTFOLIO - POOL/SECURITY | `monthlySFPS` | **2020-01** | ~72 | ⏳ Pending | Medium |
+| MBS SF PORTFOLIO - POOL SUPPLEMENTAL | `monthlySFS` | **2020-01** | ~72 | ⏳ Pending | Low |
+| MBS SF PORTFOLIO - LOAN LEVEL, GINNIE I | `llmon1` | **2013-10** | ~146 | ✅ Cataloged (146) | ⭐ High |
+| MBS SF PORTFOLIO - LOAN LEVEL, GINNIE II | `llmon2` | **2013-10** | ~146 | ⏳ Pending | ⭐ High |
+| MBS SF LOAN LIQUIDATIONS MONTHLY | `llmonliq` | **2018-09** | ~88 | ⏳ Pending | ⭐ High |
+| MBS MONTHLY (NI) – POOL LEVEL | `nissues` | **2012-02** | ~166 | ⏳ Pending | Medium |
+| MBS (PORTFOLIO) | `monthly` | **2012-02** | ~166 | ⏳ Pending | Medium |
 
-**Most Important for Prepay Research:**
-1. `LOAN PERFORMANCE FILE, QUARTERLY` - loan-level data 2013+
-2. `CONDITIONAL PREPAYMENT RATE MONTHLY` - direct CPR data
-3. `MBS SF PORTFOLIO - LOAN LEVEL, GINNIE I/II` - monthly portfolio
-4. `Factor Files` - for CPR calculation from factors
+**Factor Files:**
+
+| Category | Prefix | First Available | Est. Files | Download Status | Priority |
+|----------|--------|-----------------|------------|-----------------|----------|
+| FACTOR A G I | `factorA1` | **2012-08** | ~160 | ⏳ Pending | ⭐ High |
+| FACTOR A G II | `factorA2` | **2012-08** | ~160 | ⏳ Pending | ⭐ High |
+| FACTOR A PLATINUM | `factorAplat` | **2019-06** | ~67 | ⏳ Pending | Medium |
+| FACTOR A ADDITIONAL | `factorAAdd` | **2015-09** | ~111 | ⏳ Pending | Low |
+| FACTOR B G I | `factorB1` | **2012-08** | ~160 | ⏳ Pending | ⭐ High |
+| FACTOR B G II | `factorB2` | **2012-08** | ~160 | ⏳ Pending | ⭐ High |
+| REMIC 1 FACTOR | `remic1` | **2012-02** | ~166 | ⏳ Pending | Low |
+| REMIC 2 FACTOR | `remic2` | **2012-02** | ~166 | ⏳ Pending | Low |
+| FRR HISTORY | `FRR` | **2015-03** | ~130 | ⏳ Pending | Low |
+| SRF HISTORY | `SRF` | **2015-03** | ~130 | ⏳ Pending | Low |
+
+**Priority Legend:**
+- ⭐ High: Essential for prepay research (loan-level, liquidations, factor data)
+- Medium: Useful for pool-level analysis
+- Low: Supporting data, download after high-priority complete
+
+**Download Commands:**
+```bash
+# Download specific MBS SF category
+python3 -m src.ingestors.ginnie_ingestor --mode=historical-mbs-sf --historical-category=llmon1
+
+# Download specific Factor category  
+python3 -m src.ingestors.ginnie_ingestor --mode=historical-factor --historical-category=factorA1
+
+# Download with file limit for testing
+python3 -m src.ingestors.ginnie_ingestor --mode=historical-mbs-sf --historical-category=llmon1 --max-files=5
+```
+
+**Storage Location:** `gs://oasive-raw-data/ginnie/historical/<prefix>/<year>/<month>/<filename>`
 
 **⚠️ Note**: Unlike Freddie/Fannie SFLLD (1999-2025), Ginnie loan-level data starts ~2013.
 
-**Automation Approach:**
-Since there's no SFTP/API, implement HTTP polling:
-1. Create `ginnie_ingestor.py` that scrapes `bulk.ginniemae.gov` for file list
-2. Compare against `ginnie_file_catalog` table
-3. Download new files via authenticated HTTP GET to GCS
-4. Parse into database tables
+**Ginnie Mae Ingestion Pipeline (WORKING):**
 
-**Ginnie Mae Pipeline (To Build):**
 ```bash
-# Future implementation
-python3 -m src.ingestors.ginnie_ingestor --mode daily
-python3 -m src.ingestors.ginnie_ingestor --mode backfill --start-date 2013-01
+# Current month files (daily scheduled job)
+python3 -m src.ingestors.ginnie_ingestor --mode=daily
+
+# Historical MBS SF files (one category)
+python3 -m src.ingestors.ginnie_ingestor --mode=historical-mbs-sf --historical-category=llmon1
+
+# Historical Factor files (one category)
+python3 -m src.ingestors.ginnie_ingestor --mode=historical-factor --historical-category=factorA1
+
+# All historical files
+python3 -m src.ingestors.ginnie_ingestor --mode=historical-all
 ```
+
+### Ginnie Mae Historical Data Download Plan
+
+**Phase 1 - High Priority (Loan-Level for Prepay Research):**
+| Category | Files | Est. Size | Status |
+|----------|-------|-----------|--------|
+| `llmon1` - Loan Level Ginnie I | ~146 | ~2.5 GB | 🔄 In Progress |
+| `llmon2` - Loan Level Ginnie II | ~146 | ~2.5 GB | ⏳ Pending |
+| `dailyllmni` - Loan Level New Issues | ~148 | ~1.5 GB | ⏳ Pending |
+| `llmonliq` - Liquidations | ~88 | ~1 GB | ⏳ Pending |
+
+**Phase 2 - Factor Data (for CPR Calculation):**
+| Category | Files | Est. Size | Status |
+|----------|-------|-----------|--------|
+| `factorA1` - Factor A Ginnie I | ~160 | ~500 MB | ⏳ Pending |
+| `factorA2` - Factor A Ginnie II | ~160 | ~500 MB | ⏳ Pending |
+| `factorB1` - Factor B Ginnie I | ~160 | ~500 MB | ⏳ Pending |
+| `factorB2` - Factor B Ginnie II | ~160 | ~500 MB | ⏳ Pending |
+
+**Phase 3 - Pool-Level Data:**
+| Category | Files | Est. Size | Status |
+|----------|-------|-----------|--------|
+| `monthlySFPS` - Portfolio Pool | ~72 | ~2 GB | ⏳ Pending |
+| `nimonSFPS` - New Issues Pool | ~72 | ~500 MB | ⏳ Pending |
+
+**Phase 4 - Supporting Data:**
+| Category | Files | Est. Size | Status |
+|----------|-------|-----------|--------|
+| `remic1`, `remic2` - REMIC Factors | ~332 | ~1 GB | ⏳ Pending |
+| `factorAplat`, `factorAAdd` - Additional | ~178 | ~300 MB | ⏳ Pending |
+
+### Data Integration Plan
+
+**Unified Views (combining Freddie + Fannie + Ginnie):**
+- `v_all_agency_loans` - All loan-level data across agencies
+- `v_all_agency_pools` - All pool-level data across agencies  
+- `v_all_agency_factors` - Combined factor/CPR data
+
+**Schema Alignment:**
+| Freddie | Fannie | Ginnie | Unified View |
+|---------|--------|--------|--------------|
+| `dim_loan_historical` | `dim_loan_fannie_historical` | `dim_loan_ginnie` | `v_all_agency_loans` |
+| `fact_loan_month_historical` | `fact_loan_month_fannie_historical` | `fact_loan_month_ginnie` | `v_all_agency_performance` |
+| `dim_pool` | `dim_pool_fannie` | `dim_pool_ginnie` | `v_all_agency_pools` |
 
 ### SFLLD Ingestion Tools
 

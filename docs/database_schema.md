@@ -425,15 +425,39 @@ Historical pool-level statistics for pre-loan-level-disclosure era.
 
 ### Data Availability
 
-⚠️ **Important**: Unlike Freddie Mac (full SFTP archive), Ginnie Mae only provides **current month data** on the bulk download portal.
+**Ginnie Mae Data Sources:**
 
-| Data Type | Availability |
-|-----------|-------------|
-| Current month files | ✅ 58 files downloaded |
-| Historical (2012-2025) | ❌ Not publicly available |
-| Pre-2012 aggregate | ⚠️ Separate archive |
+| Source | URL | Data Available |
+|--------|-----|----------------|
+| **Bulk Download** | `bulk.ginniemae.gov` | Current month only |
+| **Disclosure History** | `ginniemae.gov/.../DisclosureHistory.aspx` | **2012-present** |
 
-For historical Ginnie Mae data, contact `InvestorInquiries@HUD.gov` or use data vendors (Bloomberg, Intex, CoreLogic).
+**Historical File Categories (Disclosure History):**
+
+| Category | Prefix | First Date | Est. Files | Priority |
+|----------|--------|------------|------------|----------|
+| Loan Level Ginnie I | `llmon1` | 2013-10 | ~146 | ⭐ High |
+| Loan Level Ginnie II | `llmon2` | 2013-10 | ~146 | ⭐ High |
+| Loan Level New Issues | `dailyllmni` | 2013-09 | ~148 | ⭐ High |
+| Liquidations | `llmonliq` | 2018-09 | ~88 | ⭐ High |
+| Factor A G I | `factorA1` | 2012-08 | ~160 | ⭐ High |
+| Factor B G I | `factorB1` | 2012-08 | ~160 | ⭐ High |
+| Pool/Security | `monthlySFPS` | 2020-01 | ~72 | Medium |
+| REMIC Factors | `remic1`, `remic2` | 2012-02 | ~166 each | Low |
+
+**Storage Location:** `gs://oasive-raw-data/ginnie/historical/<prefix>/<year>/<month>/<filename>`
+
+**Download Commands:**
+```bash
+# Download specific category
+python3 -m src.ingestors.ginnie_ingestor --mode=historical-mbs-sf --historical-category=llmon1
+
+# Download all MBS SF categories
+python3 -m src.ingestors.ginnie_ingestor --mode=historical-mbs-sf
+
+# Download all Factor categories
+python3 -m src.ingestors.ginnie_ingestor --mode=historical-factor
+```
 
 ---
 
