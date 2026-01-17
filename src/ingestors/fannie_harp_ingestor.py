@@ -301,11 +301,54 @@ def print_status(engine):
     print("=" * 60)
 
 
+def process_gcs_harp(engine, gcs_path: str):
+    """Process HARP data from GCS."""
+    from google.cloud import storage
+    import tempfile
+    
+    logger.info(f"Processing HARP from GCS: {gcs_path}")
+    
+    client = storage.Client()
+    
+    # Parse GCS path
+    if gcs_path.startswith('gs://'):
+        parts = gcs_path[5:].split('/', 1)
+        bucket_name = parts[0]
+        blob_path = parts[1] if len(parts) > 1 else ''
+    else:
+        raise ValueError(f"Invalid GCS path: {gcs_path}")
+    
+    bucket = client.bucket(bucket_name)
+    blob = bucket.blob(blob_path)
+    
+    # Download to temp file
+    with tempfile.NamedTemporaryFile(suffix='.zip', delete=False) as tmp:
+        tmp_path = tmp.name
+        logger.info(f"Downloading {blob_path} to {tmp_path}...")
+        blob.download_to_filename(tmp_path)
+    
+    logger.info(f"Downloaded. Processing...")
+    
+    # Process mappings
+    mapping_parser = HARPLoanMappingParser(engine)
+    mapping_count = mapping_parser.process_zip(Path(tmp_path))
+    
+    # Process loans
+    loan_parser = HARPLoanParser(engine)
+    loan_counts = loan_parser.process_zip(Path(tmp_path))
+    
+    # Cleanup
+    os.unlink(tmp_path)
+    
+    logger.info(f"✅ Completed: {loan_counts['loans']:,} loans, {mapping_count:,} mappings")
+
+
 def main():
     parser = argparse.ArgumentParser(description='Fannie Mae HARP Ingestor')
     parser.add_argument('--status', action='store_true', help='Show status')
     parser.add_argument('--process', type=str, help='Process full HARP ZIP (loans + mapping)')
     parser.add_argument('--process-mapping', type=str, help='Process only loan mapping')
+    parser.add_argument('--process-gcs', type=str, help='Process HARP ZIP from GCS path')
     args = parser.parse_args()
     
     engine = get_engine()
@@ -338,6 +381,9 @@ def main():
         mapping_parser = HARPLoanMappingParser(engine)
         count = mapping_parser.process_zip(zip_path)
         logger.info(f"✅ Completed: {count:,} mappings loaded")
+    
+    elif args.process_gcs:
+        process_gcs_harp(engine, args.process_gcs)
     
     else:
         parser.print_help()

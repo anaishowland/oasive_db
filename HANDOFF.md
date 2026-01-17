@@ -179,30 +179,38 @@ python3 -m src.ingestors.ginnie_ingestor --mode=historical-all
 **Phase 1 - High Priority (Loan-Level for Prepay Research):**
 | Category | Files | Est. Size | Status |
 |----------|-------|-----------|--------|
-| `llmon1` - Loan Level Ginnie I | ~146 | ~2.5 GB | 🔄 In Progress |
-| `llmon2` - Loan Level Ginnie II | ~146 | ~2.5 GB | ⏳ Pending |
-| `dailyllmni` - Loan Level New Issues | ~148 | ~1.5 GB | ⏳ Pending |
-| `llmonliq` - Liquidations | ~88 | ~1 GB | ⏳ Pending |
+| `llmon1` - Loan Level Ginnie I | 146 | 5.03 GB | ✅ **Complete** |
+| `llmon2` - Loan Level Ginnie II | ~146 | ~5 GB | 🔄 Downloading |
+| `dailyllmni` - Loan Level New Issues | ~148 | ~1.5 GB | 🔄 Downloading |
+| `llmonliq` - Liquidations | ~88 | ~1 GB | 🔄 Downloading |
 
 **Phase 2 - Factor Data (for CPR Calculation):**
 | Category | Files | Est. Size | Status |
 |----------|-------|-----------|--------|
-| `factorA1` - Factor A Ginnie I | ~160 | ~500 MB | ⏳ Pending |
-| `factorA2` - Factor A Ginnie II | ~160 | ~500 MB | ⏳ Pending |
-| `factorB1` - Factor B Ginnie I | ~160 | ~500 MB | ⏳ Pending |
-| `factorB2` - Factor B Ginnie II | ~160 | ~500 MB | ⏳ Pending |
+| `factorA1` - Factor A Ginnie I | ~160 | ~500 MB | 🔄 Downloading |
+| `factorA2` - Factor A Ginnie II | ~160 | ~500 MB | 🔄 Downloading |
+| `factorB1` - Factor B Ginnie I | ~160 | ~500 MB | 🔄 Downloading |
+| `factorB2` - Factor B Ginnie II | ~160 | ~500 MB | 🔄 Downloading |
 
 **Phase 3 - Pool-Level Data:**
 | Category | Files | Est. Size | Status |
 |----------|-------|-----------|--------|
-| `monthlySFPS` - Portfolio Pool | ~72 | ~2 GB | ⏳ Pending |
-| `nimonSFPS` - New Issues Pool | ~72 | ~500 MB | ⏳ Pending |
+| `monthlySFPS` - Portfolio Pool | ~72 | ~2 GB | 🔄 Downloading |
+| `nimonSFPS` - New Issues Pool | ~72 | ~500 MB | 🔄 Downloading |
+| `monthlySFS` - Portfolio Supplemental | ~72 | ~500 MB | 🔄 Downloading |
+| `nimonSFS` - New Issues Supplemental | ~72 | ~500 MB | 🔄 Downloading |
+| `nissues` - MBS Monthly NI Pool | ~166 | ~1 GB | 🔄 Downloading |
+| `monthly` - MBS Portfolio | ~166 | ~1 GB | 🔄 Downloading |
 
 **Phase 4 - Supporting Data:**
 | Category | Files | Est. Size | Status |
 |----------|-------|-----------|--------|
-| `remic1`, `remic2` - REMIC Factors | ~332 | ~1 GB | ⏳ Pending |
-| `factorAplat`, `factorAAdd` - Additional | ~178 | ~300 MB | ⏳ Pending |
+| `remic1` - REMIC 1 Factor | ~166 | ~500 MB | 🔄 Downloading |
+| `remic2` - REMIC 2 Factor | ~166 | ~500 MB | 🔄 Downloading |
+| `factorAplat` - Factor A Platinum | ~67 | ~100 MB | 🔄 Downloading |
+| `factorAAdd` - Factor A Additional | ~111 | ~200 MB | 🔄 Downloading |
+
+**Total Estimated:** ~2,000 files, ~20 GB
 
 ### Data Integration Plan
 
