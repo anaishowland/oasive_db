@@ -1,5 +1,8 @@
 #!/bin/bash
-# Deploy Oasive data ingestion jobs to Cloud Run
+# Deploy FRED and Freddie Mac data ingestion jobs to Cloud Run
+#
+# NOTE: For Ginnie Mae, use cloudbuild.yaml instead (ginnie-ingestor)
+#       For Fannie Mae, use deploy_sflld_processor.sh (fannie-sflp-processor)
 #
 # Prerequisites:
 # 1. gcloud CLI authenticated
@@ -15,7 +18,8 @@ set -e
 PROJECT_ID="${GCP_PROJECT_ID:-gen-lang-client-0343560978}"
 REGION="${GCP_REGION:-us-central1}"
 SERVICE_ACCOUNT="${SERVICE_ACCOUNT:-cloud-run-jobs-sa@${PROJECT_ID}.iam.gserviceaccount.com}"
-IMAGE_REPO="gcr.io/${PROJECT_ID}/oasive-ingestor"
+# Image used for Fred/Freddie jobs (shared base image)
+IMAGE_REPO="gcr.io/${PROJECT_ID}/fred-freddie-ingestor"
 CLOUDSQL_CONNECTION="${CLOUDSQL_CONNECTION_NAME:-${PROJECT_ID}:${REGION}:oasive-postgres}"
 
 # Colors for output

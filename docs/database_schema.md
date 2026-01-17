@@ -447,6 +447,42 @@ Historical pool-level statistics for pre-loan-level-disclosure era.
 
 **Storage Location:** `gs://oasive-raw-data/ginnie/historical/<prefix>/<year>/<month>/<filename>`
 
+### Layout Version History (Loan-Level Files)
+
+Ginnie Mae file layouts change over time. The parser must be version-aware.
+
+Reference: `docs/Ginnie_Historical_Layouts_Guide_Feb2024.pdf`
+
+**Loan Record ("L" record) Versions:**
+
+| Version | Date Range | L Record Length | Key Changes |
+|---------|------------|-----------------|-------------|
+| **V1.0** | Oct 2013 - Mar 2015 | **142 bytes** | Initial version |
+| **V1.5** | Dec 2013 - Mar 2015 | 142 bytes | First production release |
+| **V1.6** | Apr 2015 - Nov 2017 | **154 bytes** | +12 bytes: Loan Origination Date, Seller Issuer ID |
+| **V1.7** | Dec 2017 - Present | **192 bytes** | +38 bytes: 10 ARM fields (Index Type, Rate Caps, etc.) |
+| **V1.8** | Feb 2021 - Present | 192 bytes | Loan Purpose "5" for Re-Performing (no layout change) |
+
+**File Record Types:**
+
+| Type | Length | Description |
+|------|--------|-------------|
+| H | 41 bytes | Header - file metadata |
+| P | 37 bytes | Pool - pool ID, CUSIP, issue date |
+| L | 142-192 bytes | Loan - individual loan data (version-dependent) |
+| T | 44 bytes | Trailer - pool totals/counts |
+
+**Parser Logic:**
+```python
+def get_loan_version(year, month):
+    if (year, month) < (2015, 4):
+        return "V1.0"  # 142 bytes
+    elif (year, month) < (2017, 12):
+        return "V1.6"  # 154 bytes
+    else:
+        return "V1.7"  # 192 bytes
+```
+
 **Download Commands:**
 ```bash
 # Download specific category

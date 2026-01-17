@@ -53,6 +53,12 @@ class GinnieParser:
     - Pool-level data → dim_pool_ginnie
     - Loan-level data → dim_loan_ginnie  
     - Factor data → fact_pool_month_ginnie
+    
+    Layout Versions (Loan-Level Files):
+    - V1.0 (Oct 2013): L record = 142 bytes
+    - V1.6 (Apr 2015): L record = 154 bytes (added Loan Origination Date, Seller Issuer ID)
+    - V1.7 (Dec 2017): L record = 192 bytes (added 10 ARM fields)
+    - V1.8 (Feb 2021): Same layout, added Loan Purpose "5" for Re-Performing
     """
     
     # Batch size for database inserts
@@ -76,6 +82,73 @@ class GinnieParser:
         "factor_b2": "_parse_factor_file",
         "liquidations": "_parse_liquidation_file",
     }
+    
+    # Loan-Level (L record) field definitions by version
+    # Format: (start, end, field_name, data_type)
+    # Positions are 0-indexed after the record type indicator
+    LOAN_FIELDS_V10 = [
+        # V1.0: 142 bytes total (Oct 2013 - Mar 2015)
+        (0, 6, "cusip", "str"),            # CUSIP (6 chars)
+        (6, 16, "loan_id", "str"),          # Loan Sequence Number (10 chars)
+        (16, 20, "current_upb", "decimal"), # Current UPB (4 digits implied decimal)
+        (20, 21, "loan_purpose", "str"),    # Loan Purpose (1 char: P=Purchase, R=Refi, etc.)
+        (21, 23, "property_type", "str"),   # Property Type (2 chars)
+        (23, 31, "first_payment_date", "date"),  # First Payment Date (YYYYMMDD)
+        (31, 39, "maturity_date", "date"),       # Maturity Date (YYYYMMDD)
+        (39, 44, "original_interest_rate", "rate"),  # Original Interest Rate (5: XXX.XX)
+        (44, 55, "original_upb", "decimal"),     # Original UPB (11 digits)
+        (55, 66, "scheduled_principal", "decimal"),  # Scheduled Principal
+        (66, 78, "current_balance", "decimal"),  # Current Balance
+        (78, 81, "months_to_maturity", "int"),   # Remaining Term
+        (81, 84, "loan_age", "int"),             # Loan Age
+        (84, 86, "state", "str"),                # State (2 chars)
+        (86, 91, "current_interest_rate", "rate"),  # Current Interest Rate
+        (91, 92, "first_time_buyer", "str"),     # First Time Buyer Flag
+        (92, 93, "channel", "str"),              # Origination Channel
+        (93, 94, "occupancy", "str"),            # Occupancy Status
+        (94, 97, "credit_score", "int"),         # Credit Score
+        (97, 103, "dti", "decimal"),             # DTI Ratio
+        (103, 109, "ltv", "decimal"),            # LTV Ratio
+        (109, 115, "cltv", "decimal"),           # CLTV Ratio
+        (115, 116, "num_borrowers", "int"),      # Number of Borrowers
+        (116, 118, "num_units", "int"),          # Number of Units
+        (118, 123, "zip_3", "str"),              # ZIP Code (3-digit)
+        (123, 124, "mortgage_insurance_pct", "int"),  # MI Percentage
+        (124, 125, "loan_status", "str"),        # Loan Status
+        (125, 131, "delinquency_status", "str"), # Delinquency Status
+        (131, 137, "mod_flag", "str"),           # Modification Flag
+        (137, 141, "report_period", "date"),     # Report Period (YYYYMM)
+    ]
+    
+    LOAN_FIELDS_V16_ADDITIONS = [
+        # V1.6 adds 12 bytes (Apr 2015 - Nov 2017): Total 154 bytes
+        (141, 149, "loan_origination_date", "date"),  # Loan Origination Date (YYYYMMDD)
+        (149, 153, "seller_issuer_id", "str"),        # Seller Issuer ID (4 chars)
+    ]
+    
+    LOAN_FIELDS_V17_ADDITIONS = [
+        # V1.7 adds ARM fields (Dec 2017+): Total 192 bytes
+        (153, 155, "index_type", "str"),              # Index Type (2 chars)
+        (155, 157, "look_back_period", "int"),        # Look-Back Period
+        (157, 165, "interest_rate_change_date", "date"),  # Interest Rate Change Date
+        (165, 170, "initial_rate_cap", "rate"),       # Initial Interest Rate Cap
+        (170, 175, "subsequent_rate_cap", "rate"),    # Subsequent Interest Rate Cap
+        (175, 180, "lifetime_rate_cap", "rate"),      # Lifetime Interest Rate Cap
+        (180, 185, "next_rate_ceiling", "rate"),      # Next Interest Rate Change Ceiling
+        (185, 190, "lifetime_rate_ceiling", "rate"),  # Lifetime Interest Rate Ceiling
+        (190, 195, "lifetime_rate_floor", "rate"),    # Lifetime Interest Rate Floor
+        (195, 200, "prospective_rate", "rate"),       # Prospective Interest Rate
+    ]
+    
+    # Pool (P record) field definitions
+    POOL_FIELDS = [
+        (0, 7, "pool_number", "str"),       # Pool Number (7 chars including suffix)
+        (7, 16, "cusip", "str"),            # CUSIP (9 chars)
+        (16, 18, "pool_type", "str"),       # Pool Type (2 chars: SF, AR, etc.)
+        (18, 24, "issue_date", "date"),     # Issue Date (YYYYMM)
+        (24, 30, "original_term", "int"),   # Original Term
+        (30, 36, "report_period", "date"),  # Report Period (YYYYMM)
+    ]
     
     def __init__(
         self,
@@ -187,32 +260,158 @@ class GinnieParser:
         
         return 0
     
+    def _get_file_date(self, source_file: str) -> tuple[int, int]:
+        """Extract YYYYMM from filename."""
+        match = re.search(r"(\d{6})", source_file)
+        if match:
+            date_str = match.group(1)
+            return int(date_str[:4]), int(date_str[4:6])
+        return 0, 0
+    
+    def _get_loan_version(self, year: int, month: int) -> str:
+        """Determine loan file layout version from date."""
+        if (year, month) < (2015, 4):
+            return "V1.0"  # 142 bytes
+        elif (year, month) < (2017, 12):
+            return "V1.6"  # 154 bytes
+        else:
+            return "V1.7"  # 192 bytes
+    
+    def _get_loan_fields(self, version: str) -> list:
+        """Get field definitions for a given version."""
+        fields = list(self.LOAN_FIELDS_V10)
+        if version in ("V1.6", "V1.7"):
+            fields.extend(self.LOAN_FIELDS_V16_ADDITIONS)
+        if version == "V1.7":
+            fields.extend(self.LOAN_FIELDS_V17_ADDITIONS)
+        return fields
+    
+    def _parse_loan_record(self, line: str, fields: list, pool_number: str) -> dict | None:
+        """Parse a single L (loan) record."""
+        if not line or line[0] != 'L':
+            return None
+        
+        record = {"pool_number": pool_number}
+        content = line[1:]  # Skip record type indicator
+        
+        for start, end, field_name, data_type in fields:
+            if end > len(content):
+                # Field not present in this version
+                continue
+            
+            raw_value = content[start:end].strip()
+            
+            if not raw_value:
+                record[field_name] = None
+                continue
+            
+            try:
+                if data_type == "str":
+                    record[field_name] = raw_value
+                elif data_type == "int":
+                    record[field_name] = int(raw_value) if raw_value else None
+                elif data_type == "decimal":
+                    # Handle implied decimal (e.g., "12345" -> 123.45)
+                    record[field_name] = float(raw_value) / 100 if raw_value else None
+                elif data_type == "rate":
+                    # Rate fields (e.g., "05250" -> 5.250)
+                    record[field_name] = float(raw_value) / 1000 if raw_value else None
+                elif data_type == "date":
+                    # Date fields (YYYYMMDD or YYYYMM)
+                    record[field_name] = raw_value
+                else:
+                    record[field_name] = raw_value
+            except (ValueError, TypeError):
+                record[field_name] = None
+        
+        return record
+    
     def _parse_loan_file(self, file_path: str, source_file: str) -> int:
         """
-        Parse loan-level file into dim_loan_ginnie.
+        Parse loan-level file (llmon1, llmon2, dailyllmni) into database.
         
-        TODO: Update column mapping based on actual file layout
+        File format: Fixed-width text with record types:
+        - H: Header (41 bytes)
+        - P: Pool info (37 bytes)
+        - L: Loan detail (142-192 bytes depending on version)
+        - T: Trailer/totals (44 bytes)
+        
+        Structure: H, then for each pool: P, L*, T
         """
         logger.info(f"Parsing loan file: {source_file}")
         
+        # Determine version from filename date
+        year, month = self._get_file_date(source_file)
+        version = self._get_loan_version(year, month)
+        fields = self._get_loan_fields(version)
+        
+        logger.info(f"Using layout version {version} for {year}-{month:02d}")
+        
+        records = []
+        current_pool = None
+        total_loans = 0
+        
         try:
-            df = pd.read_csv(file_path, sep='|', dtype=str, low_memory=False)
-        except Exception:
-            try:
-                df = pd.read_csv(file_path, dtype=str, low_memory=False)
-            except Exception as e:
-                logger.error(f"Could not parse file: {e}")
-                return 0
+            with open(file_path, 'r', encoding='latin-1') as f:
+                for line_num, line in enumerate(f, 1):
+                    line = line.rstrip('\n\r')
+                    
+                    if not line:
+                        continue
+                    
+                    record_type = line[0]
+                    
+                    if record_type == 'H':
+                        # Header record - extract file info
+                        logger.debug(f"Header: {line[:40]}...")
+                        
+                    elif record_type == 'P':
+                        # Pool record - extract pool number
+                        current_pool = line[1:8] if len(line) > 8 else None
+                        
+                    elif record_type == 'L':
+                        # Loan record
+                        if current_pool:
+                            loan = self._parse_loan_record(line, fields, current_pool)
+                            if loan:
+                                loan["file_date"] = f"{year}-{month:02d}-01"
+                                loan["source_file"] = source_file
+                                loan["layout_version"] = version
+                                records.append(loan)
+                                total_loans += 1
+                        
+                    elif record_type == 'T':
+                        # Trailer record - marks end of pool
+                        pass
+                    
+                    # Batch insert every BATCH_SIZE records
+                    if len(records) >= self.BATCH_SIZE:
+                        self._insert_loan_batch(records)
+                        records = []
+                
+                # Insert remaining records
+                if records:
+                    self._insert_loan_batch(records)
+                    
+        except Exception as e:
+            logger.error(f"Error parsing file: {e}")
+            raise
         
-        if df.empty:
-            logger.warning("File is empty")
-            return 0
+        logger.info(f"Parsed {total_loans} loan records from {source_file}")
+        return total_loans
+    
+    def _insert_loan_batch(self, records: list[dict]) -> None:
+        """Insert batch of loan records to database."""
+        if not records:
+            return
         
-        logger.info(f"Read {len(df)} rows with columns: {list(df.columns)[:10]}...")
+        # For now, just log - actual insert to be implemented
+        # based on final schema
+        logger.info(f"Would insert {len(records)} loan records")
         
-        # TODO: Map columns to dim_loan_ginnie schema
-        
-        return 0
+        # TODO: Implement actual database insert
+        # df = pd.DataFrame(records)
+        # df.to_sql("ginnie_loans_staging", self.engine, if_exists="append", index=False)
     
     def _parse_factor_file(self, file_path: str, source_file: str) -> int:
         """

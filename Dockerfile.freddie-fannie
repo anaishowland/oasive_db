@@ -20,6 +20,7 @@ RUN pip install --no-cache-dir \
     pg8000 \
     google-cloud-storage \
     google-cloud-secret-manager \
+    cloud-sql-python-connector \
     python-dotenv \
     paramiko \
     requests
