@@ -141,7 +141,87 @@ class GinnieIngestor:
         "factor": ["factor_a1", "factor_a2", "factor_b1", "factor_b2", "factor_a_plat", "factor_a_add"],
         "backfill": None,  # All files from current page
         "historical": None,  # Generate historical URLs programmatically
+        "historical-mbs-sf": None,  # MBS Single Family historical from Disclosure History page
     }
+    
+    # Historical file categories from Disclosure History page
+    # URL: https://www.ginniemae.gov/data_and_reports/disclosure_data/Pages/disclosurehistoryfiles.aspx
+    # Download URL pattern: https://bulk.ginniemae.gov/protectedfiledownload.aspx?dlfile=data_history_cons\<filename>
+    HISTORICAL_MBS_SF_CATEGORIES = {
+        "nimonSFPS": {
+            "name": "MBS SF MONTHLY NEW ISSUES - POOL/SECURITY",
+            "prefix": "nimonSFPS",
+            "history_url": "https://www.ginniemae.gov/data_and_reports/disclosure_data/Pages/disclosurehistoryfiles.aspx?prefix=nimonSFPS&grp=MBS%20(Single%20Family)",
+            "file_type": "monthly_new_pool",
+            "category": "MBS_SF",
+        },
+        "nimonSFS": {
+            "name": "MBS SF MONTHLY NEW ISSUES - POOL SUPPLEMENTAL",
+            "prefix": "nimonSFS",
+            "history_url": "https://www.ginniemae.gov/data_and_reports/disclosure_data/Pages/disclosurehistoryfiles.aspx?prefix=nimonSFS&grp=MBS%20(Single%20Family)",
+            "file_type": "monthly_new_pool_supp",
+            "category": "MBS_SF",
+        },
+        "dailyllmni": {
+            "name": "MBS SF MONTHLY NEW ISSUES - LOAN LEVEL",
+            "prefix": "dailyllmni",
+            "history_url": "https://www.ginniemae.gov/data_and_reports/disclosure_data/Pages/disclosurehistoryfiles.aspx?prefix=dailyllmni&grp=MBS%20(Single%20Family)",
+            "file_type": "monthly_new_loan",
+            "category": "MBS_SF",
+        },
+        "monthlySFPS": {
+            "name": "MBS SF PORTFOLIO - POOL/SECURITY",
+            "prefix": "monthlySFPS",
+            "history_url": "https://www.ginniemae.gov/data_and_reports/disclosure_data/Pages/disclosurehistoryfiles.aspx?prefix=monthlySFPS&grp=MBS%20(Single%20Family)",
+            "file_type": "portfolio_pool",
+            "category": "MBS_SF",
+        },
+        "monthlySFS": {
+            "name": "MBS SF PORTFOLIO - POOL SUPPLEMENTAL",
+            "prefix": "monthlySFS",
+            "history_url": "https://www.ginniemae.gov/data_and_reports/disclosure_data/Pages/disclosurehistoryfiles.aspx?prefix=monthlySFS&grp=MBS%20(Single%20Family)",
+            "file_type": "portfolio_pool_supp",
+            "category": "MBS_SF",
+        },
+        "llmon1": {
+            "name": "MBS SF PORTFOLIO - LOAN LEVEL, GINNIE I",
+            "prefix": "llmon1",
+            "history_url": "https://www.ginniemae.gov/data_and_reports/disclosure_data/Pages/disclosurehistoryfiles.aspx?prefix=llmon1&grp=MBS%20(Single%20Family)",
+            "file_type": "portfolio_loan_g1",
+            "category": "MBS_SF",
+        },
+        "llmon2": {
+            "name": "MBS SF PORTFOLIO - LOAN LEVEL, GINNIE II",
+            "prefix": "llmon2",
+            "history_url": "https://www.ginniemae.gov/data_and_reports/disclosure_data/Pages/disclosurehistoryfiles.aspx?prefix=llmon2&grp=MBS%20(Single%20Family)",
+            "file_type": "portfolio_loan_g2",
+            "category": "MBS_SF",
+        },
+        "llmonliq": {
+            "name": "MBS SF LOAN LIQUIDATIONS MONTHLY",
+            "prefix": "llmonliq",
+            "history_url": "https://www.ginniemae.gov/data_and_reports/disclosure_data/Pages/disclosurehistoryfiles.aspx?prefix=llmonliq&grp=MBS%20(Single%20Family)",
+            "file_type": "liquidations",
+            "category": "MBS_SF",
+        },
+        "nissues": {
+            "name": "MBS MONTHLY (NI) - POOL LEVEL",
+            "prefix": "nissues",
+            "history_url": "https://www.ginniemae.gov/data_and_reports/disclosure_data/Pages/disclosurehistoryfiles.aspx?prefix=nissues&grp=MBS%20(Single%20Family)",
+            "file_type": "monthly_ni_pool",
+            "category": "MBS_SF",
+        },
+        "monthly": {
+            "name": "MBS (PORTFOLIO)",
+            "prefix": "monthly",
+            "history_url": "https://www.ginniemae.gov/data_and_reports/disclosure_data/Pages/disclosurehistoryfiles.aspx?prefix=monthly&grp=MBS%20(Single%20Family)",
+            "file_type": "portfolio",
+            "category": "MBS_SF",
+        },
+    }
+    
+    # Base URL for historical file downloads
+    HISTORICAL_DOWNLOAD_BASE = "https://bulk.ginniemae.gov/protectedfiledownload.aspx?dlfile=data_history_cons\\"
     
     # Timeouts and retries
     PAGE_TIMEOUT = 60000  # 60 seconds
@@ -1127,6 +1207,223 @@ Time: {datetime.now(timezone.utc).isoformat()}
         logger.info(f"Generated {len(files)} historical file URLs from {start_date} to {end_date}")
         return files
     
+    def _scrape_disclosure_history_page(self, category_key: str) -> list[dict[str, Any]]:
+        """
+        Scrape a Disclosure History page to get the list of available historical files.
+        
+        Args:
+            category_key: Key from HISTORICAL_MBS_SF_CATEGORIES (e.g., "nimonSFPS")
+            
+        Returns:
+            List of file info dicts with filename, href, file_date, etc.
+        """
+        if category_key not in self.HISTORICAL_MBS_SF_CATEGORIES:
+            raise ValueError(f"Unknown category: {category_key}")
+        
+        category = self.HISTORICAL_MBS_SF_CATEGORIES[category_key]
+        history_url = category["history_url"]
+        
+        logger.info(f"Scraping Disclosure History page for: {category['name']}")
+        logger.info(f"URL: {history_url}")
+        
+        # Navigate to the history page
+        self._page.goto(history_url, wait_until="networkidle", timeout=self.PAGE_TIMEOUT)
+        
+        # Check for login/auth page
+        page_content = self._page.content().lower()
+        current_url = self._page.url.lower()
+        
+        if "enter your e-mail" in page_content or "profile.aspx" in current_url:
+            logger.info("Authentication required for Disclosure History page")
+            if not self._handle_download_auth():
+                raise AuthenticationRequiredError("Authentication failed for Disclosure History page")
+            # Re-navigate after auth
+            self._page.goto(history_url, wait_until="networkidle", timeout=self.PAGE_TIMEOUT)
+        
+        # Parse the file list - look for all .zip links
+        files = []
+        links = self._page.query_selector_all("a[href*='.zip']")
+        
+        for link in links:
+            try:
+                filename = link.inner_text().strip()
+                if not filename.endswith(".zip"):
+                    continue
+                
+                # The href on the page is relative, construct the full download URL
+                # Historical files use: data_history_cons\<filename>
+                download_url = f"{self.HISTORICAL_DOWNLOAD_BASE}{filename}"
+                
+                # Extract date from filename (e.g., nimonSFPS_202001.zip -> 2020-01)
+                file_date = self._extract_date_from_filename(filename)
+                
+                # Find the record date from the table row if available
+                parent_row = link.evaluate_handle("el => el.closest('tr')")
+                if parent_row:
+                    try:
+                        row_text = parent_row.evaluate("el => el.innerText")
+                        # Look for date pattern like "01/31/2020"
+                        date_match = re.search(r"(\d{2}/\d{2}/\d{4})", row_text)
+                        if date_match:
+                            record_date_str = date_match.group(1)
+                            # Parse as MM/DD/YYYY
+                            from datetime import datetime
+                            record_date = datetime.strptime(record_date_str, "%m/%d/%Y").date()
+                            file_date = datetime(record_date.year, record_date.month, 1)
+                    except Exception:
+                        pass
+                
+                files.append({
+                    "filename": filename,
+                    "href": download_url,
+                    "file_type": category["file_type"],
+                    "file_category": category["category"],
+                    "file_date": file_date,
+                    "file_size_bytes": None,
+                    "last_posted_at": None,
+                    "source": "disclosure_history",
+                })
+                
+            except Exception as e:
+                logger.warning(f"Error parsing link: {e}")
+                continue
+        
+        logger.info(f"Found {len(files)} files for {category['name']}")
+        return files
+    
+    def _scrape_all_mbs_sf_historical(self) -> list[dict[str, Any]]:
+        """
+        Scrape all MBS Single Family categories from Disclosure History.
+        
+        Returns combined list of all historical files.
+        """
+        all_files = []
+        
+        for category_key in self.HISTORICAL_MBS_SF_CATEGORIES:
+            try:
+                files = self._scrape_disclosure_history_page(category_key)
+                all_files.extend(files)
+                logger.info(f"Total files so far: {len(all_files)}")
+                
+                # Small delay to avoid rate limiting
+                time.sleep(2)
+                
+            except Exception as e:
+                logger.error(f"Error scraping {category_key}: {e}")
+                self._take_screenshot(f"scrape_error_{category_key}")
+                continue
+        
+        logger.info(f"Total MBS SF historical files discovered: {len(all_files)}")
+        return all_files
+    
+    def _download_historical_file(self, file_info: dict[str, Any]) -> str:
+        """
+        Download a historical file using the data_history_cons URL pattern.
+        
+        Uses Playwright to maintain authenticated session.
+        """
+        filename = file_info["filename"]
+        url = file_info.get("href")
+        
+        if not url:
+            # Construct URL if not provided
+            url = f"{self.HISTORICAL_DOWNLOAD_BASE}{filename}"
+        
+        logger.info(f"Downloading historical file: {filename}")
+        logger.info(f"URL: {url}")
+        
+        try:
+            # Use Playwright to download - this handles the session properly
+            with self._page.expect_download(timeout=self.DOWNLOAD_TIMEOUT) as download_info:
+                try:
+                    # Navigate to the download URL - this should trigger a download
+                    self._page.goto(url, wait_until="commit", timeout=60000)
+                except Exception as nav_error:
+                    # "Download is starting" error is expected when download starts during navigation
+                    if "Download is starting" not in str(nav_error):
+                        raise
+            
+            download = download_info.value
+            download_path = download.path()
+            
+            # Check if download succeeded
+            if not download_path or not os.path.exists(download_path):
+                raise ValueError(f"Download failed for {filename}")
+            
+            file_size = os.path.getsize(download_path)
+            
+            # Verify it's not an HTML error page
+            with open(download_path, 'rb') as f:
+                header = f.read(100)
+                if b'<!DOCTYPE' in header or b'<html' in header.lower():
+                    os.unlink(download_path)
+                    # Take screenshot to see error
+                    self._take_screenshot(f"html_error_{filename}")
+                    raise ValueError(f"Download returned HTML error page for {filename}")
+            
+            logger.info(f"Downloaded {file_size / 1024 / 1024:.1f} MB")
+            
+        except PlaywrightTimeout:
+            # If download didn't start, check for auth redirect
+            current_url = self._page.url.lower()
+            page_content = self._page.content().lower()
+            
+            if "profile.aspx" in current_url or "enter your e-mail" in page_content:
+                logger.info("Authentication required for historical download")
+                
+                if not self._handle_download_auth():
+                    raise AuthenticationRequiredError(f"Authentication failed for {filename}")
+                
+                # Retry download after auth
+                logger.info("Retrying download after authentication...")
+                with self._page.expect_download(timeout=self.DOWNLOAD_TIMEOUT) as download_info:
+                    try:
+                        self._page.goto(url, wait_until="commit", timeout=60000)
+                    except Exception as nav_error:
+                        if "Download is starting" not in str(nav_error):
+                            raise
+                
+                download = download_info.value
+                download_path = download.path()
+                
+                if not download_path or not os.path.exists(download_path):
+                    raise ValueError(f"Download failed after auth for {filename}")
+                
+                file_size = os.path.getsize(download_path)
+                logger.info(f"Downloaded {file_size / 1024 / 1024:.1f} MB after auth")
+            else:
+                # Check for error page
+                if "issue processing" in page_content or "error" in page_content:
+                    self._take_screenshot(f"download_error_{filename}")
+                    raise ValueError(f"Server error downloading {filename}")
+                raise
+        
+        # Upload to GCS - organize by file prefix and year/month
+        match = re.search(r"_(\d{4})(\d{2})\.", filename)
+        if match:
+            year, month = match.groups()
+            # Determine prefix for folder organization
+            prefix = filename.split("_")[0]
+            gcs_path = f"ginnie/historical/{prefix}/{year}/{month}/{filename}"
+        else:
+            now = datetime.now(timezone.utc)
+            gcs_path = f"ginnie/historical/other/{now.year}/{now.month:02d}/{filename}"
+        
+        bucket = self.storage_client.bucket(self.gcs_config.raw_bucket)
+        blob = bucket.blob(gcs_path)
+        blob.upload_from_filename(download_path, timeout=600)  # 10 min timeout for large files
+        
+        # Clean up local file
+        try:
+            os.unlink(download_path)
+        except Exception:
+            pass
+        
+        full_gcs_path = f"gs://{self.gcs_config.raw_bucket}/{gcs_path}"
+        logger.info(f"Uploaded to {full_gcs_path}")
+        
+        return full_gcs_path
+    
     def _download_file_direct(self, filename: str, url: str) -> str:
         """
         Download a file directly by URL using Playwright's download handling.
@@ -1193,16 +1490,18 @@ Time: {datetime.now(timezone.utc).isoformat()}
         max_files: int | None = None,
         headless: bool = True,
         skip_catalog: bool = False,
+        historical_category: str | None = None,
     ) -> dict[str, Any]:
         """
         Run the Ginnie Mae bulk download sync.
         
         Args:
-            mode: 'daily', 'monthly', 'factor', 'backfill', or 'catalog'
+            mode: 'daily', 'monthly', 'factor', 'backfill', 'catalog', or 'historical-mbs-sf'
             file_types: Override file types to download
             max_files: Maximum files to download
             headless: Run browser in headless mode
             skip_catalog: Skip cataloging, download pending files directly
+            historical_category: For historical-mbs-sf mode, limit to this category (e.g., "llmon1")
         
         Returns:
             Summary dictionary
@@ -1228,8 +1527,17 @@ Time: {datetime.now(timezone.utc).isoformat()}
             
             # Parse file table or generate historical URLs
             if not skip_catalog:
-                if mode == "historical":
-                    # Generate historical file URLs programmatically
+                if mode == "historical-mbs-sf":
+                    # Scrape Disclosure History pages for MBS SF historical files
+                    if historical_category:
+                        logger.info(f"Scraping MBS SF historical files for category: {historical_category}")
+                        remote_files = self._scrape_disclosure_history_page(historical_category)
+                    else:
+                        logger.info("Scraping ALL MBS SF historical files from Disclosure History pages...")
+                        remote_files = self._scrape_all_mbs_sf_historical()
+                    results["files_discovered"] = len(remote_files)
+                elif mode == "historical":
+                    # Generate historical file URLs programmatically (old method)
                     logger.info("Generating historical file list (2013-present)...")
                     remote_files = self._generate_historical_file_list(
                         start_year=2013,
@@ -1279,6 +1587,18 @@ Time: {datetime.now(timezone.utc).isoformat()}
                         if self._classify_file(f["filename"]) in target_types
                     ]
                 
+                # Filter by historical category if specified
+                if mode == "historical-mbs-sf" and historical_category:
+                    category_info = self.HISTORICAL_MBS_SF_CATEGORIES.get(historical_category)
+                    if category_info:
+                        prefix = category_info["prefix"]
+                        logger.info(f"Filtering downloads to category: {historical_category} (prefix: {prefix})")
+                        to_download = [
+                            f for f in to_download 
+                            if f["filename"].startswith(prefix + "_")
+                        ]
+                        logger.info(f"After category filter: {len(to_download)} files")
+                
                 # Limit
                 if max_files:
                     to_download = to_download[:max_files]
@@ -1290,8 +1610,10 @@ Time: {datetime.now(timezone.utc).isoformat()}
                         file_info["file_size_bytes"] = file_info.get("file_size_bytes", 0)
                         filename = file_info["filename"]
                         
+                        # Check if this is a file from Disclosure History (has source="disclosure_history")
+                        is_disclosure_history = file_info.get("source") == "disclosure_history"
+                        
                         # Determine if this is a historical file (before current month)
-                        # Historical files need direct URL download since they're not on the bulk page
                         is_historical = False
                         file_date = file_info.get("file_date")
                         if file_date:
@@ -1303,18 +1625,22 @@ Time: {datetime.now(timezone.utc).isoformat()}
                             if file_date < current_month_start:
                                 is_historical = True
                         
-                        # Check if file has a direct URL or needs to be found on the page
-                        if "href" in file_info and file_info["href"]:
+                        # Choose download method based on source
+                        if is_disclosure_history or (is_historical and file_info.get("href") and "data_history_cons" in file_info.get("href", "")):
+                            # Disclosure History file - use historical download method
+                            gcs_path = self._download_historical_file(file_info)
+                        elif "href" in file_info and file_info["href"]:
                             # Already has URL (generated historical file)
                             gcs_path = self._download_file_direct(
                                 filename,
                                 file_info["href"]
                             )
                         elif is_historical:
-                            # Historical file - construct URL
-                            url = f"https://bulk.ginniemae.gov/protectedfiledownload.aspx?dlfile=data_bulk/{filename}"
-                            logger.info(f"Historical file detected, using direct URL: {url}")
-                            gcs_path = self._download_file_direct(filename, url)
+                            # Historical file - construct URL with data_history_cons pattern
+                            url = f"{self.HISTORICAL_DOWNLOAD_BASE}{filename}"
+                            logger.info(f"Historical file detected, using data_history_cons URL: {url}")
+                            file_info["href"] = url
+                            gcs_path = self._download_historical_file(file_info)
                         else:
                             # Current file - find on page
                             gcs_path = self._download_file(file_info)
@@ -1505,9 +1831,9 @@ def main():
     parser = argparse.ArgumentParser(description="Ginnie Mae Bulk Download Ingestor")
     parser.add_argument(
         "--mode",
-        choices=["daily", "monthly", "factor", "backfill", "catalog", "historical"],
+        choices=["daily", "monthly", "factor", "backfill", "catalog", "historical", "historical-mbs-sf"],
         default="daily",
-        help="Run mode (historical = download all files from 2013 to present)"
+        help="Run mode: daily/monthly/factor for current files, historical-mbs-sf for MBS SF from Disclosure History (2012-present)"
     )
     parser.add_argument(
         "--file-types",
@@ -1544,6 +1870,11 @@ def main():
         action="store_true",
         help="Remove historical files from catalog (keep only current month)"
     )
+    parser.add_argument(
+        "--historical-category",
+        choices=list(GinnieIngestor.HISTORICAL_MBS_SF_CATEGORIES.keys()),
+        help="Download only this specific MBS SF category (e.g., llmon1, dailyllmni)"
+    )
     
     args = parser.parse_args()
     
@@ -1567,6 +1898,7 @@ def main():
         max_files=args.max_files,
         headless=not args.no_headless,
         skip_catalog=args.skip_catalog,
+        historical_category=args.historical_category,
     )
     
     if results["errors"]:

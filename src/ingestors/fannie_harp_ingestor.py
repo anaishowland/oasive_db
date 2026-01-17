@@ -93,19 +93,20 @@ class HARPLoanMappingParser:
                 
                 with zf.open(mapping_file) as f:
                     text_wrapper = io.TextIOWrapper(f, encoding='utf-8', errors='ignore')
-                    reader = csv.reader(text_wrapper, delimiter='|')
-                    
-                    # Skip header
-                    header = next(reader, None)
-                    logger.info(f"    Header: {header}")
+                    # Comma-delimited with NO header (original_id, new_id)
+                    reader = csv.reader(text_wrapper, delimiter=',')
                     
                     batch = []
                     for row in reader:
                         if len(row) >= 2:
-                            batch.append({
-                                'original_loan_id': row[0].strip(),
-                                'new_loan_id': row[1].strip()
-                            })
+                            orig_id = row[0].strip()
+                            new_id = row[1].strip()
+                            # Skip if looks like header
+                            if orig_id.isdigit() and new_id.isdigit():
+                                batch.append({
+                                    'original_loan_id': orig_id,
+                                    'new_loan_id': new_id
+                                })
                             
                             if len(batch) >= self.batch_size:
                                 self._insert_batch(batch)
@@ -209,37 +210,46 @@ class HARPLoanParser:
         return counts
     
     def _parse_row(self, row: List[str]) -> Optional[Dict]:
-        """Parse a single pipe-delimited row."""
-        if len(row) < 10:
+        """Parse a single pipe-delimited row.
+        
+        File format: |loan_id|month|channel|seller|servicer|...
+        Row starts with | so row[0] is empty, loan_id is row[1]
+        """
+        if len(row) < 15:
             return None
         
-        loan_id = row[0].strip() if row[0] else None
+        # File starts with |, so loan_id is at index 1
+        loan_id = row[1].strip() if len(row) > 1 and row[1] else None
         if not loan_id:
             return None
         
+        # Column mapping based on Fannie Mae SFLP data dictionary:
+        # Index 1: Loan ID, 2: Month, 3: Channel, 4: Seller, 5: Servicer
+        # 6: empty, 7: Orig Rate, 8: Curr Rate, 9: Orig UPB, etc.
         return {
             'loan_id': loan_id,
-            'channel': row[1].strip() if len(row) > 1 and row[1] else None,
-            'seller_name': row[2].strip()[:100] if len(row) > 2 and row[2] else None,
-            'orig_rate': safe_decimal(row[3]) if len(row) > 3 else None,
-            'orig_upb': safe_decimal(row[4]) if len(row) > 4 else None,
-            'orig_loan_term': safe_int(row[5]) if len(row) > 5 else None,
-            'orig_date': parse_yyyymm(row[6]) if len(row) > 6 else None,
-            'first_payment_date': parse_yyyymm(row[7]) if len(row) > 7 else None,
-            'ltv': safe_decimal(row[8]) if len(row) > 8 else None,
-            'cltv': safe_decimal(row[9]) if len(row) > 9 else None,
-            'num_borrowers': safe_int(row[10]) if len(row) > 10 else None,
-            'dti': safe_decimal(row[11]) if len(row) > 11 else None,
-            'fico': safe_int(row[12]) if len(row) > 12 else None,
-            'co_borrower_fico': safe_int(row[13]) if len(row) > 13 else None,
-            'first_time_buyer': row[14].strip() if len(row) > 14 and row[14] else None,
-            'loan_purpose': row[15].strip() if len(row) > 15 and row[15] else None,
-            'property_type': row[16].strip() if len(row) > 16 and row[16] else None,
-            'num_units': safe_int(row[17]) if len(row) > 17 else None,
-            'occupancy': row[18].strip() if len(row) > 18 and row[18] else None,
-            'state': row[19].strip()[:2] if len(row) > 19 and row[19] else None,
-            'zipcode': row[20].strip()[:5] if len(row) > 20 and row[20] else None,
-            'mi_pct': safe_decimal(row[21]) if len(row) > 21 else None,
+            'channel': row[3].strip() if len(row) > 3 and row[3] else None,
+            'seller_name': row[4].strip()[:100] if len(row) > 4 and row[4] else None,
+            'servicer_name': row[5].strip()[:100] if len(row) > 5 and row[5] else None,
+            'orig_rate': safe_decimal(row[7]) if len(row) > 7 else None,
+            'orig_upb': safe_decimal(row[9]) if len(row) > 9 else None,
+            'orig_loan_term': safe_int(row[12]) if len(row) > 12 else None,
+            'orig_date': parse_yyyymm(row[13]) if len(row) > 13 else None,
+            'first_payment_date': parse_yyyymm(row[14]) if len(row) > 14 else None,
+            'ltv': safe_decimal(row[21]) if len(row) > 21 else None,
+            'cltv': safe_decimal(row[22]) if len(row) > 22 else None,
+            'num_borrowers': safe_int(row[23]) if len(row) > 23 else None,
+            'dti': None,  # Not in this position
+            'fico': safe_int(row[24]) if len(row) > 24 else None,
+            'co_borrower_fico': None,
+            'first_time_buyer': row[26].strip() if len(row) > 26 and row[26] else None,
+            'loan_purpose': row[27].strip() if len(row) > 27 and row[27] else None,
+            'property_type': row[28].strip() if len(row) > 28 and row[28] else None,
+            'num_units': safe_int(row[29]) if len(row) > 29 else None,
+            'occupancy': row[30].strip() if len(row) > 30 and row[30] else None,
+            'state': row[31].strip()[:2] if len(row) > 31 and row[31] else None,
+            'zipcode': row[33].strip()[:5] if len(row) > 33 and row[33] else None,
+            'mi_pct': None,
         }
     
     def _insert_batch(self, batch: List[Dict]):
