@@ -1,0 +1,36 @@
+# Dockerfile for Freddie Mac / Fannie Mae Ingestors
+# Lightweight image without Playwright (not needed for SFTP/file processing)
+
+FROM python:3.11-slim-bookworm
+
+WORKDIR /app
+
+# Install system dependencies for psycopg2
+RUN apt-get update && apt-get install -y \
+    libpq-dev \
+    gcc \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements
+COPY requirements.txt .
+
+# Install Python dependencies (skip playwright)
+RUN pip install --no-cache-dir \
+    sqlalchemy \
+    pg8000 \
+    google-cloud-storage \
+    google-cloud-secret-manager \
+    python-dotenv \
+    paramiko \
+    requests
+
+# Copy application code
+COPY src/ ./src/
+COPY migrations/ ./migrations/
+
+# Set Python path
+ENV PYTHONPATH=/app
+
+# Flexible entrypoint for any module
+ENTRYPOINT ["python"]
+CMD ["-m", "src.ingestors.fred_ingestor"]

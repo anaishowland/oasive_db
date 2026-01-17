@@ -50,6 +50,8 @@ COPY scripts/ ./scripts/
 # Set Python path
 ENV PYTHONPATH=/app
 
-# Default command - daily mode
-ENTRYPOINT ["python", "-m", "src.ingestors.ginnie_ingestor"]
-CMD ["--mode", "daily"]
+# Flexible entrypoint - allows running any module
+# Default: ginnie_ingestor daily mode
+# Override with: --args="python,-m,src.ingestors.OTHER_MODULE,--args"
+ENTRYPOINT ["python"]
+CMD ["-m", "src.ingestors.ginnie_ingestor", "--mode", "daily"]

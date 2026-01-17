@@ -174,43 +174,82 @@ python3 -m src.ingestors.ginnie_ingestor --mode=historical-factor --historical-c
 python3 -m src.ingestors.ginnie_ingestor --mode=historical-all
 ```
 
-### Ginnie Mae Historical Data Download Plan
+### Ginnie Mae Historical Data Download Status
 
-**Phase 1 - High Priority (Loan-Level for Prepay Research):**
-| Category | Files | Est. Size | Status |
-|----------|-------|-----------|--------|
-| `llmon1` - Loan Level Ginnie I | 146 | 5.03 GB | ✅ **Complete** |
-| `llmon2` - Loan Level Ginnie II | ~146 | ~5 GB | 🔄 Downloading |
-| `dailyllmni` - Loan Level New Issues | ~148 | ~1.5 GB | 🔄 Downloading |
-| `llmonliq` - Liquidations | ~88 | ~1 GB | 🔄 Downloading |
+**✅ ALL SINGLE-FAMILY & FACTOR DOWNLOADS COMPLETE (Jan 17, 2026)**
 
-**Phase 2 - Factor Data (for CPR Calculation):**
-| Category | Files | Est. Size | Status |
-|----------|-------|-----------|--------|
-| `factorA1` - Factor A Ginnie I | ~160 | ~500 MB | 🔄 Downloading |
-| `factorA2` - Factor A Ginnie II | ~160 | ~500 MB | 🔄 Downloading |
-| `factorB1` - Factor B Ginnie I | ~160 | ~500 MB | 🔄 Downloading |
-| `factorB2` - Factor B Ginnie II | ~160 | ~500 MB | 🔄 Downloading |
+**Total: 2,201 files, ~40+ GB**
 
-**Phase 3 - Pool-Level Data:**
-| Category | Files | Est. Size | Status |
-|----------|-------|-----------|--------|
-| `monthlySFPS` - Portfolio Pool | ~72 | ~2 GB | 🔄 Downloading |
-| `nimonSFPS` - New Issues Pool | ~72 | ~500 MB | 🔄 Downloading |
-| `monthlySFS` - Portfolio Supplemental | ~72 | ~500 MB | 🔄 Downloading |
-| `nimonSFS` - New Issues Supplemental | ~72 | ~500 MB | 🔄 Downloading |
-| `nissues` - MBS Monthly NI Pool | ~166 | ~1 GB | 🔄 Downloading |
-| `monthly` - MBS Portfolio | ~166 | ~1 GB | 🔄 Downloading |
+**Loan-Level Data (High Priority):**
+| Category | Files | Size | Status |
+|----------|-------|------|--------|
+| `llmon1` - Loan Level Ginnie I | 146 | 5.03 GB | ✅ Complete |
+| `llmon2` - Loan Level Ginnie II | 146 | 33.6 GB | ✅ Complete |
+| `dailyllmni` - Loan Level New Issues | 147 | 527 MB | ✅ Complete |
+| `llmonliq` - Liquidations | 88 | 270 MB | ✅ Complete |
 
-**Phase 4 - Supporting Data:**
-| Category | Files | Est. Size | Status |
-|----------|-------|-----------|--------|
-| `remic1` - REMIC 1 Factor | ~166 | ~500 MB | 🔄 Downloading |
-| `remic2` - REMIC 2 Factor | ~166 | ~500 MB | 🔄 Downloading |
-| `factorAplat` - Factor A Platinum | ~67 | ~100 MB | 🔄 Downloading |
-| `factorAAdd` - Factor A Additional | ~111 | ~200 MB | 🔄 Downloading |
+**Factor Data (for CPR Calculation):**
+| Category | Files | Status |
+|----------|-------|--------|
+| `factorA1` - Factor A Ginnie I | 160 | ✅ Complete |
+| `factorA2` - Factor A Ginnie II | 160 | ✅ Complete |
+| `factorB1` - Factor B Ginnie I | 160 | ✅ Complete |
+| `factorB2` - Factor B Ginnie II | 160 | ✅ Complete |
+| `factorAplat` - Factor A Platinum | 79 | ✅ Complete |
+| `factorAAdd` - Factor A Additional | 123 | ✅ Complete |
+| `remic1` - REMIC 1 Factor | 166 | ✅ Complete |
+| `remic2` - REMIC 2 Factor | 166 | ✅ Complete |
 
-**Total Estimated:** ~2,000 files, ~20 GB
+**Pool-Level Data:**
+| Category | Files | Status |
+|----------|-------|--------|
+| `monthlySFPS` - Portfolio Pool | 71 | ✅ Complete |
+| `monthlySFS` - Portfolio Supplemental | 71 | ✅ Complete |
+| `nimonSFPS` - New Issues Pool | 71 | ✅ Complete |
+| `nimonSFS` - New Issues Supplemental | 71 | ✅ Complete |
+| `nissues` - MBS Monthly NI Pool | 111 | ✅ Complete |
+| `monthly` - MBS Portfolio | 105 | ✅ Complete |
+
+**⚠️ Layout Changes Over Time:**
+Ginnie Mae file layouts change across versions. The **Historical Layouts Guide (Feb 2024)** is saved at `docs/Ginnie_Historical_Layouts_Guide_Feb2024.pdf`.
+
+**Loan-Level File Versions (`llmon1`, `llmon2`, `dailyllmni`):**
+
+| Version | Date | L Record Length | Changes |
+|---------|------|-----------------|---------|
+| V1.0 | Oct 2013 | **142 bytes** | Initial version |
+| V1.5 | Dec 2013 | 142 bytes | First production (privacy considerations) |
+| V1.6 | Apr 2015 | **154 bytes** | Added "Loan Origination Date" + "Seller Issuer ID" (+12 bytes) |
+| V1.7 | Dec 2017 | **192 bytes** | Added 10 ARM fields (+38 bytes) |
+| V1.8 | Feb 2021 | 192 bytes | Loan Purpose "5" for Re-Performing loans (no layout change) |
+
+**File Structure (Fixed-Width Text):**
+```
+H - Header (41 bytes): File metadata
+P - Pool (37 bytes): Pool ID, CUSIP, type, issue date
+L - Loan (142-192 bytes): Individual loan data
+T - Trailer (44 bytes): Pool totals/counts
+```
+
+**Parser Implementation Notes:**
+- Determine version by: (a) file date in filename YYYYMM, or (b) L record length
+- Oct 2013 - Mar 2015: 142 bytes
+- Apr 2015 - Nov 2017: 154 bytes  
+- Dec 2017+: 192 bytes
+
+### Multifamily Data (In Progress)
+
+| Category | Prefix | Date Range | Status |
+|----------|--------|------------|--------|
+| MF Pool/Loan New Issuance V3 | `mfpldailymni3` | 2022-01 → Present | ⏳ Pending |
+| MF Pool/Loan New Issuance V2 | `mfpldailymni2` | 2021-08 → 2022-01 | ⏳ Pending |
+| MF Pool/Loan New Issuance V1 | `mfpldailymni` | 2018-12 → 2021-07 | ⏳ Pending |
+| MF Portfolio V3 | `mfplmon3` | 2021-10 → Present | ⏳ Pending |
+| MF Portfolio V2 | `mfplmon2` | 2021-07 → 2021-12 | ⏳ Pending |
+| MF Portfolio V1 | `mfplmon` | 2018-12 → 2021-06 | ⏳ Pending |
+| MF Prepay Penalty | `mfpppmon` | 2018-10 → Present | ⏳ Pending |
+
+**Note:** Multifamily has multiple layout versions - parser needs version-aware handling.
 
 ### Data Integration Plan
 

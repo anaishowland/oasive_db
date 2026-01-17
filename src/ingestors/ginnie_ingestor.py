@@ -143,7 +143,8 @@ class GinnieIngestor:
         "historical": None,  # Generate historical URLs programmatically
         "historical-mbs-sf": None,  # MBS Single Family historical from Disclosure History page
         "historical-factor": None,  # Factor files historical from Disclosure History page
-        "historical-all": None,  # All categories (MBS SF + Factor)
+        "historical-multifamily": None,  # Multifamily historical from Disclosure History page
+        "historical-all": None,  # All categories (MBS SF + Factor + Multifamily)
     }
     
     # Historical file categories from Disclosure History page
@@ -346,8 +347,90 @@ class GinnieIngestor:
         },
     }
     
+    # Multifamily categories from Disclosure History
+    HISTORICAL_MULTIFAMILY_CATEGORIES = {
+        "mfpldailymni3": {
+            "name": "MULTIFAMILY POOL AND LOAN NEW ISSUANCE MONTHLY DISCLOSURE",
+            "prefix": "mfpldailymni3",
+            "history_url": "https://www.ginniemae.gov/data_and_reports/disclosure_data/Pages/disclosurehistoryfiles.aspx?prefix=mfpldailymni3&grp=Multifamily",
+            "file_type": "mf_new_issuance",
+            "category": "MULTIFAMILY",
+            "first_available": "2022-01",  # mfpldailymni3_202201.zip
+            "priority": "high",
+            "extension": ".zip",
+        },
+        "mfpldailymni2": {
+            "name": "MULTIFAMILY POOL AND LOAN NEW ISSUANCE MONTHLY DISCLOSURE V2.0",
+            "prefix": "mfpldailymni2",
+            "history_url": "https://www.ginniemae.gov/data_and_reports/disclosure_data/Pages/disclosurehistoryfiles.aspx?prefix=mfpldailymni2&grp=Multifamily",
+            "file_type": "mf_new_issuance_v2",
+            "category": "MULTIFAMILY",
+            "first_available": "2021-08",  # mfpldailymni2_202108.zip (08/01/2021 - 01/01/2022)
+            "last_available": "2022-01",
+            "priority": "high",
+            "extension": ".zip",
+        },
+        "mfpldailymni": {
+            "name": "MULTIFAMILY POOL AND LOAN NEW ISSUANCE MONTHLY DISCLOSURE V1.0",
+            "prefix": "mfpldailymni",
+            "history_url": "https://www.ginniemae.gov/data_and_reports/disclosure_data/Pages/disclosurehistoryfiles.aspx?prefix=mfpldailymni&grp=Multifamily",
+            "file_type": "mf_new_issuance_v1",
+            "category": "MULTIFAMILY",
+            "first_available": "2018-12",  # mfpldailymni_201812.zip (12/01/2018 - 07/01/2021)
+            "last_available": "2021-07",
+            "priority": "high",
+            "extension": ".zip",
+        },
+        "mfplmon3": {
+            "name": "MULTIFAMILY POOL AND LOAN MONTHLY PORTFOLIO DISCLOSURE",
+            "prefix": "mfplmon3",
+            "history_url": "https://www.ginniemae.gov/data_and_reports/disclosure_data/Pages/disclosurehistoryfiles.aspx?prefix=mfplmon3&grp=Multifamily",
+            "file_type": "mf_portfolio",
+            "category": "MULTIFAMILY",
+            "first_available": "2021-10",  # mfplmon3_202110.txt
+            "priority": "high",
+            "extension": ".txt",
+        },
+        "mfplmon2": {
+            "name": "MULTIFAMILY POOL AND LOAN MONTHLY PORTFOLIO DISCLOSURE V2.0",
+            "prefix": "mfplmon2",
+            "history_url": "https://www.ginniemae.gov/data_and_reports/disclosure_data/Pages/disclosurehistoryfiles.aspx?prefix=mfplmon2&grp=Multifamily",
+            "file_type": "mf_portfolio_v2",
+            "category": "MULTIFAMILY",
+            "first_available": "2021-07",  # mfplmon2_202107.zip (07/01/2021 - 12/01/2021)
+            "last_available": "2021-12",
+            "priority": "high",
+            "extension": ".zip",
+        },
+        "mfplmon": {
+            "name": "MULTIFAMILY POOL AND LOAN MONTHLY PORTFOLIO DISCLOSURE V1.0",
+            "prefix": "mfplmon",
+            "history_url": "https://www.ginniemae.gov/data_and_reports/disclosure_data/Pages/disclosurehistoryfiles.aspx?prefix=mfplmon&grp=Multifamily",
+            "file_type": "mf_portfolio_v1",
+            "category": "MULTIFAMILY",
+            "first_available": "2018-12",  # mfplmon_201812.zip (12/01/2018 - 06/01/2021)
+            "last_available": "2021-06",
+            "priority": "high",
+            "extension": ".zip",
+        },
+        "mfpppmon": {
+            "name": "MULTIFAMILY PREPAYMENT PENALTY DISCLOSURE DATA",
+            "prefix": "mfpppmon",
+            "history_url": "https://www.ginniemae.gov/data_and_reports/disclosure_data/Pages/disclosurehistoryfiles.aspx?prefix=mfpppmon&grp=Multifamily",
+            "file_type": "mf_prepay_penalty",
+            "category": "MULTIFAMILY",
+            "first_available": "2018-10",  # mfpppmon_201810.zip
+            "priority": "medium",
+            "extension": ".zip",
+        },
+    }
+    
     # Combined categories for easy lookup
-    ALL_HISTORICAL_CATEGORIES = {**HISTORICAL_MBS_SF_CATEGORIES, **HISTORICAL_FACTOR_CATEGORIES}
+    ALL_HISTORICAL_CATEGORIES = {
+        **HISTORICAL_MBS_SF_CATEGORIES, 
+        **HISTORICAL_FACTOR_CATEGORIES,
+        **HISTORICAL_MULTIFAMILY_CATEGORIES,
+    }
     
     # Base URL for historical file downloads
     HISTORICAL_DOWNLOAD_BASE = "https://bulk.ginniemae.gov/protectedfiledownload.aspx?dlfile=data_history_cons\\"
@@ -1336,19 +1419,24 @@ Time: {datetime.now(timezone.utc).isoformat()}
         logger.info(f"Generated {len(files)} historical file URLs from {start_date} to {end_date}")
         return files
     
-    def _scrape_disclosure_history_page(self, category_key: str, is_factor: bool = False) -> list[dict[str, Any]]:
+    def _scrape_disclosure_history_page(self, category_key: str, is_factor: bool = False, is_multifamily: bool = False) -> list[dict[str, Any]]:
         """
         Scrape a Disclosure History page to get the list of available historical files.
         
         Args:
-            category_key: Key from HISTORICAL_MBS_SF_CATEGORIES or HISTORICAL_FACTOR_CATEGORIES
+            category_key: Key from HISTORICAL_MBS_SF_CATEGORIES, HISTORICAL_FACTOR_CATEGORIES, or HISTORICAL_MULTIFAMILY_CATEGORIES
             is_factor: If True, look in HISTORICAL_FACTOR_CATEGORIES
+            is_multifamily: If True, look in HISTORICAL_MULTIFAMILY_CATEGORIES
             
         Returns:
             List of file info dicts with filename, href, file_date, etc.
         """
         # Look up category from appropriate dict
-        if is_factor or category_key in self.HISTORICAL_FACTOR_CATEGORIES:
+        if is_multifamily or category_key in self.HISTORICAL_MULTIFAMILY_CATEGORIES:
+            if category_key not in self.HISTORICAL_MULTIFAMILY_CATEGORIES:
+                raise ValueError(f"Unknown multifamily category: {category_key}")
+            category = self.HISTORICAL_MULTIFAMILY_CATEGORIES[category_key]
+        elif is_factor or category_key in self.HISTORICAL_FACTOR_CATEGORIES:
             if category_key not in self.HISTORICAL_FACTOR_CATEGORIES:
                 raise ValueError(f"Unknown factor category: {category_key}")
             category = self.HISTORICAL_FACTOR_CATEGORIES[category_key]
@@ -1476,9 +1564,34 @@ Time: {datetime.now(timezone.utc).isoformat()}
         logger.info(f"Total Factor historical files discovered: {len(all_files)}")
         return all_files
     
+    def _scrape_all_multifamily_historical(self) -> list[dict[str, Any]]:
+        """
+        Scrape all Multifamily categories from Disclosure History.
+        
+        Returns combined list of all historical multifamily files.
+        """
+        all_files = []
+        
+        for category_key in self.HISTORICAL_MULTIFAMILY_CATEGORIES:
+            try:
+                files = self._scrape_disclosure_history_page(category_key, is_multifamily=True)
+                all_files.extend(files)
+                logger.info(f"Total multifamily files so far: {len(all_files)}")
+                
+                # Small delay to avoid rate limiting
+                time.sleep(2)
+                
+            except Exception as e:
+                logger.error(f"Error scraping multifamily {category_key}: {e}")
+                self._take_screenshot(f"scrape_error_{category_key}")
+                continue
+        
+        logger.info(f"Total Multifamily historical files discovered: {len(all_files)}")
+        return all_files
+    
     def _scrape_all_historical(self) -> list[dict[str, Any]]:
         """
-        Scrape ALL historical categories (MBS SF + Factor).
+        Scrape ALL historical categories (MBS SF + Factor + Multifamily).
         
         Returns combined list of all historical files.
         """
@@ -1486,8 +1599,9 @@ Time: {datetime.now(timezone.utc).isoformat()}
         
         mbs_files = self._scrape_all_mbs_sf_historical()
         factor_files = self._scrape_all_factor_historical()
+        multifamily_files = self._scrape_all_multifamily_historical()
         
-        all_files = mbs_files + factor_files
+        all_files = mbs_files + factor_files + multifamily_files
         logger.info(f"Total ALL historical files discovered: {len(all_files)}")
         return all_files
     
@@ -1720,9 +1834,18 @@ Time: {datetime.now(timezone.utc).isoformat()}
                         logger.info("Scraping ALL Factor historical files from Disclosure History pages...")
                         remote_files = self._scrape_all_factor_historical()
                     results["files_discovered"] = len(remote_files)
+                elif mode == "historical-multifamily":
+                    # Scrape Disclosure History pages for Multifamily files
+                    if historical_category:
+                        logger.info(f"Scraping Multifamily historical files for category: {historical_category}")
+                        remote_files = self._scrape_disclosure_history_page(historical_category, is_multifamily=True)
+                    else:
+                        logger.info("Scraping ALL Multifamily historical files from Disclosure History pages...")
+                        remote_files = self._scrape_all_multifamily_historical()
+                    results["files_discovered"] = len(remote_files)
                 elif mode == "historical-all":
-                    # Scrape ALL historical categories (MBS SF + Factor)
-                    logger.info("Scraping ALL historical files (MBS SF + Factor)...")
+                    # Scrape ALL historical categories (MBS SF + Factor + Multifamily)
+                    logger.info("Scraping ALL historical files (MBS SF + Factor + Multifamily)...")
                     remote_files = self._scrape_all_historical()
                     results["files_discovered"] = len(remote_files)
                 elif mode == "historical":
@@ -1777,7 +1900,7 @@ Time: {datetime.now(timezone.utc).isoformat()}
                     ]
                 
                 # Filter by historical category if specified
-                if mode in ("historical-mbs-sf", "historical-factor", "historical-all") and historical_category:
+                if mode in ("historical-mbs-sf", "historical-factor", "historical-multifamily", "historical-all") and historical_category:
                     category_info = self.ALL_HISTORICAL_CATEGORIES.get(historical_category)
                     if category_info:
                         prefix = category_info["prefix"]
@@ -2020,9 +2143,9 @@ def main():
     parser = argparse.ArgumentParser(description="Ginnie Mae Bulk Download Ingestor")
     parser.add_argument(
         "--mode",
-        choices=["daily", "monthly", "factor", "backfill", "catalog", "historical", "historical-mbs-sf", "historical-factor", "historical-all"],
+        choices=["daily", "monthly", "factor", "backfill", "catalog", "historical", "historical-mbs-sf", "historical-factor", "historical-multifamily", "historical-all"],
         default="daily",
-        help="Run mode: daily/monthly/factor for current files, historical-mbs-sf/historical-factor/historical-all for Disclosure History (2012-present)"
+        help="Run mode: daily/monthly/factor for current files, historical-mbs-sf/historical-factor/historical-multifamily/historical-all for Disclosure History"
     )
     parser.add_argument(
         "--file-types",
